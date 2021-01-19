@@ -51,6 +51,7 @@ public class Reservation implements Serializable {
 	 * and serves to the grocery's specific assets to recognize this specific 
 	 * reservation
 	 */
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int QRcode;
 	
 	/**
@@ -80,6 +81,20 @@ public class Reservation implements Serializable {
 	 * time in which the customer is allowed to get into the store
 	 */
 	private Date bookTime;
+	
+	/**
+	 * Returns a new Reservation (mandatory for JPA rules)
+	 */
+	public Reservation() {}
+	/**
+	 * Returns a new Reservation
+	 */
+	public Reservation(User user, Grocery grocery, ReservationType type, Date bookTime) {
+		this.customer = user;
+		this.grocery = grocery;
+		this.type = type;
+		this.bookTime = bookTime;
+	}
 
 	public int getIdreservation() {
 		return idreservation;
@@ -124,6 +139,10 @@ public class Reservation implements Serializable {
 
 	public ReservationStatus getStatus() {
 		return status;
+	}
+	
+	public void setStatus(ReservationStatus status) {
+		this.status = status;
 	}
 
 	public void setStatus(String status) {
