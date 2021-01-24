@@ -7,5 +7,5 @@ import javax.persistence.PersistenceContext;
 @Stateless
 public abstract class SearchManagement {
 	@PersistenceContext(unitName="SE2-project-CirinoCocchia-EJB")
-	private EntityManager em;
+	protected EntityManager em;
 }

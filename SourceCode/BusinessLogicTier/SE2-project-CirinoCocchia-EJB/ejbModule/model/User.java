@@ -10,6 +10,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -23,7 +24,7 @@ import utils.Roles;
  */
 @Entity
 @Table(name = "user", schema = "db_project_se2")
-@NamedQuery(name = "User.checkCredentials", query = "SELECT r FROM User r  WHERE r.username = ?1 and r.password = ?2")
+@NamedQuery(name = "User.checkCredentials", query = "SELECT r FROM User r  WHERE r.username = :usern and r.password = :pass")
 @NamedQuery(name = "User.findUserByUsername", query = "SELECT r FROM User r  WHERE r.username = :usrn")
 public class User implements Serializable {
 	private static final long serialVersionUID = 1L;
@@ -73,6 +74,12 @@ public class User implements Serializable {
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "owner")
 	private List<Grocery> groceries;
 	
+	/**
+	 * List of groceries in which this user is employed
+	 */
+	@ManyToMany(mappedBy = "employees")
+	private List<Grocery> employedGroceries;
+	
 	public User() {	}
 
 
@@ -93,6 +100,10 @@ public class User implements Serializable {
 		if(this.role == Roles.NONE) {
 			System.err.println(this.iduser + " user:: can't understand role");
 		}
+	}
+	
+	public void setRole(Roles role) {
+		this.role = role;
 	}
 	
 	public String getTelephoneNumber() {
@@ -146,6 +157,24 @@ public class User implements Serializable {
 
 	public void setGroceries(List<Grocery> groceries) {
 		this.groceries = groceries;
-	}	
+	}
+
+
+	public List<Grocery> getEmployedGroceries() {
+		return employedGroceries;
+	}
+
+
+	public void setEmployedGroceries(List<Grocery> employedGroceries) {
+		this.employedGroceries = employedGroceries;
+	}
+	
+	public void addEmployedGrocery(Grocery grocery) {
+		this.employedGroceries.add(grocery);
+	}
+	
+	public void removeEmployedGrocery(Grocery grocery) {
+		this.employedGroceries.remove(grocery);
+	}
 }
 

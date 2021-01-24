@@ -4,12 +4,14 @@ import java.io.Serializable;
 import java.util.List;
 
 import javax.persistence.*;
+import static javax.persistence.CascadeType.ALL;
 
 /**
  * Javabean class for Entity: Grocery
  * This represents a grocery of a grocery store
  */
 @Entity
+@NamedQuery(name = "Grocery.findGroceryByName", query = "SELECT g FROM Grocery g  WHERE g.name = :name")
 public class Grocery implements Serializable {
 
 	
@@ -24,17 +26,24 @@ public class Grocery implements Serializable {
 	
 	/**
 	 * This attribute represents the User class that owns this grocery.
-	 * The user represented yb this attribute is an admin.
+	 * The user represented by this attribute is an admin.
 	 */
 	@ManyToOne(fetch = FetchType.EAGER ,cascade = CascadeType.ALL)
 	@JoinColumn(name = "idowner")
 	private User owner;
-	
 	/**
-	 * This attribute contains the Reservation entities made upon this grocery.
+	 * This attribute represents the queue in which the people can line-up
 	 */
-	@OneToMany(fetch = FetchType.LAZY, mappedBy = "grocery")
-	private List<Reservation> reservations;
+	@OneToOne(cascade = ALL, mappedBy = "grocery")
+	private Queue queue;
+	/**
+	 * This attribute contains all the employees instances for this grocery
+	 */
+	@ManyToMany
+	@JoinTable(name = "employees", 
+		joinColumns = @JoinColumn(name = "idgrocery"),
+		inverseJoinColumns = @JoinColumn(name ="idemployee"))
+	private List<User> employees;
 
 	/**
 	 * This attribute represents the latitude coordinate for this grocery
@@ -150,15 +159,39 @@ public class Grocery implements Serializable {
 	public Grocery() {
 		super();
 	}
-	
-	public List<Reservation> getReservations() {
-		return reservations;
+
+
+
+	public Queue getQueue() {
+		return queue;
 	}
 
 
 
-	public void setReservations(List<Reservation> reservations) {
-		this.reservations = reservations;
+	public void setQueue(Queue queue) {
+		this.queue = queue;
+	}
+
+
+
+	public List<User> getEmployees() {
+		return employees;
+	}
+
+
+
+	public void setEmployees(List<User> employees) {
+		this.employees = employees;
+	}
+	
+	public void addEmployee(User employee) {
+		this.employees.add(employee);
+		employee.addEmployedGrocery(this);
+	}
+	
+	public void removeEmployee(User employee) {
+		employee.removeEmployedGrocery(this);
+		this.removeEmployee(employee);
 	}
 
    

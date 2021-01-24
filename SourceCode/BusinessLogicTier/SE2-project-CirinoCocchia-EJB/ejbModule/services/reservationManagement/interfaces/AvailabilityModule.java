@@ -1,26 +1,29 @@
 package services.reservationManagement.interfaces;
 
-import java.sql.Timestamp;
+import java.util.Date;
 import java.util.List;
 
 import javax.ejb.Stateless;
 
-import model.Grocery;
 import model.Reservation;
 import services.macrocomponents.ReservationManagement;
 import services.reservationManagement.imlpementation.AvailabilityModuleImplementation;
-import services.reservationManagement.imlpementation.ReservationHandlerImplementation;
 import utils.ReservationType;
 
 @Stateless
 public abstract class AvailabilityModule extends ReservationManagement{
 	/**
-	 * Checks the availability of a certain grocery for a certain type of reservation
+	 * Checks the availability of a certain grocery for a certain type of reservation for a certain
+	 * time
+	 * @param idcustomer id of the customer that made the request
 	 * @param resType type of the reservation to be checked
-	 * @param grocery grocery for which check the availability
+	 * @param idgrocery id of the grocery for which check the availability
+	 * @param timestamp time for which check the availability
+	 * @param lat latitude from which the customer has made the request
+	 * @param lon longitude from which the customer has made the request
 	 * @return List of the reservations available for a certain Grocery
 	 */
-	public abstract List<Reservation> checkAvailability(ReservationType resType, Grocery grocery, Timestamp timestamp);
+	public abstract List<Reservation> checkAvailability(int idcustomer, ReservationType resType, int idgrocery, Date timestamp, double lat, double lon);
 	/**
 	 * Checks if a reservation is available 
 	 * @param reservation reservation to check

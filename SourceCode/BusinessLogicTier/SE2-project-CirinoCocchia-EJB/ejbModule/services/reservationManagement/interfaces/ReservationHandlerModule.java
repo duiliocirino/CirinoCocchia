@@ -1,9 +1,10 @@
 package services.reservationManagement.interfaces;
 
-import java.sql.Date;
+import java.util.Date;
 
 import javax.ejb.Stateless;
 
+import model.Position;
 import model.Reservation;
 import services.macrocomponents.ReservationManagement;
 import services.reservationManagement.imlpementation.ReservationHandlerImplementation;
@@ -13,14 +14,15 @@ import utils.ReservationType;
 public abstract class ReservationHandlerModule extends ReservationManagement{
 	
 	/**
-	 * Adds a reservation into the system. It assigns the QR code and the right status
+	 * Adds a reservation into the system. It assigns the OPEN status and an estimated time
 	 * @param iduser id of the user that makes the reservation
 	 * @param idgrocery id of the grocery in which the user is doing the reservation
 	 * @param type type of reservation
 	 * @param bookTime time of the book-a-visit (can be null)
+	 * @param position position from which the user is doing the reservation
 	 * @return New instance of Reservation created, null if it encountered some problem
 	 */
-	public abstract Reservation addReservation(int iduser, int idgrocery, ReservationType type, Date bookTime);
+	public abstract Reservation addReservation(int iduser, int idgrocery, ReservationType type, Date bookTime, Position position);
 	/**
 	 * Edits a reservation by removing the one passed and adding another one with the parameters passed. 
 	 * If this would not be possible, then no change is made and null is returned.
@@ -45,6 +47,12 @@ public abstract class ReservationHandlerModule extends ReservationManagement{
 	 *  otherwise
 	 */
 	public abstract Reservation getReservation(int idreservation);
+	/**
+	 * Closes a reservation basing on its id
+	 * @param idreservation id of the reservation to close
+	 * @return 0 if no problem arises, -1 otherwise
+	 */
+	public abstract int closeReservation(int idreservation);
 	/**
 	 * @return gets the instance of the implementation of this class
 	 */

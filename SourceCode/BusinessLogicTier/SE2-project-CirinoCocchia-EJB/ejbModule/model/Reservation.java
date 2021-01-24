@@ -1,12 +1,15 @@
 package model;
 
 import java.io.Serializable;
-import java.sql.Date;
+import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.persistence.*;
 
 import utils.ReservationStatus;
 import utils.ReservationType;
+import static javax.persistence.TemporalType.TIMESTAMP;
 
 /**
  * Javabean class for Entity: Reservation
@@ -15,6 +18,19 @@ import utils.ReservationType;
  * on the definition).
  */
 @Entity
+@NamedQueries({ 
+	@NamedQuery(name = "Reservation.findAllByGrocery", query = 
+			"SELECT r "
+			+ "FROM Reservation r JOIN r.queue q "
+			+ "WHERE q.grocery = :grocery"),
+	@NamedQuery(name = "Reservation.findByInterval", query = 
+	"SELECT r "
+	+ "FROM Reservation r "
+	+ "WHERE r.queue = :queue AND r.estimatedTime BETWEEN :start AND :end"),
+	@NamedQuery(name = "Reservation.findByEndVisitInterval", query = 
+	"SELECT r "
+	+ "FROM Reservation r "
+	+ "WHERE r.queue = :queue AND r.timeExit BETWEEN :start AND :end")})
 public class Reservation implements Serializable {
 	private static final long serialVersionUID = 1L;
 
@@ -36,9 +52,9 @@ public class Reservation implements Serializable {
 	 * Entity representing the grocery for which the reservation
 	 * has been made
 	 */
-	@ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-	@JoinColumn(name = "idgrocery")
-	private Grocery grocery;
+	@OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+	@JoinColumn(name = "idqueue")
+	private Queue queue;
 	
 	/**
 	 * Type of the reservation
@@ -53,7 +69,12 @@ public class Reservation implements Serializable {
 	 */
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int QRcode;
-	
+	/**
+	 * This attribute identifies the estimated time for which the customer
+	 * will be allowed to be lined-up to the grocery's queue
+	 */
+	@Temporal(TIMESTAMP)
+	private Date estimatedTime;
 	/**
 	 * Status of the reservation
 	 */
@@ -69,11 +90,13 @@ public class Reservation implements Serializable {
 	/**
 	 * This attribute tracks the time in which the customer entered into the grocery store
 	 */
+	@Temporal(TIMESTAMP)
 	private Date timeEntrance;
 	
 	/**
 	 * This attribute tracks the time in which the customer got out from the store
 	 */
+	@Temporal(TIMESTAMP)
 	private Date timeExit;
 	
 	/**
@@ -81,6 +104,12 @@ public class Reservation implements Serializable {
 	 * time in which the customer is allowed to get into the store
 	 */
 	private Date bookTime;
+	/**
+	 * This attribute is related to the estimation time. When this timer ends,
+	 * the reservation has the right to get into the queue's ALLOWED reservations
+	 */
+	@Transient
+	private Timer queueTimer;
 	
 	/**
 	 * Returns a new Reservation (mandatory for JPA rules)
@@ -91,9 +120,10 @@ public class Reservation implements Serializable {
 	 */
 	public Reservation(User user, Grocery grocery, ReservationType type, Date bookTime) {
 		this.customer = user;
-		this.grocery = grocery;
+		this.queue = grocery.getQueue();
 		this.type = type;
 		this.bookTime = bookTime;
+		this.status = ReservationStatus.NONE;
 	}
 
 	public int getIdreservation() {
@@ -111,15 +141,23 @@ public class Reservation implements Serializable {
 	public void setCustomer(User customer) {
 		this.customer = customer;
 	}
-
+	
+	public Queue getQueue() {
+		return queue;
+	}
+	public void setQueue(Queue queue) {
+		this.queue = queue;
+	}
 	public Grocery getGrocery() {
-		return grocery;
+		return this.queue.getGrocery();
 	}
-
-	public void setGrocery(Grocery grocery) {
-		this.grocery = grocery;
+	
+	public Date getEstimatedTime() {
+		return estimatedTime;
 	}
-
+	public void setEstimatedTime(Date estimatedTime) {
+		this.estimatedTime = estimatedTime;
+	}
 	public ReservationType getType() {
 		return type;
 	}
@@ -181,7 +219,11 @@ public class Reservation implements Serializable {
 	public void setBookTime(Date bookTime) {
 		this.bookTime = bookTime;
 	}
-	
-	
-   
+	public Timer getQueueTimer() {
+		return queueTimer;
+	}
+	public void setQueueTimer(Timer queueTimer) {
+		this.queueTimer = queueTimer;
+	}
+	   
 }

@@ -2,7 +2,7 @@ package utils;
 
 public enum Roles {
 	
-	VISITOR("visitor"), REG_CUSTOMER("reg_customer"), ADMIN("admin"), EMPLOYEE("employee"), NONE("none");
+	VISITOR("visitor"), REG_CUSTOMER("reg_customer"), MANAGER("manager"), EMPLOYEE("employee"), NONE("none");
 	
 	private String role;
 	
@@ -19,8 +19,8 @@ public enum Roles {
 			return VISITOR;
 		} else if(role.equals("reg_customer")) {
 			return REG_CUSTOMER;
-		}  else if(role.equals("admin")) {
-			return ADMIN;
+		}  else if(role.equals("manager")) {
+			return MANAGER;
 		}  else if(role.equals("employee")) {
 			return EMPLOYEE;
 		}  else {

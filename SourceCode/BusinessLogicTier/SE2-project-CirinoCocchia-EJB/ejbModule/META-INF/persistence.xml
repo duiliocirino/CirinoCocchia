@@ -6,5 +6,6 @@
 		<class>model.Reservation</class>
 		<class>model.Grocery</class>
 		<class>model.Employees</class>
+		<class>model.Queue</class>
 	</persistence-unit>
 </persistence>
