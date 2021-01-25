@@ -39,10 +39,14 @@ public abstract class MonitorModule extends GroceryManagement {
 	 * Retrieves the statistics for a certain GroceryData
 	 * @param idgrocery id of the grocery for which retrieve the statistics
 	 * @param groceryData GroceryData instance for which retrieve the data
+	 * @param date date from which calculate the statistics. If the period of time is 
+	 * not sufficient to calculate statistics, then the minimum period of time is taken.
+	 * Even null can be passed: in this case for each field the minimum period of time 
+	 * is taken. 
 	 * @return statistic relative to the groceryData passed as an argument for 
 	 * the grocery store specified
 	 */
-	public abstract float getGroceryStats (int idgrocery, GroceryData groceryData);
+	public abstract float getGroceryStats (int idgrocery, GroceryData groceryData, Date date);
 	
 	public static MonitorModule getInstance() {
 		return new MonitorModuleImplementation();

@@ -11,6 +11,7 @@ import static javax.persistence.CascadeType.ALL;
  * This represents a grocery of a grocery store
  */
 @Entity
+@NamedQuery(name = "Grocery.findAll", query = "SELECT g FROM Grocery g")
 @NamedQuery(name = "Grocery.findGroceryByName", query = "SELECT g FROM Grocery g  WHERE g.name = :name")
 public class Grocery implements Serializable {
 

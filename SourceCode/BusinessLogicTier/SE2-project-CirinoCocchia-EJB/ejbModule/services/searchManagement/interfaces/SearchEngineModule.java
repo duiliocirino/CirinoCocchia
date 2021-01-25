@@ -6,7 +6,6 @@ import javax.ejb.Stateless;
 
 import model.Grocery;
 import model.Position;
-import model.User;
 import services.macrocomponents.SearchManagement;
 
 @Stateless
@@ -18,13 +17,14 @@ public abstract class SearchEngineModule extends SearchManagement {
 	 * @return list of groceries into the circle with the radius passed as an argument and with
 	 * the centre on the position specified
 	 */
-	public abstract List<Grocery> getNearGroceries(Position position, long radius);
+	public abstract List<Grocery> getNearGroceries(Position position, double radius);
 	/**
 	 * Retrieves all the groceries marked as favourite for the user
-	 * @param user user for which do the research
+	 * @param iduser user for which do the research
+	 * @param nfavourites maximum number of favourite groceries to retrieve
 	 * @return list of favourite groceries
 	 */
-	public abstract List<Grocery> getFavouriteGroceries(User user);
+	public abstract List<Grocery> getFavouriteGroceries(int iduser, int nFavourites);
 	/**
 	 * Checks if a position is near to a certain grocery given a radius
 	 * @param position centre of the research's circle
@@ -32,5 +32,5 @@ public abstract class SearchEngineModule extends SearchManagement {
 	 * @param radius radius of the research's circle
 	 * @return true if it is into the circle, false otherwise
 	 */
-	public abstract boolean isNear(Position position, int idgrocery, long radius);
+	public abstract boolean isNear(Position position, int idgrocery, double radius);
 }

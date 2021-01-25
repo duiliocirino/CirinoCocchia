@@ -1,6 +1,5 @@
 package services.groceryManagement.implementation;
 
-import model.Employees;
 import model.Grocery;
 import model.User;
 import services.groceryManagement.interfaces.EmployeesModule;

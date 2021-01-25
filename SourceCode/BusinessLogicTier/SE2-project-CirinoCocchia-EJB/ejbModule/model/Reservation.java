@@ -3,7 +3,6 @@ package model;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Timer;
-import java.util.TimerTask;
 
 import javax.persistence.*;
 
@@ -23,6 +22,15 @@ import static javax.persistence.TemporalType.TIMESTAMP;
 			"SELECT r "
 			+ "FROM Reservation r JOIN r.queue q "
 			+ "WHERE q.grocery = :grocery"),
+	@NamedQuery(name = "Reservation.findCustomersFavourites", query = 
+	"SELECT r "
+	+ "FROM Reservation r JOIN r.queue q "
+	+ "WHERE r.customer = :customer "
+	+ "GROUP BY q.grocery "
+	+ "HAVING :nFav < (SELECT COUNT(r2) FROM Reservation r2 JOIN r2.queue q2 "
+		+ "WHERE r2.customer = :customer "
+		+ "GROUP BY q.grocery "
+		+ "HAVING COUNT(r2) > COUNT(r))"),
 	@NamedQuery(name = "Reservation.findByInterval", query = 
 	"SELECT r "
 	+ "FROM Reservation r "
@@ -30,7 +38,15 @@ import static javax.persistence.TemporalType.TIMESTAMP;
 	@NamedQuery(name = "Reservation.findByEndVisitInterval", query = 
 	"SELECT r "
 	+ "FROM Reservation r "
-	+ "WHERE r.queue = :queue AND r.timeExit BETWEEN :start AND :end")})
+	+ "WHERE r.queue = :queue AND r.timeExit BETWEEN :start AND :end"),
+	@NamedQuery(name = "Reservation.TotalVisitsInInterval", query = 
+	"SELECT COUNT(r) "
+	+ "FROM Reservation r "
+	+ "WHERE r.queue = :queue AND r.timeEntrance > :start AND r.timeExit < :end "),
+	@NamedQuery(name = "Reservation.TotalTimeSpentInInterval", query = 
+	"SELECT FUNCTION('getVisitMinutes', r.timeEntrance, r.timeExit) "
+	+ "FROM Reservation r "
+	+ "WHERE r.queue = :queue AND r.timeEntrance > :start AND r.timeExit < :end ")})
 public class Reservation implements Serializable {
 	private static final long serialVersionUID = 1L;
 
@@ -103,6 +119,7 @@ public class Reservation implements Serializable {
 	 * This attribute serves to the book-a-visit functionality to track the 
 	 * time in which the customer is allowed to get into the store
 	 */
+	@Temporal(TIMESTAMP)
 	private Date bookTime;
 	/**
 	 * This attribute is related to the estimation time. When this timer ends,

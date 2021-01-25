@@ -8,7 +8,6 @@ import javax.ejb.Stateless;
 
 import model.Grocery;
 import model.Position;
-import model.Queue;
 import model.Reservation;
 import model.User;
 import services.reservationManagement.interfaces.QueueUpdateManagement;
@@ -33,7 +32,6 @@ public class ReservationHandlerImplementation extends ReservationHandlerModule {
 	public Reservation addReservation(int iduser, int idgrocery, ReservationType type, Date bookTime, Position position) {
 		User user = em.find(User.class,  iduser);
 		Grocery grocery = em.find(Grocery.class,  idgrocery);
-		Queue queue = grocery.getQueue();
 		
 		if(grocery == null || user == null) {
 			return null;
