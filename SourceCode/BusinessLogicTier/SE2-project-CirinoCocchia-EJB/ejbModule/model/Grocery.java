@@ -1,6 +1,7 @@
 package model;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.*;
@@ -44,7 +45,7 @@ public class Grocery implements Serializable {
 	@JoinTable(name = "employees", 
 		joinColumns = @JoinColumn(name = "idgrocery"),
 		inverseJoinColumns = @JoinColumn(name ="idemployee"))
-	private List<User> employees;
+	private List<User> employees = new ArrayList<User>();
 
 	/**
 	 * This attribute represents the latitude coordinate for this grocery
@@ -186,13 +187,17 @@ public class Grocery implements Serializable {
 	}
 	
 	public void addEmployee(User employee) {
-		this.employees.add(employee);
-		employee.addEmployedGrocery(this);
+		if(employee != null) {
+			this.employees.add(employee);
+			employee.addEmployedGrocery(this);
+		}
 	}
 	
 	public void removeEmployee(User employee) {
-		employee.removeEmployedGrocery(this);
-		this.removeEmployee(employee);
+		if(employee != null) {
+			this.employees.remove(employee);
+			employee.removeEmployedGrocery(this);
+		}
 	}
 
    

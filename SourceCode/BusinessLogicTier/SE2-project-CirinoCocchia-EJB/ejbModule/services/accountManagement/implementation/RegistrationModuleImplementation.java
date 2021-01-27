@@ -2,16 +2,20 @@ package services.accountManagement.implementation;
 
 import java.util.List;
 
+import exceptions.CLupException;
 import model.User;
 import services.accountManagement.interfaces.RegistrationModule;
 import utils.Roles;
 
+/**
+ * This class implements the RegistrationModule interface
+ */
 public class RegistrationModuleImplementation extends RegistrationModule {
 
 	@Override
-	public User register(Roles role, String telephoneNum, String username, String password, String email) {
-		if(role == Roles.NONE) {
-			return null;
+	public User register(Roles role, String telephoneNum, String username, String password, String email) throws CLupException {
+		if(role == Roles.NONE || role == Roles.VISITOR) {
+			throw new CLupException("Can't add a NONE role or a VISITOR one");
 		}
 		
 		User newUser = new User();
@@ -21,16 +25,22 @@ public class RegistrationModuleImplementation extends RegistrationModule {
 		newUser.setPassword(password);
 		newUser.setEmail(email);
 		
-		em.persist(newUser);
+		User userWithUsername = getUserByUsername(username);
+		
+		if(userWithUsername == null) {
+			persistUser(newUser);
+		} else {
+			throw new CLupException("There is another user with that username yet");
+		}
 		
 		return newUser;
 	}
 
 	@Override
-	public User editProfile(int iduser, String telephoneNum, String username, String password, String email) {
-		User user = em.find(User.class, iduser);
+	public User editProfile(int iduser, String telephoneNum, String username, String password, String email) throws CLupException {
+		User user = findUser(iduser);
 		if(user == null) {
-			return null;
+			throw new CLupException("Can't find the user");
 		}
 		
 		if(telephoneNum != null) {
@@ -38,11 +48,11 @@ public class RegistrationModuleImplementation extends RegistrationModule {
 		}
 		
 		if(username != null) {
-			List<User> usernames = em.createNamedQuery("User.findUserByUsername", User.class)
-					.setParameter("usrn", username)
-					.getResultList();
-			if(usernames.isEmpty()) {
+			User userWithUsername = getUserByUsername(username);
+			if(userWithUsername == null) {
 				user.setUsername(username);
+			} else {
+				throw new CLupException("There is already another user with that username");
 			}
 		}
 		
@@ -58,13 +68,37 @@ public class RegistrationModuleImplementation extends RegistrationModule {
 
 	@Override
 	public User getUserByUsername(String username) {
-		List<User> usernames = em.createNamedQuery("User.findUserByUsername", User.class)
-				.setParameter("usrn", username)
-				.getResultList();
-		if(usernames.isEmpty()) {
+		List<User> usernames = namedQueryUserFindUserByUsername(username);
+		if(!usernames.isEmpty()) {
 			return usernames.get(0);
 		} else {
 			return null;
 		}
+	}
+	
+	/**
+	 * Decouple the invocation of entity manager
+	 * @param iduser id of the user to be searched
+	 * @return the result of em.find
+	 */
+	protected User findUser(int iduser) {
+		return em.find(User.class, iduser);
+	}
+	/**
+	 * Decouple the invocation of entity manager 
+	 * @param user user to be persisted
+	 */
+	protected void persistUser(User user) {
+		em.persist(user);
+	}
+	/**
+	 * Decouple the invocation of entity manager
+	 * @param usrn username to be searched
+	 * @return result of the namedQuery User.findUserByUsername
+	 */
+	protected List<User> namedQueryUserFindUserByUsername(String usrn) {
+		return em.createNamedQuery("User.findUserByUsername", User.class)
+				.setParameter("usrn", usrn)
+				.getResultList();
 	}
 }

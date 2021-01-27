@@ -1,6 +1,7 @@
 package model;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Entity;
@@ -66,19 +67,19 @@ public class User implements Serializable {
 	 * List of reservations made by this user
 	 */
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "customer")
-	private List<Reservation> reservations;
+	private List<Reservation> reservations = new ArrayList<Reservation>();
 	
 	/**
 	 * List of groceries owned by this user
 	 */
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "owner")
-	private List<Grocery> groceries;
+	private List<Grocery> groceries = new ArrayList<Grocery>();
 	
 	/**
 	 * List of groceries in which this user is employed
 	 */
 	@ManyToMany(mappedBy = "employees")
-	private List<Grocery> employedGroceries;
+	private List<Grocery> employedGroceries = new ArrayList<Grocery>();
 	
 	public User() {	}
 

@@ -1,6 +1,7 @@
 package model;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -37,7 +38,7 @@ public class Queue implements Serializable {
 	@OneToMany(fetch = FetchType.EAGER, 
 			mappedBy = "queue", 
 			orphanRemoval = true)
-	private List<Reservation> reservations;
+	private List<Reservation> reservations = new ArrayList<Reservation>();
 
 	public Queue() {
 	}
@@ -83,8 +84,8 @@ public class Queue implements Serializable {
 	public boolean isFull() {
 		int inside = reservations.stream()
 				.filter(x -> x.getStatus() == ReservationStatus.ENTERED)
-				.collect(Collectors.toList()).
-				size();
+				.collect(Collectors.toList())
+				.size();
 		int max = grocery.getMaxSpotsInside();
 		
 		return(inside == max);

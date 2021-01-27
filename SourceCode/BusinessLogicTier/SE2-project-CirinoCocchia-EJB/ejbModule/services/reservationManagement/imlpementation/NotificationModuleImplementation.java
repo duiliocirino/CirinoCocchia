@@ -3,6 +3,7 @@ package services.reservationManagement.imlpementation;
 import java.util.List;
 
 import javax.ejb.Stateless;
+import javax.ws.rs.ProcessingException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
@@ -19,7 +20,8 @@ import services.reservationManagement.interfaces.NotificationModule;
 public class NotificationModuleImplementation extends NotificationModule{
 
 	@Override
-	public double rideTime(Position origin, Position end) {
+	public double rideTime(Position origin, Position end)
+		throws ProcessingException{
 		// https://openrouteservice.org/dev/#/api-docs/v2/matrix/{profile}/post
 		// IMPORTANT!!!! This key api is Lorenzo Cocchia's property
 		// Contact me at lorenzo.cocchia@mail.polimi.it		

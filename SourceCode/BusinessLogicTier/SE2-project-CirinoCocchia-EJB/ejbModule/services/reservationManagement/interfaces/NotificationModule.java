@@ -3,6 +3,7 @@ package services.reservationManagement.interfaces;
 import java.util.List;
 
 import javax.ejb.Stateless;
+import javax.ws.rs.ProcessingException;
 
 import model.Position;
 import model.User;
@@ -16,8 +17,11 @@ public abstract class NotificationModule extends ReservationManagement {
 	 * @param origin position from which the ride starts
 	 * @param end position in which the ride will end
 	 * @return estimated time to ride from origin to end
+	 * @throws ProcessingException in the case in which the server
+	 * is unable to establish an Internet Connection
 	 */
-	public abstract double rideTime(Position origin, Position end);
+	public abstract double rideTime(Position origin, Position end) 
+		throws ProcessingException;
 	/**
 	 * Notify a set of users with a String message
 	 * @param users list of users to be notified
