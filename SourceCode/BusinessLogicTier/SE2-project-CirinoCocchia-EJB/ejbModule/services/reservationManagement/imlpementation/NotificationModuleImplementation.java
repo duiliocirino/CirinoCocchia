@@ -28,9 +28,9 @@ public class NotificationModuleImplementation extends NotificationModule{
 		// 5b3ce3597851110001cf6248cfa7da2f1b6742ce8054fc74984f37aa&
 		
 		Client client = ClientBuilder.newClient();
-		Entity<String> payload = Entity.json("'locations':"
+		Entity<String> payload = Entity.json("{\"locations\":"
 				+ "[[" + origin.getLat() + "," + origin.getLon() + "],"
-				+ "[" + end.getLat() + "," + end.getLon() + "]]");
+				+ "[" + end.getLat() + "," + end.getLon() + "]]}");
 		Response response = client.target("https://api.openrouteservice.org/v2/matrix/driving-car")
 		  .request()
 		  .header("Authorization", "5b3ce3597851110001cf6248cfa7da2f1b6742ce8054fc74984f37aa")

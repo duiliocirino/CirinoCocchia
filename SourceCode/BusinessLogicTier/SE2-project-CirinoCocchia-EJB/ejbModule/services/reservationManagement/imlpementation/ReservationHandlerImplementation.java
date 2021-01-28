@@ -86,7 +86,6 @@ public class ReservationHandlerImplementation extends ReservationHandlerModule {
 	
 	@Override
 	public Reservation getReservation(int idreservation) {
-		
 		return em.find(Reservation.class, idreservation);
 	}
 
@@ -99,7 +98,7 @@ public class ReservationHandlerImplementation extends ReservationHandlerModule {
 		}
 		// this operation closes the reservation too
 		reservation.getQueue().removeReservation(reservation);
-		// 
+		
 		em.detach(reservation);
 		
 		return 0;

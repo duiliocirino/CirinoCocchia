@@ -1,12 +1,15 @@
 package services.reservationManagement.imlpementation;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 
+import exceptions.CLupException;
 import model.Grocery;
 import model.Position;
 import model.Queue;
@@ -26,41 +29,64 @@ public class QueueUpdateManagementImplementation extends QueueUpdateManagement{
 	private TimeEstimationModule timeEstimationMod;
 	
 	@Override
-	public int refreshQueue(Grocery grocery) {
+	public void refreshQueue(Grocery grocery) {
 		Queue queue = grocery.getQueue();
 		
-		for(Reservation res : queue.getReservations()) {
-			
+		List<Reservation> toRemove = new ArrayList<>();
+		
+		for(Reservation res : queue.getReservations()) {		
 			if(res.getTimeExit() != null) {
 				// close the reservation
-				queue.removeReservation(res);
+				toRemove.add(res);
 			}
 		}
 		
-		return 0;
-	}
-
-	@Override
-	public int lineUp(int iduser, int idgrocery, double lat, double lon) {
-		Position position = new Position(lat, lon);
-		Reservation reservation = reservationHandler
-				.addReservation(iduser, idgrocery, ReservationType.LINEUP, null, position);
-		if(reservation == null) {
-			return -1;
-		} else {
-			setReservationTimer(reservation);
-			return 0;
+		for(Reservation res : toRemove) {
+			queue.removeReservation(res);
 		}
 	}
 	
 	@Override
-	public void setReservationTimer(Reservation reservation) {
+	public boolean setIntoTheStore(int idreservation) throws CLupException {
+		Reservation reservation = findReservation(idreservation);
+		
+		if(reservation == null) {
+			throw new CLupException("id of the reservation passed not existent on the DB");
+		}		
+		if(reservation.getStatus() != ReservationStatus.ALLOWED) {
+			throw new CLupException("Can't get into the store without having a ALLOWED reservation");
+		}
+		
+		Queue queue = reservation.getQueue();
+		
+		if(queue.isFull()) {
+			return false;
+		}
+		
+		reservation.setStatus(ReservationStatus.ENTERED);
+		return true;
+		
+	}
+
+	@Override
+	public Reservation lineUp(int iduser, int idgrocery, double lat, double lon) throws CLupException {
+		Position position = new Position(lat, lon);
+		Reservation reservation = invokeAddReservation(iduser, idgrocery, ReservationType.LINEUP, null, position);
+		if(reservation == null) {
+			throw new CLupException("There was some error in creating the reservation");
+		} else {
+			return setReservationTimer(reservation);
+		}
+	}
+	
+	@Override
+	public Reservation setReservationTimer(Reservation reservation) {
 		Timer timer = new Timer();
 		Queue queue = reservation.getQueue();
 		TimerTask task = new TimerTask() {
 			public void run() {
 				// align the reservation with the one on the DB
-				em.refresh(reservation);
+				refresh(reservation);
 				if(reservation.getStatus() == ReservationStatus.OPEN) {
 					queue.addReservation(reservation);
 				}
@@ -68,14 +94,27 @@ public class QueueUpdateManagementImplementation extends QueueUpdateManagement{
 		};
 		// schedule a check when the estimated time will be ended
 		timer.schedule(task, reservation.getEstimatedTime());
-		reservation.setQueueTimer(timer);	
+		reservation.setQueueTimer(timer);
+		return reservation;
 	}
 
 	@Override
 	public int bookAVisit(int iduser, int idgrocery, Date bookTime) {
-		// not implemented for specifications reasons
+		// TODO: delete, out of focus with the scope
 		return 0;
 	}
-
+	
+	protected Reservation findReservation(int idreservation) {
+		return em.find(Reservation.class,  idreservation);
+	}
+	
+	protected Reservation invokeAddReservation(int iduser, int idgrocery, ReservationType type, Date date, Position position) {
+		return reservationHandler
+				.addReservation(iduser, idgrocery, ReservationType.LINEUP, null, position);
+	}
+	
+	protected void refresh(Reservation reservation) {
+		em.refresh(reservation);
+	}
 	
 }

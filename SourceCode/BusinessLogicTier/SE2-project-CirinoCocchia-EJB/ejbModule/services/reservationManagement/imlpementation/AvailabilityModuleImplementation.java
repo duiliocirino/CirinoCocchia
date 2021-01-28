@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.ejb.EJB;
 
+import exceptions.CLupException;
 import model.Grocery;
 import model.Position;
 import model.Reservation;
@@ -21,15 +22,22 @@ public class AvailabilityModuleImplementation extends AvailabilityModule{
 	private TimeEstimationModule timeEstimationMod;
 	
 	@Override
-	public List<Reservation> checkAvailability(int idcustomer, ReservationType resType, int idgrocery, Date timestamp, double lat, double lon) {
-		User customer = em.find(User.class, idcustomer);
-		Grocery grocery = em.find(Grocery.class, idgrocery);		
+	public List<Reservation> checkAvailability(int idcustomer, ReservationType resType, int idgrocery, Date timestamp, double lat, double lon) throws CLupException {
+		User customer = findUser(idcustomer);
+		Grocery grocery = findGrocery(idgrocery);		
 		Position position = new Position(lat, lon);
 		List<Reservation> reservations = new ArrayList<Reservation>();
 				
-		Reservation reservation = new Reservation(customer, grocery, resType, timestamp);
-		timeEstimationMod.estimateTime(reservation.getIdreservation(), position);
+		if(customer == null) {
+			throw new CLupException("There is no user with that id");
+		}
 		
+		if(grocery == null) {
+			throw new CLupException("There is no grocery with that id");
+		}
+		
+		Reservation reservation = new Reservation(customer, grocery, resType, timestamp);
+		invokeEstimateTime(reservation, position);
 		reservations.add(reservation);
 		
 		return reservations;
@@ -37,8 +45,20 @@ public class AvailabilityModuleImplementation extends AvailabilityModule{
 
 	@Override
 	public boolean isAvailable(Reservation reservation) {
-		// TODO Auto-generated method stub
+		// TODO delete, method out of focus
 		return false;
+	}
+	
+	protected User findUser(int iduser) {
+		return em.find(User.class, iduser);
+	}
+	
+	protected Grocery findGrocery(int idgrocery) {
+		return em.find(Grocery.class, idgrocery);
+	}
+	
+	protected void invokeEstimateTime(Reservation reservation, Position position) {
+		timeEstimationMod.estimateTime(reservation.getIdreservation(), position);
 	}
 
 }
