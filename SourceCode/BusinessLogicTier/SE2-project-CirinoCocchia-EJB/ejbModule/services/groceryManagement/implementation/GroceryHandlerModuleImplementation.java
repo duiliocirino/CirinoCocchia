@@ -2,6 +2,7 @@ package services.groceryManagement.implementation;
 
 import java.util.List;
 
+import exceptions.CLupException;
 import model.Grocery;
 import model.Position;
 import model.User;
@@ -11,21 +12,28 @@ import utils.Roles;
 public class GroceryHandlerModuleImplementation extends GroceryHandlerModule {
 
 	@Override
-	public Grocery addGrocery(String name, Position position, int maxSpotsInside, int idowner) {
+	public Grocery addGrocery(String name, Position position, int maxSpotsInside, int idowner) throws CLupException {
 		Grocery grocery = new Grocery();
-		User owner = em.find(User.class,  idowner);
+		User owner = findUser(idowner);
 		
 		if(owner == null) {
-			return null;
+			throw new CLupException("Future owner of the grocery does "
+					+ "not exist");
+		}
+		
+		if(name == null || name.isBlank()) {
+			throw new CLupException("Name can't be null or blank");
+		}
+		
+		if(position == null) {
+			throw new CLupException("Name can't be null or blank");
 		}
 		
 		if(owner.getRole() != Roles.MANAGER) {
-			return null;
+			throw new CLupException("Not-manager users can't add new groceries");
 		}
 		
-		List<Grocery> names = em.createNamedQuery("Grocery.findGroceryByName", Grocery.class)
-				.setParameter("name", name)
-				.getResultList();
+		List<Grocery> names = namedQueryGroceryFindGroceryByName(name);
 		
 		if(!names.isEmpty()) {
 			return null;
@@ -37,26 +45,29 @@ public class GroceryHandlerModuleImplementation extends GroceryHandlerModule {
 		grocery.setMaxSpotsInside(maxSpotsInside);
 		grocery.setOwner(owner);
 		
-		em.persist(grocery);
+		persistGrocery(grocery);
 		
 		return grocery;
 	}
 
 	@Override
-	public Grocery editGrocery(int idgrocery, String name, int maxSpotsInside) {
-		Grocery grocery = em.find(Grocery.class,  idgrocery);
+	public Grocery editGrocery(int idgrocery, String name, int maxSpotsInside) throws CLupException {
+		Grocery grocery = findGrocery(idgrocery);
 		
 		if(grocery == null) {
-			return null;
+			throw new CLupException("Can't find the grocery to edit");
 		}
 		
 		if(name != null) {
-			List<Grocery> names = em.createNamedQuery("Grocery.findGroceryByName", Grocery.class)
-					.setParameter("name", name)
-					.getResultList();
+			if(name.isBlank()) {
+				throw new CLupException("Can't edit the name of a grocery with a blank string");
+			}
+			List<Grocery> names = namedQueryGroceryFindGroceryByName(name);
 			
-			if(!names.isEmpty()) {
+			if(names.isEmpty()) {
 				grocery.setName(name);
+			} else {
+				return null;
 			}
 		}
 		
@@ -64,20 +75,61 @@ public class GroceryHandlerModuleImplementation extends GroceryHandlerModule {
 			grocery.setMaxSpotsInside(maxSpotsInside);
 		}
 		
-		return null;
+		return grocery;
 	}
 
 	@Override
-	public Grocery removeGrocery(int idgrocery) {
-		Grocery grocery = em.find(Grocery.class,  idgrocery);
+	public Grocery removeGrocery(int idgrocery) throws CLupException {
+		Grocery grocery = findGrocery(idgrocery);
 		
 		if(grocery == null) {
-			return null;
+			throw new CLupException("Can't find the grocery to remove");
 		}
 		
-		em.remove(grocery);
+		removeGrocery(grocery);
 		
 		return grocery;
+	}
+	
+	/**
+	 * Decouple the invocation of entity manager
+	 * @param iduser id of the user to be searched
+	 * @return User instance if found something, null otherwise
+	 */
+	protected User findUser(int iduser) {
+		return em.find(User.class, iduser);
+	}
+	/**
+	 * Decouple the invocation of entity manager
+	 * @param idgrocery id of the grocery to be searched
+	 * @return Grocery instance if found something, null otherwise
+	 */
+	protected Grocery findGrocery(int idgrocery) {
+		return em.find(Grocery.class,  idgrocery);
+	}
+	/**
+	 * Decouple the invocation of entity manager
+	 * @param grocery grocery to be persisted
+	 */
+	protected void persistGrocery(Grocery grocery) {
+		em.persist(grocery);
+	}
+	/**
+	 * Decouple the invocation of entity manager
+	 * @param grocery grocery to be removed
+	 */
+	protected void removeGrocery(Grocery grocery) {
+		em.remove(grocery);
+	}
+	/**
+	 * Decouple the invocation of entity manager
+	 * @param name name to be passed to the query
+	 * @return result of the named query Grocery.findGroceryByName
+	 */
+	protected List<Grocery> namedQueryGroceryFindGroceryByName(String name){
+		return em.createNamedQuery("Grocery.findGroceryByName", Grocery.class)
+				.setParameter("name", name)
+				.getResultList();
 	}
 
 

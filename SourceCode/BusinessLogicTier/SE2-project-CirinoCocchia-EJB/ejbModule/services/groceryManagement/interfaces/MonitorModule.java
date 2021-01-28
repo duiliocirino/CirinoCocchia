@@ -5,6 +5,7 @@ import java.util.Map;
 
 import javax.ejb.Stateless;
 
+import exceptions.CLupException;
 import services.macrocomponents.GroceryManagement;
 import services.groceryManagement.implementation.MonitorModuleImplementation;
 import utils.GroceryData;
@@ -33,8 +34,9 @@ public abstract class MonitorModule extends GroceryManagement {
 	 * in the week starting from the date passed as an argument <br>
 	 * AVG_TIME_MONTH: average time spent by the customer inside the store
 	 * in the month starting from the date passed as an argument <br>
+	 * @throws CLupException if the grocery can not be found on the DB
 	 */
-	public abstract Map<GroceryData, Float> getGroceryStats(int idgrocery, Date date);
+	public abstract Map<GroceryData, Float> getGroceryStats(int idgrocery, Date date) throws CLupException;
 	/**
 	 * Retrieves the statistics for a certain GroceryData
 	 * @param idgrocery id of the grocery for which retrieve the statistics
@@ -44,9 +46,12 @@ public abstract class MonitorModule extends GroceryManagement {
 	 * Even null can be passed: in this case for each field the minimum period of time 
 	 * is taken. 
 	 * @return statistic relative to the groceryData passed as an argument for 
-	 * the grocery store specified
+	 * the grocery store specified. -1 if data is not sufficient to do the computation
+	 *  (for example, there are no visits for the selected grocery)
+	 * @throws CLupException if the idgrocery is not relative to a grocery in the db or groceryData
+	 *  is not specified
 	 */
-	public abstract float getGroceryStats (int idgrocery, GroceryData groceryData, Date date);
+	public abstract float getGroceryStats (int idgrocery, GroceryData groceryData, Date date) throws CLupException;
 	
 	public static MonitorModule getInstance() {
 		return new MonitorModuleImplementation();
