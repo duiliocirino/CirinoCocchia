@@ -7,6 +7,7 @@ import java.util.List;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 
+import exceptions.CLupException;
 import model.Position;
 import model.Queue;
 import model.Reservation;
@@ -15,16 +16,32 @@ import utils.ReservationStatus;
 
 @Stateless
 public class TimeEstimationModuleImplementation extends TimeEstimationModule{
-
+	
 	@EJB(name = "services.reservationManagement.implementation/NotificationModuleImplementation")
 	private NotificationModuleImplementation notificationMod;
 	
 	@Override
-	public int estimatedVisitTime(Date estimatedTimestamp, Queue queue) {
+	public double estimatedSpreadTime(Date estimatedTimestamp, Queue queue) throws CLupException {
 		
-		int sizeInterval = 60;
+		if(estimatedTimestamp == null) {
+			throw new CLupException("Can't compute the spread time, null Date");
+		}
+		
+		if(queue == null) {
+			throw new CLupException("Can't compute the spread time, null Queue");
+		}
+		
+		int sizeInterval = INTERVAL_TIME_COMPUTATION_SPREAD_TIME_IN_SEC;
 		
 		Calendar startCal = Calendar.getInstance();
+		int minutes = startCal.get(Calendar.MINUTE);
+
+		startCal.set(Calendar.MINUTE, minutes - MINIMUM_THRESHOLD_MINUTES);
+		
+		if(startCal.getTime().after(estimatedTimestamp)) {
+			throw new CLupException("Can't estimate the spread time, time preceeding now");
+		}
+		
 		startCal.setTime(estimatedTimestamp);
 		int seconds = (int) Math.ceil(startCal.getTimeInMillis()/1000);
 		Calendar endCal = startCal;
@@ -35,24 +52,24 @@ public class TimeEstimationModuleImplementation extends TimeEstimationModule{
 		Date start = startCal.getTime();
 		Date end = endCal.getTime();
 		
-		List<Reservation> res = em.createNamedQuery("Reservation.findByInterval", Reservation.class)
-				.setParameter("queue", queue)
-				.setParameter("start", start)
-				.setParameter("end", end)
-				.getResultList();
+		List<Reservation> res = namedQueryReservationFindByInterval(queue, start, end);
 			
-		if(res.size() < 3) {
-			return 0;
-		} else if(res.size() < 6) {
-			return 60;
+		if(res.size() < INTERVAL_NUMBER_RESERVATIONS_COMPUTATION_SREAD_TIME) {
+			return 0.0;
+		} else if(res.size() < INTERVAL_NUMBER_RESERVATIONS_COMPUTATION_SREAD_TIME * 2) {
+			return ADDITIONAL_TIME_COMPUTATION_SPREAD_TIME_IN_SEC;
 		} else {
-			return 120;
+			return 2 * ADDITIONAL_TIME_COMPUTATION_SPREAD_TIME_IN_SEC;
 		}
 	}
 
 	@Override
-	public double getEstimatedTimeSeconds(int idreservation) {
-		Reservation res = em.find(Reservation.class, idreservation);
+	public double getEstimatedTimeSeconds(int idreservation) throws CLupException {
+		Reservation res = findReservation(idreservation);
+		
+		if(res == null) {
+			throw new CLupException("Can't get esitmated time, no reservation with that id");
+		}
 		
 		Calendar estTime = Calendar.getInstance();
 		estTime.setTime(res.getEstimatedTime());
@@ -61,11 +78,16 @@ public class TimeEstimationModuleImplementation extends TimeEstimationModule{
 	}
 
 	@Override
-	public Date estimateTime(int idreservation, Position position) {
-		Reservation reservation = em.find(Reservation.class, idreservation);
+	public Date estimateTime(Reservation reservation, Position position) throws CLupException {
+
 		if(reservation == null) {
-			return null;
+			throw new CLupException("Can't estimate the time of a null reservation");
 		}
+		
+		if(position == null) {
+			throw new CLupException("Can't estimate the time from a null position");
+		}
+		
 		if(reservation.getStatus() != ReservationStatus.OPEN) {
 			return null;
 		}
@@ -78,7 +100,7 @@ public class TimeEstimationModuleImplementation extends TimeEstimationModule{
 		/**
 		 *  fixed time to be set in order to do pessimistic estimates
 		 */
-		double fix_time = 60;
+		double fix_time = FIX_TIME;
 		/**
 		 *  necessary time to move from the position provided to the selected
 		 *  grocery
@@ -88,32 +110,48 @@ public class TimeEstimationModuleImplementation extends TimeEstimationModule{
 		Position groceryPosition = new Position(
 				reservation.getQueue().getGrocery().getLatitude(),
 				reservation.getQueue().getGrocery().getLongitude());
-		maps_time = notificationMod.rideTime(position, groceryPosition);
-		
-		double totalEstimatedTime = avg_time + fix_time + maps_time;
-		int integerEstimatedTime = (int) Math.ceil(totalEstimatedTime);
-		
+		// invoke ridetime to estimate the movement time
+		maps_time = invokeRideTime(position, groceryPosition);
+		// partial result
+		double totalEstimatedTimeSeconds = avg_time + fix_time + maps_time;
+		int integerEstimatedTimeSeconds = (int) Math.ceil(totalEstimatedTimeSeconds);
+		// transform the result in a date instance to compute spread time
 		Calendar now = Calendar.getInstance();
 		int seconds = (int) Math.ceil(now.getTimeInMillis()/1000);
-		Calendar estimatedCal = now;
-		
-		estimatedCal.set(Calendar.SECOND, seconds + integerEstimatedTime);
+		Calendar estimatedCal = now;	
+		estimatedCal.set(Calendar.SECOND, seconds + integerEstimatedTimeSeconds);
 		Date estimatedTimeIntermediate = estimatedCal.getTime();
 				
 		/**
 		 * time factor that looks at other previously done line-up reservations
 		 * and tries to avoid that too many people overlap in a single time
 		 */
-		int spread_time = estimatedVisitTime(estimatedTimeIntermediate, reservation.getQueue());
-		
+		int spread_time = (int) Math.ceil(estimatedSpreadTime(estimatedTimeIntermediate, reservation.getQueue()));
+		// add the spread time to  the partial result of before
 		seconds = (int) Math.ceil(estimatedCal.getTimeInMillis()/1000);
 		estimatedCal.set(Calendar.SECOND, seconds + spread_time);
 		
 		Date estimatedTime = estimatedCal.getTime();
-				
+		// set the estimated time to the reservation
 		reservation.setEstimatedTime(estimatedTime);
 						
 		return estimatedTime;
+	}
+	
+	protected Reservation findReservation(int idreservation) {
+		return em.find(Reservation.class, idreservation);
+	}
+	
+	protected List<Reservation> namedQueryReservationFindByInterval(Queue queue, Date start, Date end){
+		return em.createNamedQuery("Reservation.findByInterval", Reservation.class)
+				.setParameter("queue", queue)
+				.setParameter("start", start)
+				.setParameter("end", end)
+				.getResultList();
+	}
+	
+	protected double invokeRideTime(Position origin, Position end) {
+		return notificationMod.rideTime(origin, end);
 	}
 
 

@@ -57,8 +57,8 @@ public class AvailabilityModuleImplementation extends AvailabilityModule{
 		return em.find(Grocery.class, idgrocery);
 	}
 	
-	protected void invokeEstimateTime(Reservation reservation, Position position) {
-		timeEstimationMod.estimateTime(reservation.getIdreservation(), position);
+	protected void invokeEstimateTime(Reservation reservation, Position position) throws CLupException {
+		timeEstimationMod.estimateTime(reservation, position);
 	}
 
 }

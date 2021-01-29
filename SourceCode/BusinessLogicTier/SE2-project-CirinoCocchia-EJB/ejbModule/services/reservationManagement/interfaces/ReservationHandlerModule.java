@@ -4,6 +4,7 @@ import java.util.Date;
 
 import javax.ejb.Stateless;
 
+import exceptions.CLupException;
 import model.Position;
 import model.Reservation;
 import services.macrocomponents.ReservationManagement;
@@ -21,25 +22,17 @@ public abstract class ReservationHandlerModule extends ReservationManagement{
 	 * @param bookTime time of the book-a-visit (can be null)
 	 * @param position position from which the user is doing the reservation
 	 * @return New instance of Reservation created, null if it encountered some problem
+	 * @throws CLupException id some parameter is not valid, such as iduser is not relative to a user 
+	 * stored in the DB, idgrocery is not relative to a grocery, or position is null
 	 */
-	public abstract Reservation addReservation(int iduser, int idgrocery, ReservationType type, Date bookTime, Position position);
+	public abstract Reservation addReservation(int iduser, int idgrocery, ReservationType type, Date bookTime, Position position) throws CLupException;
 	/**
-	 * Edits a reservation by removing the one passed and adding another one with the parameters passed. 
-	 * If this would not be possible, then no change is made and null is returned.
-	 * @param idreservation id of the reservation to edit
-	 * @param iduser id of the user that wants to edit the reservation
-	 * @param idgrocery id of the grocery for which the reservation will be made
-	 * @param type type of the reservation to do
-	 * @param bookTime time of the book-a-visit (can be null)
-	 * @return if nothing goes wrong, it returns the new Reservation class, otherwise it returns null
-	 */
-	public abstract Reservation editReservation(int idreservation, int iduser, int idgrocery, ReservationType type, Date bookTime);;
-	/**
-	 * Removes a reservation to the ones tracked by the system
+	 * Removes a reservation to the ones tracked by the system.
 	 * @param reservation reservation to be deleted
 	 * @return reservation just deleted, no more persisted
+	 * @throws CLupException if the passed reservation is null
 	 */
-	public abstract Reservation removeReservation(Reservation reservation);
+	public abstract Reservation removeReservation(Reservation reservation) throws CLupException;
 	/**
 	 * Gets a reservation basing on its id
 	 * @param idreservation id of the reservation to get
@@ -48,16 +41,32 @@ public abstract class ReservationHandlerModule extends ReservationManagement{
 	 */
 	public abstract Reservation getReservation(int idreservation);
 	/**
-	 * Closes a reservation basing on its id
+	 * Closes a reservation basing on its id. The reservation, in any case, is still 
+	 * on the DB for statistics purposes
 	 * @param idreservation id of the reservation to close
-	 * @return 0 if no problem arises, -1 otherwise
+	 * @return 0 if no problem arises
+	 * @throws CLupException if the reservation with that id is not found
 	 */
-	public abstract int closeReservation(int idreservation);
+	public abstract int closeReservation(int idreservation) throws CLupException;
 	/**
 	 * @return gets the instance of the implementation of this class
 	 */
 	public static ReservationHandlerModule getInstance() {
 		return new ReservationHandlerImplementation();
 	}
+	
+	/**
+	 * 
+	 * Edits a reservation by removing the one passed and adding another one with the parameters passed. 
+	 * If this would not be possible, then no change is made and null is returned.
+	 * @param idreservation id of the reservation to edit
+	 * @param iduser id of the user that wants to edit the reservation
+	 * @param idgrocery id of the grocery for which the reservation will be made
+	 * @param type type of the reservation to do
+	 * @param bookTime time of the book-a-visit (can be null)
+	 * @return if nothing goes wrong, it returns the new Reservation class, otherwise it returns null
+	 *
+		public abstract Reservation editReservation(int idreservation, int iduser, int idgrocery, ReservationType type, Date bookTime);;
+	 */
 	
 }

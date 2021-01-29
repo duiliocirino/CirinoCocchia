@@ -2,15 +2,15 @@ package services.reservationManagement.imlpementation;
 
 
 import java.util.Date;
-
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 
+import exceptions.CLupException;
 import model.Grocery;
 import model.Position;
+import model.Queue;
 import model.Reservation;
 import model.User;
-import services.reservationManagement.interfaces.QueueUpdateManagement;
 import services.reservationManagement.interfaces.ReservationHandlerModule;
 import services.reservationManagement.interfaces.TimeEstimationModule;
 import utils.ReservationStatus;
@@ -25,60 +25,52 @@ public class ReservationHandlerImplementation extends ReservationHandlerModule {
 	@EJB(name = "services.reservationManagement.implementation/TimeEstimationModuleImplementation")
 	private TimeEstimationModule timeEstimationMod;
 	
-	@EJB(name = "services.reservationManagement.implementation/QueueUpdateManagementImplementation")
-	private QueueUpdateManagement queueUpdateMod;
-	
 	@Override
-	public Reservation addReservation(int iduser, int idgrocery, ReservationType type, Date bookTime, Position position) {
-		User user = em.find(User.class,  iduser);
-		Grocery grocery = em.find(Grocery.class,  idgrocery);
+	public Reservation addReservation(int iduser, int idgrocery, ReservationType type, Date bookTime, Position position) throws CLupException {
+		User user = findUser(iduser);
+		Grocery grocery = findGrocery(idgrocery);
 		
-		if(grocery == null || user == null) {
-			return null;
+		if(grocery == null) {
+			throw new CLupException("Can't find the grocery in new reservation");
+		}
+		
+		if(user == null) {
+			throw new CLupException("Can't find the user in new reservation");
+		}
+		
+		if(position == null) {
+			throw new CLupException("Position for new reservation is null");
 		}
 		// create a new Reservation object
 		Reservation newReservation = new Reservation(user, grocery, type, bookTime);
 		// persist it
-		em.persist(newReservation);
+		persistReservation(newReservation);
 		
 		// create time estimation
-		timeEstimationMod.estimateTime(newReservation.getIdreservation(), position);
+		invokeEstimateTime(newReservation, position);
 		
 		return newReservation;
 	}
-	
 
 	@Override
-	public Reservation editReservation(int idreservation, int iduser, int idgrocery, ReservationType type,
-			Date bookTime) {
-		Reservation oldReservation = em.find(Reservation.class,  idreservation);
-		User user = em.find(User.class, iduser);
-		Grocery grocery = em.find(Grocery.class, idgrocery);
-		
-		if(oldReservation == null|| grocery == null || user == null) {
-			return null;
+	public Reservation removeReservation(Reservation reservation) throws CLupException {
+		if(reservation == null) {
+			throw new CLupException("Can't remove a null reservation");
+		}
+			
+		if(reservation.getStatus() == ReservationStatus.ALLOWED ||
+				reservation.getStatus() == ReservationStatus.ENTERED) {
+			Queue queue = reservation.getQueue();
+			queue.removeReservation(reservation);
+		} else {
+			if(reservation.getStatus() == ReservationStatus.OPEN) {
+				reservation.getQueueTimer().cancel();
+			}
+			
+			reservation.setStatus(ReservationStatus.CLOSED);
 		}
 		
-		Reservation newReservation = new Reservation(user, grocery, type, bookTime);
-		oldReservation.setStatus(ReservationStatus.CLOSED);
-		if(oldReservation.getStatus() == ReservationStatus.OPEN) {
-			oldReservation.getQueueTimer().cancel();
-		}
-		em.remove(oldReservation);
-		em.persist(newReservation);
-		
-		return newReservation;
-		
-	}
-
-
-	@Override
-	public Reservation removeReservation(Reservation reservation) {
-		reservation.setStatus(ReservationStatus.CLOSED);
-		if(reservation.getStatus() == ReservationStatus.OPEN) {
-			reservation.getQueueTimer().cancel();
-		}
-		em.remove(reservation);
+		emRemoveReservation(reservation);
 		
 		return reservation;
 	}
@@ -86,23 +78,84 @@ public class ReservationHandlerImplementation extends ReservationHandlerModule {
 	
 	@Override
 	public Reservation getReservation(int idreservation) {
-		return em.find(Reservation.class, idreservation);
+		return findReservation(idreservation);
 	}
 
 
 	@Override
-	public int closeReservation(int idreservation) {
-		Reservation reservation = em.find(Reservation.class, idreservation);
+	public int closeReservation(int idreservation) throws CLupException {
+		Reservation reservation = findReservation(idreservation);
 		if(reservation == null) {
-			return -1;
+			throw new CLupException("Can't find the reservation to close");
+		}
+		
+		if(reservation.getStatus() != ReservationStatus.ENTERED) {
+			throw new CLupException("Can't close the reservation");
 		}
 		// this operation closes the reservation too
 		reservation.getQueue().removeReservation(reservation);
 		
-		em.detach(reservation);
+		detachReservation(reservation);
 		
 		return 0;
 	}
-
+	
+	protected User findUser(int iduser) {
+		return em.find(User.class, iduser);
+	}
+	
+	protected Grocery findGrocery(int idgrocery) {
+		return em.find(Grocery.class, idgrocery);
+	}
+	
+	protected Reservation findReservation(int idreservation) {
+		return em.find(Reservation.class, idreservation);
+	}
+	
+	protected void persistReservation(Reservation reservation) {
+		em.persist(reservation);
+	}
+	
+	protected void emRemoveReservation(Reservation reservation) {
+		em.remove(reservation);
+	}
+	
+	protected void detachReservation(Reservation reservation) {
+		em.detach(reservation);
+	}
+		
+	protected void invokeEstimateTime(Reservation reservation, Position position) throws CLupException {
+		timeEstimationMod.estimateTime(reservation, position);
+	}
+	
+	/*
+	@Override
+	public Reservation editReservation(int idreservation, int iduser, int idgrocery, ReservationType type,
+			Date bookTime) {
+		Reservation oldReservation = findReservation(idreservation);
+		
+		if(oldReservation == null) {
+			throw new CLupException("Can't ");
+		}
+		
+		User user = oldReservation.getCustomer();
+		Grocery grocery = oldReservation.getGrocery();
+		Timer timer = oldReservation.getQueueTimer();
+		
+		Reservation newReservation = new Reservation(user, grocery, type, bookTime);
+		oldReservation.setStatus(ReservationStatus.CLOSED);
+		if(oldReservation.getStatus() == ReservationStatus.OPEN) {
+			oldReservation.getQueueTimer().cancel();
+		}
+		
+		emRemoveReservation(newReservation);
+		persistReservation(newReservation);
+		
+		newReservation.setQueueTimer(timer);		
+		
+		return newReservation;
+		
+	}
+*/
 	
 }
