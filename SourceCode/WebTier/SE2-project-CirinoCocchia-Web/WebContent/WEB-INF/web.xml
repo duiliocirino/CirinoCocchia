@@ -11,6 +11,7 @@
   	<filter-mapping> 
     	<filter-name>Checker</filter-name>
 		<url-pattern>/AddEmployee</url-pattern>
+		<url-pattern>/AddGrocery</url-pattern>
     	<url-pattern>/DeleteReservation</url-pattern>
 		<url-pattern>/EditGroceryInfo</url-pattern> 
     	<url-pattern>/EditProfile</url-pattern> 
