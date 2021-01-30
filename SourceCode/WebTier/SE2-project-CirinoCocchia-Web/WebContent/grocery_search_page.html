@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8"/>
+    <title>CLup</title>
+    <link rel="stylesheet" type="text/css" href="bar_style.css">
+    <link rel="stylesheet" type="text/css" href="https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css">
+
+	<script defer>
+	var latIn = document.getElementById("lat");
+	var longIn = document.getElementById("lng");
+	
+	function setPosition(position) {
+		latIn = document.getElementById("lat");
+		longIn = document.getElementById("lng");
+		fillPosition(position)
+	}
+
+	navigator.geolocation.getCurrentPosition(setPosition)
+	
+	function fillPosition(position) {
+	  latIn.value = position.coords.latitude;
+	  longIn.value = position.coords.longitude;
+	}
+	
+	getLocation();
+	</script>
+</head>
+<body>
+
+<div class="topnav">
+    <span th:text="@{session.user.name}">Mockup</span><br>
+    <span>ID:</span>
+    <span th:text="@{session.user.id}">123456879</span>
+    <a href="Logout">Logout</a>
+</div>
+
+<nav class="main-menu">
+
+    <div class="settings">
+        <ul>
+            <li>
+                <i class="fa fa-bars" aria-hidden="true"></i>
+            </li>
+        </ul>
+    </div>
+
+    <div class="scrollbar" id="style-1">
+
+        <ul>
+            <li>
+                <a th:href="@{/GoToHomePage}">
+                    <i class="fa fa-home fa-lg"></i>
+                    <span class="nav-text">Home</span>
+                </a>
+            </li>
+
+            <li>
+                <a th:href="@{/GoToEmployeePage}">
+                    <i class="fa fa-address-card-o" aria-hidden="true"></i>
+                    <span class="nav-text">Employees Page</span>
+                </a>
+            </li>
+
+
+            <li>
+                <a th:href="@{/EditProfile}">
+                    <i class="fa fa-wrench fa-lg"></i>
+                    <span class="nav-text">Edit Profile</span>
+                </a>
+            </li>
+        </ul>
+
+    </div>
+</nav>
+
+<div class="center-container">
+
+    <label class="titles">Current queue</label>
+    <div class="generic-container">
+        <div class="border-container" th:each="reservation: ${reservations}">
+            <span class="subtitles" th:text="${reservation.idreservation}">015651321</span><br>
+            <span class="normal-text" th:text="${reservation.lineUpNumber}">100</span><br>
+            <a class="link-style" th:href="@{/EditReservation(reservation=${reservation})}">Edit</a>
+            <a class="link-style" th:href="@{/DeleteReservation(reservationId=${reservation.idreservation}, groceryId=${groceryId})}">Remove</a>
+        </div>
+    </div>
+
+    <form th:action="@{/MakeReservation(groceryId=${groceryId})}" method="post">
+    	<input type="text" name="latitude" id="lat">
+    	<input type="text" name="longitude" id="lng">
+        <input class="subtitles" type="submit" value="Create Reservation"/>
+    </form>
+</div>
+</body>
+</html>

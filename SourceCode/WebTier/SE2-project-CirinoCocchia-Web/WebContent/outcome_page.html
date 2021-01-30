@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8"/>
+    <title>CLup</title>
+    <link rel="stylesheet" type="text/css" href="bar_style.css">
+    <link rel="stylesheet" type="text/css" href="https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css">
+</head>
+<body>
+
+<div class="topnav">
+    <span th:text="${session.user.username}">Mockup</span><br>
+    <span>ID:</span>
+    <span th:text="${session.user.iduser}">123456879</span>
+    <a href="Logout">Logout</a>
+</div>
+
+<nav class="main-menu">
+
+    <div class="settings">
+        <ul>
+            <li>
+                <i class="fa fa-bars" aria-hidden="true"></i>
+            </li>
+        </ul>
+    </div>
+
+    <div class="scrollbar" id="style-1">
+
+        <ul>
+            <li>
+                <a th:href="@{/GoToHomePage}">
+                    <i class="fa fa-home fa-lg"></i>
+                    <span class="nav-text">Home</span>
+                </a>
+            </li>
+
+            <li>
+                <a th:href="@{/GoToEditPage}">
+                    <i class="fa fa-wrench fa-lg"></i>
+                    <span class="nav-text">Edit Profile</span>
+                </a>
+            </li>
+        </ul>
+
+    </div>
+</nav>
+
+<div class="center-container">
+    <label class="titles">SUCCESS PAGE</label>
+    <div class="border-container" id="search_section">
+        <span class="normal-text" th:text="${message}">You did it</span>
+    </div>
+</div>
+</body>
+</html>
