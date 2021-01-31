@@ -22,15 +22,15 @@ import org.thymeleaf.context.WebContext;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
 
-import model.Grocery;
-import model.Position;
-import model.User;
-import services.groceryManagement.interfaces.GroceryHandlerModule;
-import services.reservationManagement.imlpementation.ReservationHandlerImplementation;
-import services.reservationManagement.interfaces.ReservationHandlerModule;
-import services.searchManagement.interfaces.SearchEngineModule;
-import utils.ReservationType;
-import utils.Roles;
+import src.main.java.model.Grocery;
+import src.main.java.model.Position;
+import src.main.java.model.User;
+import src.main.java.services.accountManagement.interfaces.LoginModule;
+import src.main.java.services.groceryManagement.interfaces.GroceryHandlerModule;
+import src.main.java.services.reservationManagement.interfaces.ReservationHandlerModule;
+import src.main.java.services.searchManagement.interfaces.SearchEngineModule;
+import src.main.java.utils.ReservationType;
+import src.main.java.utils.Roles;
 
 /**
  * Servlet implementation class MakeReservation.
@@ -40,10 +40,12 @@ import utils.Roles;
 public class MakeReservation extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private TemplateEngine templateEngine;
-	@EJB(name = "services/reservationManagement/interfaces/ReservationHandlerModule")
+	@EJB(name = "src/main/java/services/reservationManagement/interfaces/ReservationHandlerModule")
 	private ReservationHandlerModule resModule;
-	@EJB(name = "services/searchManagement/interfaces/SearchEngineModule")
+	@EJB(name = "src/main/java/services/searchManagement/interfaces/SearchEngineModule")
 	private SearchEngineModule searchModule;
+	@EJB(name = "src/main/java/services/accountManagement/interfaces/LoginModule")
+	private LoginModule loginModule;
 	
 	/**
      * Class constructor.
@@ -63,7 +65,7 @@ public class MakeReservation extends HttpServlet {
 	}
 
     /**
-	 * This method redirect to the {@link controllers.GetGroceryData#doPost(HttpServletRequest, HttpServletResponse)} method of this class.
+	 * This method redirect to the {@link controllers.MakeReservation#doPost(HttpServletRequest, HttpServletResponse)} method of this class.
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -132,6 +134,9 @@ public class MakeReservation extends HttpServlet {
 		try {
 			resModule.addReservation(user.getIduser(), groceryId, ReservationType.LINEUP,
 					(java.sql.Date) Calendar.getInstance().getTime(), new Position(latitude, longitude));
+			loginModule = LoginModule.getInstance();
+			user = loginModule.checkCredentials(user.getUsername(), user.getPassword());
+			session.setAttribute("user", user);
 		} catch (Exception e) {
 			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Not possible to create reservation");
 			return;

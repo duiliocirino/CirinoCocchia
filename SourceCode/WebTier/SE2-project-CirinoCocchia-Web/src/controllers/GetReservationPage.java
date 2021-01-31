@@ -17,11 +17,11 @@ import org.thymeleaf.context.WebContext;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
 
-import model.Grocery;
-import model.Queue;
-import model.User;
-import services.accountManagement.interfaces.LoginModule;
-import utils.Roles;
+import src.main.java.model.Grocery;
+import src.main.java.model.Queue;
+import src.main.java.model.User;
+import src.main.java.services.accountManagement.interfaces.LoginModule;
+import src.main.java.utils.Roles;
 
 /**
  * Servlet implementation class GetReservationPage.
@@ -31,7 +31,7 @@ import utils.Roles;
 public class GetReservationPage extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private TemplateEngine templateEngine;
-	@EJB(name = "services/accountManagement/interfaces/LoginModule")
+	@EJB(name = "src/main/java/services/accountManagement/interfaces/LoginModule")
 	private LoginModule loginModule;
        
     /**

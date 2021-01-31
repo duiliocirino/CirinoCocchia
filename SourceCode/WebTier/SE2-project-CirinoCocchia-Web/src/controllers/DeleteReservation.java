@@ -17,10 +17,11 @@ import org.thymeleaf.context.WebContext;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
 
-import model.Reservation;
-import model.User;
-import services.reservationManagement.interfaces.ReservationHandlerModule;
-import utils.Roles;
+import src.main.java.model.Reservation;
+import src.main.java.model.User;
+import src.main.java.services.accountManagement.interfaces.LoginModule;
+import src.main.java.services.reservationManagement.interfaces.ReservationHandlerModule;
+import src.main.java.utils.Roles;
 
 /**
  * Servlet implementation class DeleteReservation.
@@ -30,9 +31,11 @@ import utils.Roles;
 public class DeleteReservation extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private TemplateEngine templateEngine;
-	@EJB(name = "services/reservationManagement/imlpementation/ReservationHandlerModule")
+	@EJB(name = "src/main/java/services/reservationManagement/interfaces/ReservationHandlerModule")
 	private ReservationHandlerModule resModule;
-       
+	@EJB(name = "src/main/java/services/accountManagement/interfaces/LoginModule")
+	private LoginModule loginModule;
+	
     /**
      * Class constructor.
      * @see HttpServlet#HttpServlet()
@@ -96,6 +99,9 @@ public class DeleteReservation extends HttpServlet {
 				return;
 			}
 			resModule.removeReservation(reservation);
+			loginModule = LoginModule.getInstance();
+			user = loginModule.checkCredentials(user.getUsername(), user.getPassword());
+			session.setAttribute("user", user);
 		} catch (Exception e) {
 			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Reservation not closable");
 			return;

@@ -11,11 +11,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import utils.ReservationStatus;
-import utils.Roles;
-import model.*;
-import services.accountManagement.interfaces.LoginModule;
-import services.searchManagement.interfaces.SearchEngineModule;
+import src.main.java.utils.ReservationStatus;
+import src.main.java.utils.Roles;
+import src.main.java.model.*;
+import src.main.java.services.accountManagement.interfaces.LoginModule;
+import src.main.java.services.searchManagement.interfaces.SearchEngineModule;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -33,9 +33,9 @@ import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
 public class GoToHomePage extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private TemplateEngine templateEngine;
-	@EJB(name = "services/accountManagement/interfaces/LoginModule")
+	@EJB(name = "src/main/java/services/accountManagement/interfaces/LoginModule")
 	private LoginModule loginModule;
-	@EJB(name = "services/searchManagement/interfaces/SearchEngineModule")
+	@EJB(name = "src/main/java/services/searchManagement/interfaces/SearchEngineModule")
 	private SearchEngineModule searchModule;
 	
 	/**

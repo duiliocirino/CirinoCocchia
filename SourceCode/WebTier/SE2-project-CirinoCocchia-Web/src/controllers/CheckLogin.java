@@ -16,10 +16,10 @@ import org.thymeleaf.context.WebContext;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
 
-import services.accountManagement.interfaces.LoginModule;
-import services.accountManagement.interfaces.RegistrationModule;
-import model.User;
-import exceptions.CLupException;
+import src.main.java.services.accountManagement.interfaces.LoginModule;
+import src.main.java.services.accountManagement.interfaces.RegistrationModule;
+import src.main.java.model.User;
+import src.main.java.exceptions.CLupException;
 import javax.persistence.NonUniqueResultException;
 
 /**
@@ -30,9 +30,9 @@ import javax.persistence.NonUniqueResultException;
 public class CheckLogin extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private TemplateEngine templateEngine;
-	@EJB(name = "services/accountManagement/interfaces/LoginModule")
+	@EJB(name = "src/main/java/services/accountManagement/interfaces/LoginModule")
 	private LoginModule loginModule;
-	@EJB(name = "services/accountManagement/interfaces/RegistrationModule")
+	@EJB(name = "src/main/java/services/accountManagement/interfaces/RegistrationModule")
 	private RegistrationModule regModule;
 
 	/**

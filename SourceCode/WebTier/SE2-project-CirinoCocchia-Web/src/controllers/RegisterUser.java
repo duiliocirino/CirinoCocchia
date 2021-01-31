@@ -1,12 +1,6 @@
 package controllers;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 import javax.ejb.EJB;
 import javax.servlet.ServletContext;
@@ -15,17 +9,16 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.Part;
 
 import org.apache.commons.text.StringEscapeUtils;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
 
-import model.User;
-import services.accountManagement.interfaces.LoginModule;
-import services.accountManagement.interfaces.RegistrationModule;
-import utils.Roles;
+import src.main.java.model.User;
+import src.main.java.services.accountManagement.interfaces.LoginModule;
+import src.main.java.services.accountManagement.interfaces.RegistrationModule;
+import src.main.java.utils.Roles;
 
 /**
  * Servlet implementation class RegisterUser/
@@ -35,9 +28,9 @@ import utils.Roles;
 public class RegisterUser extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private TemplateEngine templateEngine;
-	@EJB(name = "services/accountManagement/interfaces/LoginModule")
+	@EJB(name = "src/main/java/services/accountManagement/interfaces/LoginModule")
 	private LoginModule loginModule;
-	@EJB(name = "services/accountManagement/interfaces/RegistrationModule")
+	@EJB(name = "src/main/java/services/accountManagement/interfaces/RegistrationModule")
 	private RegistrationModule regModule;
 
 	/**

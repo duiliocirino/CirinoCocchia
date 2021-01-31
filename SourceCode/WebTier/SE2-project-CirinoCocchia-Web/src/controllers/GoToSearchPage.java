@@ -17,11 +17,11 @@ import org.thymeleaf.context.WebContext;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
 
-import services.searchManagement.interfaces.SearchEngineModule;
-import utils.Roles;
-import model.User;
-import model.Grocery;
-import model.Position;
+import src.main.java.services.searchManagement.interfaces.SearchEngineModule;
+import src.main.java.utils.Roles;
+import src.main.java.model.User;
+import src.main.java.model.Grocery;
+import src.main.java.model.Position;
 
 /**
  * Servlet implementation class GoToSearchPage.
@@ -36,7 +36,7 @@ public class GoToSearchPage extends HttpServlet {
 	 */
 	private static final int nFavourites = 3;
 	private TemplateEngine templateEngine;
-	@EJB(name = "services/searchManagement/interfaces/SearchEngineModule")
+	@EJB(name = "src/main/java/services/searchManagement/interfaces/SearchEngineModule")
 	private SearchEngineModule searchModule;
 	
 	public void init() throws ServletException {

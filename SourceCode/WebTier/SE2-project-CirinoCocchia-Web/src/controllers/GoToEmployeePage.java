@@ -15,8 +15,8 @@ import org.thymeleaf.context.WebContext;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
 
-import model.User;
-import utils.Roles;
+import src.main.java.model.User;
+import src.main.java.utils.Roles;
 
 /**
  * Servlet implementation class GoToEmployeePage.

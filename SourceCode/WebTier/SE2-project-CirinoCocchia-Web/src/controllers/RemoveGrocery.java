@@ -1,8 +1,7 @@
 package controllers;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.ejb.EJB;
 import javax.servlet.ServletContext;
@@ -18,22 +17,21 @@ import org.thymeleaf.context.WebContext;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
 
-import src.main.java.model.Grocery;
 import src.main.java.model.User;
 import src.main.java.services.accountManagement.interfaces.LoginModule;
-import src.main.java.services.groceryManagement.interfaces.EmployeesModule;
+import src.main.java.services.groceryManagement.interfaces.GroceryHandlerModule;
 import src.main.java.utils.Roles;
 
 /**
- * Servlet implementation class RemoveEmployee.
- * This servlet is used to remove an employee from the system.
+ * Servlet implementation class RemoveGrocery.
+ * This servlet is used to remove a grocery.
  */
-@WebServlet("/RemoveEmployee")
-public class RemoveEmployee extends HttpServlet {
+@WebServlet("/RemoveGrocery")
+public class RemoveGrocery extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private TemplateEngine templateEngine;
-	@EJB(name = "src/main/java/services/groceryManagement/interfaces/EmployeesModule")
-	private EmployeesModule employeesModule;
+	@EJB(name = "src/main/java/services/groceryManagement/interfaces/GroceryHandlerModule")
+	private GroceryHandlerModule groModule;
 	@EJB(name = "src/main/java/services/accountManagement/interfaces/LoginModule")
 	private LoginModule loginModule;
        
@@ -41,7 +39,7 @@ public class RemoveEmployee extends HttpServlet {
      * Class constructor.
      * @see HttpServlet#HttpServlet()
      */
-    public RemoveEmployee() {
+    public RemoveGrocery() {
         super();
     }
 
@@ -54,37 +52,17 @@ public class RemoveEmployee extends HttpServlet {
 		templateResolver.setSuffix(".html");
 	}
     
-	/**
-	 * This method creates the page server side by getting all employees of a user.
+    /**
+	 * This method redirect to the {@link controllers.RemoveGrocery#doPost(HttpServletRequest, HttpServletResponse)} method of this class.
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		HttpSession session = request.getSession();
-		User user = (User) session.getAttribute("user");
-		if(user.getRole() != Roles.MANAGER) {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "You are not allowed to do this operation");
-			return;
-		}
-		
-		// GET USERS EMPLOYEES
-		
-		List<User> employees = new ArrayList<>();
-		List<Grocery> groceries = user.getGroceries();
-		for(Grocery grocery: groceries) {
-			employees.addAll(grocery.getEmployees());
-		}
-		
-		String path = "remove_employee.html";
-		ServletContext servletContext = getServletContext();
-		final WebContext ctx = new WebContext(request, response, servletContext, request.getLocale());
-		ctx.setVariable("employees", employees);
-		templateEngine.process(path, ctx, response.getWriter());
+		doPost(request, response);
 	}
 
 	/**
-	 * This method performs the action to remove an employee.
-	 * It checks that the user doing the operation is a manager, gets the parameters and check their correctness and return
-	 * the user to the right view if everything is right, otherwise it sends an error to the user.
+	 * This method is called to remove a given grocery.
+	 * It succeed only if the user requesting it is a manager and it owns the grocery, otherwise the user is sent an error.
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -101,21 +79,24 @@ public class RemoveEmployee extends HttpServlet {
 		
 		// GET AND CHECK PARAMETERS
 		
-		Integer employeeId = null;
 		Integer groceryId = null;
 		
 		try {
-			employeeId = Integer.parseInt(request.getParameter("employeeId"));
 			groceryId = Integer.parseInt(request.getParameter("groceryId"));
 		} catch (NumberFormatException | NullPointerException e) {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Incorrect param values");
 			return;
 		}
+		
+		if(!user.getGroceries().stream().map(x -> x.getIdgrocery()).collect(Collectors.toList()).contains(groceryId)) {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "You are not allowed to do this operation");
+			return;
+		}
 
 		try {
-			employeesModule = EmployeesModule.getInstance();
+			groModule = GroceryHandlerModule.getInstance();
 			loginModule = LoginModule.getInstance();
-			employeesModule.removeEmployee(employeeId, groceryId);
+			groModule.removeGrocery(groceryId);
 			user = loginModule.checkCredentials(user.getUsername(), user.getPassword());
 			session.setAttribute("user", user);
 		} catch (Exception e) {
@@ -126,9 +107,8 @@ public class RemoveEmployee extends HttpServlet {
 		// RETURN VIEW
 		
 		final WebContext ctx = new WebContext(request, response, getServletContext(), request.getLocale());
-		ctx.setVariable("groceryId", groceryId);
 		String ctxpath = getServletContext().getContextPath();
-		String path = ctxpath + "/RemoveEmployee";
+		String path = ctxpath + "/GoToHomePage";
 		templateEngine.process(path, ctx, response.getWriter());
 	}
 

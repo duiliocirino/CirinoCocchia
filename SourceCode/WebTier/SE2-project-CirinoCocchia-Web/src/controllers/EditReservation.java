@@ -16,10 +16,10 @@ import org.thymeleaf.context.WebContext;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
 
-import model.Reservation;
-import model.User;
-import services.reservationManagement.interfaces.ReservationHandlerModule;
-import utils.Roles;
+import src.main.java.model.Reservation;
+import src.main.java.model.User;
+import src.main.java.services.reservationManagement.interfaces.ReservationHandlerModule;
+import src.main.java.utils.Roles;
 
 /**
  * Servlet implementation class EditReservation.
@@ -29,7 +29,7 @@ import utils.Roles;
 public class EditReservation extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private TemplateEngine templateEngine;
-	@EJB(name = "services/reservationManagement/imlpementation/ReservationHandlerModule")
+	@EJB(name = "src/main/java/services/reservationManagement/interfaces/ReservationHandlerModule")
 	private ReservationHandlerModule resModule;
        
     /**
@@ -53,7 +53,6 @@ public class EditReservation extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
 		response.getWriter().append("Served at: ").append(request.getContextPath());
 	}
 

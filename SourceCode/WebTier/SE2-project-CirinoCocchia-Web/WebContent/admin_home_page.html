@@ -62,6 +62,9 @@
     <label class="titles">Your Groceries</label>
     <div class="generic-container" id="line-up">
         <div class="border-container" th:each="grocery: ${groceries}">
+        	<a th:href="@{/RemoveGrocery(groceryId=${grocery.idgrocery})}">
+        		<i class="fa fa-times-circle-o" aria-hidden="true"></i>
+        	</a><br>
             <span class="subtitles" th:text="${grocery.name}">Grocery name</span><br>
             <a class="link-style" th:href="@{/GetReservationPage(groceryId=${grocery.idgrocery})}">Search</a>
             <a class="link-style" th:href="@{/GetGroceryData(groceryId=${grocery.idgrocery})}">Inspect</a>
@@ -69,7 +72,14 @@
         </div>
     </div>
 
-    <button class="subtitles" style="float: right">Add grocery</button>
+	<form th:action="@{/AddGrocery}" method="post">
+		<input type="text" name="name" placeholder="Grocery name">
+		<input type="number" name="latitude" placeholder="latitude">
+		<input type="number" name="longitude" placeholder="longitude">
+		<input type="number" name="spotsInside" placeholder="spots inside">
+		<button class="subtitles" type="submit">Add grocery</button>
+	</form>
+
 </div>
 </body>
 </html>

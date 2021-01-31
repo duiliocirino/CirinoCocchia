@@ -1,7 +1,6 @@
 package controllers;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.ejb.EJB;
@@ -20,26 +19,33 @@ import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
 
 import src.main.java.model.Grocery;
+import src.main.java.model.Position;
 import src.main.java.model.User;
+import src.main.java.services.accountManagement.interfaces.LoginModule;
+import src.main.java.services.accountManagement.interfaces.RegistrationModule;
+import src.main.java.services.groceryManagement.interfaces.EmployeesModule;
 import src.main.java.services.groceryManagement.interfaces.GroceryHandlerModule;
+import src.main.java.services.searchManagement.interfaces.SearchEngineModule;
 import src.main.java.utils.Roles;
 
 /**
- * Servlet implementation class EditGroceryInfo.
- * This servlet is used to edit grocery info.
+ * Servlet implementation class AddGrocery.
+ * This servlet is used to add a grocery to the system.
  */
-@WebServlet("/EditGroceryInfo")
-public class EditGroceryInfo extends HttpServlet {
+@WebServlet("/AddGrocery")
+public class AddGrocery extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private TemplateEngine templateEngine;
-	@EJB(name = "src/main/java/services/groceryManagement/interfaces/GroceryHandlerModule")
+	@EJB(name = "src/main/java/services/groceryManagement/interfaces/GrocerhyHandlerModule")
 	private GroceryHandlerModule groModule;
-       
+	@EJB(name = "src/main/java/services/accountManagement/interfaces/LoginModule")
+	private LoginModule loginModule;
+	
     /**
      * Class constructor.
      * @see HttpServlet#HttpServlet()
      */
-    public EditGroceryInfo() {
+    public AddGrocery() {
         super();
     }
     
@@ -52,106 +58,71 @@ public class EditGroceryInfo extends HttpServlet {
 		templateResolver.setSuffix(".html");
 	}
 
-
-	/**
-	 * This method is called to create the page to edit the grocery server-side.
-	 * It checks that the user can do the operation and checks if the user owns the grocery.
+    /**
+	 * This method redirect to the {@link controllers.AddGrocery#doPost(HttpServletRequest, HttpServletResponse)} method of this class.
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		
-		// CHECK USER ROLE
-		
-		HttpSession session = request.getSession();
-		User user = (User) session.getAttribute("user");
-		if(user.getRole() != Roles.MANAGER) {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "You are not allowed to do this operation");
-			return;
-		}
-		
-		// GET AND CHECK PARAMETERS
-		
-		Integer groceryId = null;
-		
-		try {
-			groceryId = Integer.parseInt(request.getParameter("groceryId"));
-			if(!user.getGroceries().stream().map(x -> x.getIdgrocery()).collect(Collectors.toList()).contains(groceryId));
-		} catch (NumberFormatException | NullPointerException e) {
-			// for debugging only e.printStackTrace();
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Incorrect param values");
-			return;
-		}
-		
-		// GET THE GROCERY AND RETURN THE RIGHT VIEW
-		
-		final Integer id = groceryId;
-		Grocery grocery = user.getGroceries().stream().filter(x -> x.getIdgrocery() == id).findFirst().get();
-		
-		String path = "editgrocery.html";
-		ServletContext servletContext = getServletContext();
-		final WebContext ctx = new WebContext(request, response, servletContext, request.getLocale());
-		ctx.setVariable("grocery", grocery);
-		templateEngine.process(path, ctx, response.getWriter());
+		doPost(request, response);
 	}
 
 	/**
-	 * This method is called to apply the requested edits in the case that at least one parameter must be changed, the 
-	 * user is the owner of the grocery, and that the 
+	 * This method adds a grocery to the system.
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		
-		// CHECK USER ROLE
+		//ALLOW ONLY MANAGERS TO DO THIS OPERATION
 		
 		HttpSession session = request.getSession();
 		User user = (User) session.getAttribute("user");
+		
 		if(user.getRole() != Roles.MANAGER) {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "You are not allowed to do this operation");
 			return;
 		}
-
+		
 		// GET AND PARSE ALL PARAMETERS FROM REQUEST
 		
 		boolean isBadRequest = false;
 		String name = null;
-		Integer groceryId = null;
-		Integer maxSpots = null;
+		Integer maxSpotsInside = null;
+		Double latitude = null;
+		Double longitude = null;
 		
 		try {
-			name = StringEscapeUtils.escapeJava(request.getParameter("name"));
-			groceryId = Integer.parseInt(request.getParameter("groceryId"));
-			maxSpots = Integer.parseInt(request.getParameter("maxSpots"));
+		name = StringEscapeUtils.escapeJava(request.getParameter("name"));
+		maxSpotsInside = Integer.parseInt(request.getParameter("maxSpots"));
+		latitude = Double.parseDouble(request.getParameter("latitude"));
+		longitude = Double.parseDouble(request.getParameter("longitude"));
 		} catch (NumberFormatException | NullPointerException e) {
 			isBadRequest = true;
 			e.printStackTrace();
 		}
 		
-		isBadRequest = isBadRequest || groceryId == null || (((name == null) || (name.isEmpty())) && (maxSpots == null)) ||
-				!user.getGroceries().stream().map(x -> x.getIdgrocery()).collect(Collectors.toList()).contains(groceryId);
+		isBadRequest = isBadRequest || (name == null) || (maxSpotsInside == null) || (maxSpotsInside < 1) || (latitude == null) || (longitude == null);
 		
 		if (isBadRequest) {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Incorrect or missing param values");
 			return;
 		}
 			
-		// UPDATE GROCERY INFO AND OF THE USER
-		final Integer id = groceryId;
+		// CREATE NEW GROCERY WITH GIVEN DETAILS
 		
 		try {
 			groModule = GroceryHandlerModule.getInstance();
-			Grocery editedGro = groModule.editGrocery(groceryId, name, maxSpots);
-			List<Grocery> groceries = user.getGroceries();
-			groceries.removeIf(x -> x.getIdgrocery() == id);
-			groceries.add(editedGro);
-			user.setGroceries(groceries);
+			loginModule = LoginModule.getInstance();
+			groModule.addGrocery(name, new Position(latitude, longitude), maxSpotsInside, user.getIduser());
+			user = loginModule.checkCredentials(user.getUsername(), user.getPassword());
 			session.setAttribute("user", user);
 		} catch (Exception e) {
-			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Not possible to update profile");
+			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Not possible to create profile");
 			return;
 		}
 
 		// RETURN THE USER TO THE RIGHT VIEW
-		String successMessage = "Your edits were applied successfully!";
+		
+		String successMessage = "You successfully added a new grocery!";
 		String path = "outcome_page.html";
 		ServletContext servletContext = getServletContext();
 		final WebContext ctx = new WebContext(request, response, servletContext, request.getLocale());

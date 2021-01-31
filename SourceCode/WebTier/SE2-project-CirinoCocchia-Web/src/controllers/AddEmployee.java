@@ -18,11 +18,11 @@ import org.thymeleaf.context.WebContext;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
 
-import model.User;
-import services.accountManagement.interfaces.LoginModule;
-import services.accountManagement.interfaces.RegistrationModule;
-import services.groceryManagement.interfaces.EmployeesModule;
-import utils.Roles;
+import src.main.java.model.User;
+import src.main.java.services.accountManagement.interfaces.LoginModule;
+import src.main.java.services.accountManagement.interfaces.RegistrationModule;
+import src.main.java.services.groceryManagement.interfaces.EmployeesModule;
+import src.main.java.utils.Roles;
 
 /**
  * Servlet implementation class AddEmployee.
@@ -32,11 +32,11 @@ import utils.Roles;
 public class AddEmployee extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private TemplateEngine templateEngine;
-	@EJB(name = "services/accountManagement/interfaces/RegistrationModule")
+	@EJB(name = "src/main/java/services/accountManagement/interfaces/RegistrationModule")
 	private RegistrationModule regModule;
-	@EJB(name = "services/accountManagement/interfaces/LoginModule")
+	@EJB(name = "src/main/java/services/accountManagement/interfaces/LoginModule")
 	private LoginModule loginModule;
-	@EJB(name = "services/groceryManagement/interfaces/EmployeesModule")
+	@EJB(name = "src/main/java/services/groceryManagement/interfaces/EmployeesModule")
 	private EmployeesModule employeesModule;
        
     /**

@@ -22,10 +22,10 @@ import org.thymeleaf.context.WebContext;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
 
-import model.User;
-import services.groceryManagement.interfaces.MonitorModule;
-import utils.GroceryData;
-import utils.Roles;
+import src.main.java.model.User;
+import src.main.java.services.groceryManagement.interfaces.MonitorModule;
+import src.main.java.utils.GroceryData;
+import src.main.java.utils.Roles;
 
 /**
  * Servlet implementation class GetGroceryData.
@@ -35,7 +35,7 @@ import utils.Roles;
 public class GetGroceryData extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private TemplateEngine templateEngine;
-	@EJB(name = "services/groceryManagement/implementationMonitorModule")
+	@EJB(name = "src/main/java/services/groceryManagement/interfaces/MonitorModule")
 	private MonitorModule monitorModule;
 	
        

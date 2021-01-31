@@ -17,8 +17,8 @@ import org.thymeleaf.context.WebContext;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
 
-import model.User;
-import services.accountManagement.interfaces.RegistrationModule;
+import src.main.java.model.User;
+import src.main.java.services.accountManagement.interfaces.RegistrationModule;
 
 /**
  * Servlet implementation class EditProfile.
@@ -28,7 +28,7 @@ import services.accountManagement.interfaces.RegistrationModule;
 public class EditProfile extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private TemplateEngine templateEngine;
-	@EJB(name = "services/accountManagement/interfaces/RegistrationModule")
+	@EJB(name = "src/main/java/services/accountManagement/interfaces/RegistrationModule")
 	private RegistrationModule regModule;
 	
 	/**
