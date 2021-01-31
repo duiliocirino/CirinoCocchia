@@ -1,7 +1,5 @@
 package src.main.java.services.groceryManagement.interfaces;
 
-import javax.ejb.Stateless;
-
 import src.main.java.exceptions.CLupException;
 import src.main.java.model.Grocery;
 import src.main.java.model.Position;
@@ -14,7 +12,6 @@ import src.main.java.services.macrocomponents.GroceryManagement;
  *  opening hours or grocery capiency, but also let the manager add a 
  *  new store or deleting them
  */
-@Stateless
 public abstract class GroceryHandlerModule extends GroceryManagement {
 	/**
 	 * This method adds to the system a new grocery. The request has to be made 
@@ -46,7 +43,12 @@ public abstract class GroceryHandlerModule extends GroceryManagement {
 	 * @throws CLupException if the grocery to remove is not found
 	 */
 	public abstract Grocery removeGrocery(int idgrocery) throws CLupException; 
-	
+	/**
+	 * This method retrieves a grocery basing on its id
+	 * @param idgrocery id of the grocery to retrieve
+	 * @return Grocery instance if found, null if not
+	 */
+	public abstract Grocery getGrocery(int idgrocery);
 	public static GroceryHandlerModule getInstance() {
 		return new GroceryHandlerModuleImplementation();
 	}

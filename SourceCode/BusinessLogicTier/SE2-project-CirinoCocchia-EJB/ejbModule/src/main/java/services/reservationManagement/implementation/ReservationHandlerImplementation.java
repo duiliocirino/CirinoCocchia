@@ -101,61 +101,31 @@ public class ReservationHandlerImplementation extends ReservationHandlerModule {
 	}
 	
 	protected User findUser(int iduser) {
-		return em.find(User.class, iduser);
+		return usrTools.findUser(iduser);
 	}
 	
 	protected Grocery findGrocery(int idgrocery) {
-		return em.find(Grocery.class, idgrocery);
+		return grocTools.findGrocery(idgrocery);
 	}
 	
 	protected Reservation findReservation(int idreservation) {
-		return em.find(Reservation.class, idreservation);
+		return resTools.findReservation(idreservation);
 	}
 	
 	protected void persistReservation(Reservation reservation) {
-		em.persist(reservation);
+		resTools.persistReservation(reservation);
 	}
 	
 	protected void emRemoveReservation(Reservation reservation) {
-		em.remove(reservation);
+		resTools.removeReservation(reservation);
 	}
 	
 	protected void detachReservation(Reservation reservation) {
-		em.detach(reservation);
+		resTools.detachReservation(reservation);
 	}
 		
 	protected void invokeEstimateTime(Reservation reservation, Position position) throws CLupException {
 		timeEstimationMod.estimateTime(reservation, position);
 	}
-	
-	/*
-	@Override
-	public Reservation editReservation(int idreservation, int iduser, int idgrocery, ReservationType type,
-			Date bookTime) {
-		Reservation oldReservation = findReservation(idreservation);
-		
-		if(oldReservation == null) {
-			throw new CLupException("Can't ");
-		}
-		
-		User user = oldReservation.getCustomer();
-		Grocery grocery = oldReservation.getGrocery();
-		Timer timer = oldReservation.getQueueTimer();
-		
-		Reservation newReservation = new Reservation(user, grocery, type, bookTime);
-		oldReservation.setStatus(ReservationStatus.CLOSED);
-		if(oldReservation.getStatus() == ReservationStatus.OPEN) {
-			oldReservation.getQueueTimer().cancel();
-		}
-		
-		emRemoveReservation(newReservation);
-		persistReservation(newReservation);
-		
-		newReservation.setQueueTimer(timer);		
-		
-		return newReservation;
-		
-	}
-*/
 	
 }

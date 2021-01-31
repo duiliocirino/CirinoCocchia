@@ -1,7 +1,5 @@
 package src.main.java.services.accountManagement.interfaces;
 
-import javax.ejb.Stateless;
-
 import src.main.java.exceptions.CLupException;
 import src.main.java.model.User;
 import src.main.java.services.accountManagement.implementation.RegistrationModuleImplementation;
@@ -13,7 +11,6 @@ import src.main.java.utils.Roles;
  * a user or a manager (we remember that employees are created and 
  * added to the system by the store manager)
  */
-@Stateless
 public abstract class RegistrationModule extends AccountManagement {
 	/**
 	 * This method allows the registration of a new user 

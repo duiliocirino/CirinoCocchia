@@ -105,16 +105,16 @@ public class QueueUpdateManagementImplementation extends QueueUpdateManagement{
 	}
 	
 	protected Reservation findReservation(int idreservation) {
-		return em.find(Reservation.class,  idreservation);
+		return resTools.findReservation(idreservation);
+	}
+	
+	protected void refresh(Reservation reservation) {
+		resTools.detachReservation(reservation);
 	}
 	
 	protected Reservation invokeAddReservation(int iduser, int idgrocery, ReservationType type, Date date, Position position) throws CLupException {
 		return reservationHandler
 				.addReservation(iduser, idgrocery, ReservationType.LINEUP, null, position);
 	}
-	
-	protected void refresh(Reservation reservation) {
-		em.refresh(reservation);
-	}
-	
+
 }

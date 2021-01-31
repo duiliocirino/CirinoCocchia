@@ -3,12 +3,15 @@ package src.main.java.services.searchManagement.implementation;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.ejb.Stateless;
+
 import src.main.java.exceptions.CLupException;
 import src.main.java.model.Grocery;
 import src.main.java.model.Position;
 import src.main.java.model.User;
 import src.main.java.services.searchManagement.interfaces.SearchEngineModule;
 
+@Stateless
 public class SearchEngineModuleImplementation extends SearchEngineModule {
 
 	@Override
@@ -80,23 +83,19 @@ public class SearchEngineModuleImplementation extends SearchEngineModule {
 	}
 	
 	protected User findUser(int iduser) {
-		return em.find(User.class, iduser);
+		return usrTools.findUser(iduser);
 	}
 	
 	protected Grocery findGrocery(int idgrocery) {
-		return em.find(Grocery.class, idgrocery);
+		return grocTools.findGrocery(idgrocery);
 	}
 	
 	protected List<Grocery> namedQueryGroceryFindAll(){
-		return em.createNamedQuery("Grocery.findAll", Grocery.class)
-				.getResultList();
+		return grocTools.findAllGroceries();
 	}
 	
 	protected List<Grocery> namedQueryReservationFindCustomersFavourites(User customer, int nFav) {
-		return em.createNamedQuery("Reservation.findCustomersFavourites", Grocery.class)
-				.setParameter("customer", customer)
-				.setParameter("nFav", nFav)
-				.getResultList();
+		return grocTools.findCustomersFavourites(customer, nFav);
 	}
 
 }

@@ -2,7 +2,6 @@ package src.main.java.services.reservationManagement.interfaces;
 
 import java.util.List;
 
-import javax.ejb.Stateless;
 import javax.ws.rs.ProcessingException;
 
 import src.main.java.model.Position;
@@ -10,7 +9,6 @@ import src.main.java.model.User;
 import src.main.java.services.macrocomponents.ReservationManagement;
 import src.main.java.services.reservationManagement.implementation.NotificationModuleImplementation;
 
-@Stateless
 public abstract class NotificationModule extends ReservationManagement {
 	/**
 	 * Calculates the estimated ride time from origin to end

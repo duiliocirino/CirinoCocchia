@@ -2,14 +2,12 @@ package src.main.java.services.searchManagement.interfaces;
 
 import java.util.List;
 
-import javax.ejb.Stateless;
-
 import src.main.java.exceptions.CLupException;
 import src.main.java.model.Grocery;
 import src.main.java.model.Position;
 import src.main.java.services.macrocomponents.SearchManagement;
+import src.main.java.services.searchManagement.implementation.SearchEngineModuleImplementation;
 
-@Stateless
 public abstract class SearchEngineModule extends SearchManagement {
 	/**
 	 * Retrieves all the groceries that are into the radius around the position
@@ -38,4 +36,8 @@ public abstract class SearchEngineModule extends SearchManagement {
 	 * or the grocery is not found
 	 */
 	public abstract boolean isNear(Position position, int idgrocery, double radius) throws CLupException;
+	
+	public static SearchEngineModule getInstance() {
+		return new SearchEngineModuleImplementation();
+	}
 }

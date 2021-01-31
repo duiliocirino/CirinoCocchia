@@ -1,7 +1,5 @@
 package src.main.java.services.groceryManagement.interfaces;
 
-import javax.ejb.Stateless;
-
 import src.main.java.exceptions.CLupException;
 import src.main.java.model.User;
 import src.main.java.services.groceryManagement.implementation.EmployeesModuleImplementation;
@@ -12,7 +10,6 @@ import src.main.java.services.macrocomponents.GroceryManagement;
  *  the purpose of managing employees, adding or removing them, but
  *  also see a list of them and the respective information.
  */
-@Stateless
 public abstract class EmployeesModule extends GroceryManagement {
 	/**
 	 * This method adds a User with an EMPLOYEE role to the grocery passed

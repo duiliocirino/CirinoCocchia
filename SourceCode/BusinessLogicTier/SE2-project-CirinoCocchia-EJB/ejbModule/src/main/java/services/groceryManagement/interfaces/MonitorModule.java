@@ -3,8 +3,6 @@ package src.main.java.services.groceryManagement.interfaces;
 import java.util.Date;
 import java.util.Map;
 
-import javax.ejb.Stateless;
-
 import src.main.java.exceptions.CLupException;
 import src.main.java.services.groceryManagement.implementation.MonitorModuleImplementation;
 import src.main.java.services.macrocomponents.GroceryManagement;
@@ -15,7 +13,6 @@ import src.main.java.utils.GroceryData;
  * workers take a look on the grocery’s queue and bookings and the 
  * customers to see the situation about the queue 
  */
-@Stateless
 public abstract class MonitorModule extends GroceryManagement {
 	/**
 	 * This method retrieves all the statistics for a certain grocery defined in the 

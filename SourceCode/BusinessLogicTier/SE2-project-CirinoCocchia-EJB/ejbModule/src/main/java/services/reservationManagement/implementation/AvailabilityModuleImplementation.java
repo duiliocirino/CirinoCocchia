@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 
 import javax.ejb.EJB;
+import javax.ejb.Stateless;
 
 import src.main.java.exceptions.CLupException;
 import src.main.java.model.Grocery;
@@ -15,7 +16,7 @@ import src.main.java.services.reservationManagement.interfaces.AvailabilityModul
 import src.main.java.services.reservationManagement.interfaces.TimeEstimationModule;
 import src.main.java.utils.ReservationType;
 
-
+@Stateless
 public class AvailabilityModuleImplementation extends AvailabilityModule{
 
 	@EJB(name = "services.reservationManagement.implementation/TimeEstimationModuleImplementation")
@@ -50,11 +51,11 @@ public class AvailabilityModuleImplementation extends AvailabilityModule{
 	}
 	
 	protected User findUser(int iduser) {
-		return em.find(User.class, iduser);
+		return usrTools.findUser(iduser);
 	}
 	
 	protected Grocery findGrocery(int idgrocery) {
-		return em.find(Grocery.class, idgrocery);
+		return grocTools.findGrocery(idgrocery);
 	}
 	
 	protected void invokeEstimateTime(Reservation reservation, Position position) throws CLupException {

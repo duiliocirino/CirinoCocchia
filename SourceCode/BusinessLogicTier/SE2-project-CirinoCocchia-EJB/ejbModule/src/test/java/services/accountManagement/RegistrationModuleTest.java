@@ -16,7 +16,8 @@ import src.main.java.utils.Roles;
 
 public class RegistrationModuleTest {
 	
-	private final Roles ROLE = Roles.REG_CUSTOMER;
+	private final Roles ROLE1 = Roles.REG_CUSTOMER;
+	private final Roles ROLE2 = Roles.VISITOR;
 	private final int IDUSER1 = 1;
 	private final int IDUSER2 = 2;
 	private final String TELEPHONE_NUM = "111111111";
@@ -32,18 +33,38 @@ public class RegistrationModuleTest {
 	}
 
 	@Test
-	public void registerSuccessfulTest() {
+	public void registerCustomerSuccessfulTest() {
 		
 		User newUser = null;
 		
 		try {
-			newUser = regMod.register(ROLE, TELEPHONE_NUM, USERNAME1, PASSWORD, EMAIL);
+			newUser = regMod.register(ROLE1, TELEPHONE_NUM, USERNAME1, PASSWORD, EMAIL);
 		} catch (CLupException e) {
 			fail("Should not throw exception");
 		}
 		
 		assertNotNull(newUser);
+		assertEquals(ROLE1, newUser.getRole());
+		assertEquals(TELEPHONE_NUM, newUser.getTelephoneNumber());
+		assertEquals(USERNAME1, newUser.getUsername());
+		assertEquals(PASSWORD, newUser.getPassword());
+		assertEquals(EMAIL, newUser.getEmail());		
+	}
+	
+	@Test
+	public void registerVisitorSuccessfulTest() {
 		
+		User newUser = null;
+		
+		try {
+			newUser = regMod.register(ROLE2, TELEPHONE_NUM, USERNAME1, PASSWORD, EMAIL);
+		} catch (CLupException e) {
+			fail("Should not throw exception");
+		}
+		
+		assertNotNull(newUser);
+		assertEquals(ROLE2, newUser.getRole());
+		assertEquals(TELEPHONE_NUM, newUser.getTelephoneNumber());		
 	}
 	
 	@Test
@@ -58,8 +79,74 @@ public class RegistrationModuleTest {
 			assertTrue(true);
 		}
 		
+		assertNull(newUser);
+				
+	}
+	
+	@Test
+	public void registerWrongCredentialsGeneralTest() {
+		
+		User newUser = null;
+		String telephoneNum = null;
 		try {
-			newUser = regMod.register(Roles.VISITOR, TELEPHONE_NUM, USERNAME1, PASSWORD, EMAIL);
+			newUser = regMod.register(Roles.VISITOR, telephoneNum, USERNAME1, PASSWORD, EMAIL);
+			fail("Should not reach this line");
+		} catch (CLupException e) {
+			assertTrue(true);
+		}
+		
+		assertNull(newUser);
+		
+		String telephoneNumBlank = "";
+		try {
+			newUser = regMod.register(Roles.VISITOR, telephoneNumBlank, USERNAME1, PASSWORD, EMAIL);
+			fail("Should not reach this line");
+		} catch (CLupException e) {
+			assertTrue(true);
+		}
+		
+		assertNull(newUser);
+		
+		Roles role = null;		
+		try {
+			newUser = regMod.register(role, TELEPHONE_NUM, USERNAME1, PASSWORD, EMAIL);
+			fail("Should not reach this line");
+		} catch (CLupException e) {
+			assertTrue(true);
+		}
+		
+		assertNull(newUser);
+				
+	}
+	
+	@Test
+	public void registerWrongCredentialsCustomerTest() {
+		
+		User newUser = null;
+		String username = "";
+		try {
+			newUser = regMod.register(Roles.MANAGER, TELEPHONE_NUM, username, PASSWORD, EMAIL);
+			fail("Should not reach this line");
+		} catch (CLupException e) {
+			assertTrue(true);
+		}
+		
+		assertNull(newUser);
+		
+		String password = "";
+		try {
+			newUser = regMod.register(Roles.EMPLOYEE, TELEPHONE_NUM, USERNAME1, password, EMAIL);
+			System.out.println(newUser);
+			fail("Should not reach this line");
+		} catch (CLupException e) {
+			assertTrue(true);
+		}
+		
+		assertNull(newUser);
+		
+		String email = "";
+		try {
+			newUser = regMod.register(Roles.REG_CUSTOMER, TELEPHONE_NUM, USERNAME1, PASSWORD, email);
 			fail("Should not reach this line");
 		} catch (CLupException e) {
 			assertTrue(true);
@@ -75,7 +162,7 @@ public class RegistrationModuleTest {
 		User newUser = null;
 		
 		try {
-			newUser = regMod.register(ROLE, TELEPHONE_NUM, USERNAME2, PASSWORD, EMAIL);
+			newUser = regMod.register(ROLE1, TELEPHONE_NUM, USERNAME2, PASSWORD, EMAIL);
 			fail("Should not reach this line");
 		} catch (CLupException e) {
 			assertTrue(true);

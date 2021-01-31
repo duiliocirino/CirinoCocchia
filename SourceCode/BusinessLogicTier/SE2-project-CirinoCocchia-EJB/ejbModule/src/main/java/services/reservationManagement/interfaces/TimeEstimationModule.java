@@ -2,8 +2,6 @@ package src.main.java.services.reservationManagement.interfaces;
 
 import java.util.Date;
 
-import javax.ejb.Stateless;
-
 import src.main.java.exceptions.CLupException;
 import src.main.java.model.Position;
 import src.main.java.model.Queue;
@@ -11,7 +9,6 @@ import src.main.java.model.Reservation;
 import src.main.java.services.macrocomponents.ReservationManagement;
 import src.main.java.services.reservationManagement.implementation.TimeEstimationModuleImplementation;
 
-@Stateless
 public abstract class TimeEstimationModule extends ReservationManagement {
 	/**
 	 * How many seconds more and less we should consider when computing the 

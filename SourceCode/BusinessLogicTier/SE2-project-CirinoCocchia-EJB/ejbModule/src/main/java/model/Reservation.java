@@ -23,15 +23,6 @@ import static javax.persistence.TemporalType.TIMESTAMP;
 			"SELECT r "
 			+ "FROM Reservation r JOIN r.queue q "
 			+ "WHERE q.grocery = :grocery"),
-	@NamedQuery(name = "Reservation.findCustomersFavourites", query = 
-	"SELECT r "
-	+ "FROM Reservation r JOIN r.queue q "
-	+ "WHERE r.customer = :customer "
-	+ "GROUP BY q.grocery "
-	+ "HAVING :nFav < (SELECT COUNT(r2) FROM Reservation r2 JOIN r2.queue q2 "
-		+ "WHERE r2.customer = :customer "
-		+ "GROUP BY q.grocery "
-		+ "HAVING COUNT(r2) > COUNT(r))"),
 	@NamedQuery(name = "Reservation.findByInterval", query = 
 	"SELECT r "
 	+ "FROM Reservation r "
@@ -84,7 +75,6 @@ public class Reservation implements Serializable {
 	 * and serves to the grocery's specific assets to recognize this specific 
 	 * reservation
 	 */
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int QRcode;
 	/**
 	 * This attribute identifies the estimated time for which the customer

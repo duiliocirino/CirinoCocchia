@@ -2,15 +2,12 @@ package src.main.java.services.reservationManagement.interfaces;
 
 import java.util.Date;
 
-import javax.ejb.Stateless;
-
 import src.main.java.exceptions.CLupException;
 import src.main.java.model.Grocery;
 import src.main.java.model.Reservation;
 import src.main.java.services.macrocomponents.ReservationManagement;
 import src.main.java.services.reservationManagement.implementation.QueueUpdateManagementImplementation;
 
-@Stateless
 public abstract class QueueUpdateManagement extends ReservationManagement {
 	
 	/**

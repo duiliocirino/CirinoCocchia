@@ -14,6 +14,15 @@ import static javax.persistence.CascadeType.ALL;
 @Entity
 @NamedQuery(name = "Grocery.findAll", query = "SELECT g FROM Grocery g")
 @NamedQuery(name = "Grocery.findGroceryByName", query = "SELECT g FROM Grocery g  WHERE g.name = :name")
+@NamedQuery(name = "Grocery.findCustomersFavourites", query = 
+	"SELECT q.grocery "
+	+ "FROM Reservation r JOIN r.queue q "
+	+ "WHERE r.customer = :customer "
+	+ "GROUP BY q.grocery "
+	+ "HAVING :nFav < (SELECT COUNT(r2) FROM Reservation r2 JOIN r2.queue q2 "
+		+ "WHERE r2.customer = :customer "
+		+ "GROUP BY q.grocery "
+		+ "HAVING COUNT(r2) > COUNT(r))")
 public class Grocery implements Serializable {
 
 	
@@ -159,7 +168,6 @@ public class Grocery implements Serializable {
 
 
 	public Grocery() {
-		super();
 	}
 
 

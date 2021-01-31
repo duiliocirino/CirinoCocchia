@@ -78,7 +78,7 @@ public class GroceryHandlerTest {
 		assertNull(newGrocery);
 		
 		// name not valid
-		blank = "      ";
+		blank = "";
 		try {
 			newGrocery = grocMod.addGrocery(blank, new Position(0, 0), NEW_MAX_SPOTS, IDOWNER);
 			fail("Should not reach this line ");

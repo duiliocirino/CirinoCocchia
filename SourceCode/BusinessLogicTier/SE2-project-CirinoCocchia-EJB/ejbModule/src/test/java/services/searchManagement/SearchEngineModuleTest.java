@@ -14,6 +14,7 @@ import src.main.java.model.Position;
 import src.main.java.model.User;
 import src.main.java.services.searchManagement.implementation.SearchEngineModuleImplementation;
 import src.main.java.services.searchManagement.interfaces.SearchEngineModule;
+import src.main.java.services.tools.UserToolbox;
 
 public class SearchEngineModuleTest {
 	
@@ -210,6 +211,8 @@ public class SearchEngineModuleTest {
 			grocery.setIdgrocery(IDGROCERY);
 			grocery.setLatitude(GROC_POSITION.getLat());
 			grocery.setLongitude(GROC_POSITION.getLon());
+			
+			this.usrTools = new MockUsrTools();
 		}
 		
 		protected User findUser(int iduser) {
@@ -235,6 +238,10 @@ public class SearchEngineModuleTest {
 		protected List<Grocery> namedQueryReservationFindCustomersFavourites(User customer, int nFav) {
 			return namedQueryGroceryFindAll();
 		}
+	}
+	
+	class MockUsrTools extends UserToolbox {
+		
 	}
 
 }

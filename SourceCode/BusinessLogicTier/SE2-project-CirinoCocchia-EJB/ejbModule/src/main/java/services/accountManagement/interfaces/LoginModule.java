@@ -1,7 +1,5 @@
 package src.main.java.services.accountManagement.interfaces;
 
-import javax.ejb.Stateless;
-
 import src.main.java.exceptions.CLupException;
 import src.main.java.model.User;
 import src.main.java.services.accountManagement.implementation.LoginModuleImplementation;
@@ -11,7 +9,6 @@ import src.main.java.services.macrocomponents.ReservationManagement;
  * the software, by checking the correctness of the data filled to 
  * authenticate
  */
-@Stateless
 public abstract class LoginModule extends ReservationManagement {
 	/**
 	 * Checks the correctness of the credentials of the registered user
@@ -22,6 +19,12 @@ public abstract class LoginModule extends ReservationManagement {
 	 * @throws CLupException with a detailed message attached in case of exceptions
 	 */
 	public abstract User checkCredentials(String username, String password) throws CLupException;
+	/**
+	 * Returns a user in the DB by its id
+	 * @param iduser id of the user to find
+	 * @return User instance in the case in which a user is found, null otherwise
+	 */
+	public abstract User getUserById(int iduser);
 	
 	public static LoginModule getInstance() {
 		return new LoginModuleImplementation();

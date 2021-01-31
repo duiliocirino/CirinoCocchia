@@ -137,19 +137,30 @@ public class TimeEstimationModuleImplementation extends TimeEstimationModule{
 						
 		return estimatedTime;
 	}
-	
+	/**
+	 * Invokes the toolbox to find the reservation
+	 * @param idreservation id of the reservation to find
+	 * @return instance of the reservation if found, null if not
+	 */
 	protected Reservation findReservation(int idreservation) {
-		return em.find(Reservation.class, idreservation);
+		return resTools.findReservation(idreservation);
 	}
-	
+	/**
+	 * Invokes the toolbox to create the named quert Reservation.findByInterval
+	 * @param queue queue related to the grocery to check
+	 * @param start start of the interval
+	 * @param end end of the interval
+	 * @return collection of reservation retrieved by the toolbox
+	 */
 	protected List<Reservation> namedQueryReservationFindByInterval(Queue queue, Date start, Date end){
-		return em.createNamedQuery("Reservation.findByInterval", Reservation.class)
-				.setParameter("queue", queue)
-				.setParameter("start", start)
-				.setParameter("end", end)
-				.getResultList();
+		return resTools.findByInterval(queue, start, end);
 	}
-	
+	/**
+	 * Invokes another service to get the ride time
+	 * @param origin starting position of the movement
+	 * @param end end position of the movement
+	 * @return time necessary to ride from origin to end
+	 */
 	protected double invokeRideTime(Position origin, Position end) {
 		return notificationMod.rideTime(origin, end);
 	}

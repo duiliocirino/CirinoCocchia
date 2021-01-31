@@ -2,6 +2,8 @@ package src.main.java.services.groceryManagement.implementation;
 
 import java.util.List;
 
+import javax.ejb.Stateless;
+
 import src.main.java.exceptions.CLupException;
 import src.main.java.model.Grocery;
 import src.main.java.model.Position;
@@ -9,6 +11,7 @@ import src.main.java.model.User;
 import src.main.java.services.groceryManagement.interfaces.GroceryHandlerModule;
 import src.main.java.utils.Roles;
 
+@Stateless
 public class GroceryHandlerModuleImplementation extends GroceryHandlerModule {
 
 	@Override
@@ -21,7 +24,7 @@ public class GroceryHandlerModuleImplementation extends GroceryHandlerModule {
 					+ "not exist");
 		}
 		
-		if(name == null || name.isBlank()) {
+		if(name == null || name.isEmpty()) {
 			throw new CLupException("Name can't be null or blank");
 		}
 		
@@ -59,7 +62,7 @@ public class GroceryHandlerModuleImplementation extends GroceryHandlerModule {
 		}
 		
 		if(name != null) {
-			if(name.isBlank()) {
+			if(name.isEmpty()) {
 				throw new CLupException("Can't edit the name of a grocery with a blank string");
 			}
 			List<Grocery> names = namedQueryGroceryFindGroceryByName(name);
@@ -91,13 +94,19 @@ public class GroceryHandlerModuleImplementation extends GroceryHandlerModule {
 		return grocery;
 	}
 	
+	@Override
+	public Grocery getGrocery(int idgrocery) {
+		return findGrocery(idgrocery);
+	}
+
+	
 	/**
 	 * Decouple the invocation of entity manager
 	 * @param iduser id of the user to be searched
 	 * @return User instance if found something, null otherwise
 	 */
 	protected User findUser(int iduser) {
-		return em.find(User.class, iduser);
+		return usrTools.findUser(iduser);
 	}
 	/**
 	 * Decouple the invocation of entity manager
@@ -105,21 +114,21 @@ public class GroceryHandlerModuleImplementation extends GroceryHandlerModule {
 	 * @return Grocery instance if found something, null otherwise
 	 */
 	protected Grocery findGrocery(int idgrocery) {
-		return em.find(Grocery.class,  idgrocery);
+		return grocTools.findGrocery(idgrocery);
 	}
 	/**
 	 * Decouple the invocation of entity manager
 	 * @param grocery grocery to be persisted
 	 */
 	protected void persistGrocery(Grocery grocery) {
-		em.persist(grocery);
+		grocTools.persistGrocery(grocery);
 	}
 	/**
 	 * Decouple the invocation of entity manager
 	 * @param grocery grocery to be removed
 	 */
 	protected void removeGrocery(Grocery grocery) {
-		em.remove(grocery);
+		grocTools.removeGrocery(grocery);
 	}
 	/**
 	 * Decouple the invocation of entity manager
@@ -127,10 +136,7 @@ public class GroceryHandlerModuleImplementation extends GroceryHandlerModule {
 	 * @return result of the named query Grocery.findGroceryByName
 	 */
 	protected List<Grocery> namedQueryGroceryFindGroceryByName(String name){
-		return em.createNamedQuery("Grocery.findGroceryByName", Grocery.class)
-				.setParameter("name", name)
-				.getResultList();
+		return grocTools.findGroceryByName(name);
 	}
-
 
 }

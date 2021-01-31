@@ -1,11 +1,14 @@
 package src.main.java.services.groceryManagement.implementation;
 
+import javax.ejb.Stateless;
+
 import src.main.java.exceptions.CLupException;
 import src.main.java.model.Grocery;
 import src.main.java.model.User;
 import src.main.java.services.groceryManagement.interfaces.EmployeesModule;
 import src.main.java.utils.Roles;
 
+@Stateless
 public class EmployeesModuleImplementation extends EmployeesModule {
 
 	@Override
@@ -58,7 +61,7 @@ public class EmployeesModuleImplementation extends EmployeesModule {
 	 * @return User instance if found, null otherwise
 	 */
 	protected User findUser(int iduser) {
-		return em.find(User.class, iduser);
+		return usrTools.findUser(iduser);
 	}
 	/**
 	 * Decouple the invocation of entity manager
@@ -66,7 +69,7 @@ public class EmployeesModuleImplementation extends EmployeesModule {
 	 * @return Grocery instance if found, null otherwise
 	 */
 	protected Grocery findGrocery(int idgrocery) {
-		return em.find(Grocery.class, idgrocery);
+		return grocTools.findGrocery(idgrocery);
 	}
 
 
