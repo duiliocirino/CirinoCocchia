@@ -21,10 +21,6 @@ public class GroceryToolbox {
 	@PersistenceContext(unitName="SE2-project-CirinoCocchia-EJB")
 	protected EntityManager em;
 	
-	public EntityManager getEM() {
-		return em;
-	}
-	
 	/**
 	 * Find a grocery basing on its id
 	 * @param idgrocery id of the grocery to be searched
@@ -76,7 +72,7 @@ public class GroceryToolbox {
 	 *  done
 	 */
 	public List<Grocery> findCustomersFavourites(User customer, int numberFavourites) {
-		return em.createNamedQuery("Grocery.findCustomerFavourites", Grocery.class)
+		return em.createNamedQuery("Grocery.findCustomersFavourites", Grocery.class)
 				.setParameter("customer", customer)
 				.setParameter("nFav", numberFavourites)
 				.getResultList();

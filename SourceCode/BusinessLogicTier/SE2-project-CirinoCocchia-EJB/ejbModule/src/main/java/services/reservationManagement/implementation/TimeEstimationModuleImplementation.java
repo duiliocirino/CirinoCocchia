@@ -52,7 +52,7 @@ public class TimeEstimationModuleImplementation extends TimeEstimationModule{
 		Date start = startCal.getTime();
 		Date end = endCal.getTime();
 		
-		List<Reservation> res = namedQueryReservationFindByInterval(queue, start, end);
+		List<Reservation> res = resTools.findByInterval(queue, start, end);
 			
 		if(res.size() < INTERVAL_NUMBER_RESERVATIONS_COMPUTATION_SREAD_TIME) {
 			return 0.0;
@@ -65,7 +65,7 @@ public class TimeEstimationModuleImplementation extends TimeEstimationModule{
 
 	@Override
 	public double getEstimatedTimeSeconds(int idreservation) throws CLupException {
-		Reservation res = findReservation(idreservation);
+		Reservation res = resTools.findReservation(idreservation);
 		
 		if(res == null) {
 			throw new CLupException("Can't get esitmated time, no reservation with that id");
@@ -137,30 +137,7 @@ public class TimeEstimationModuleImplementation extends TimeEstimationModule{
 						
 		return estimatedTime;
 	}
-	/**
-	 * Invokes the toolbox to find the reservation
-	 * @param idreservation id of the reservation to find
-	 * @return instance of the reservation if found, null if not
-	 */
-	protected Reservation findReservation(int idreservation) {
-		return resTools.findReservation(idreservation);
-	}
-	/**
-	 * Invokes the toolbox to create the named quert Reservation.findByInterval
-	 * @param queue queue related to the grocery to check
-	 * @param start start of the interval
-	 * @param end end of the interval
-	 * @return collection of reservation retrieved by the toolbox
-	 */
-	protected List<Reservation> namedQueryReservationFindByInterval(Queue queue, Date start, Date end){
-		return resTools.findByInterval(queue, start, end);
-	}
-	/**
-	 * Invokes another service to get the ride time
-	 * @param origin starting position of the movement
-	 * @param end end position of the movement
-	 * @return time necessary to ride from origin to end
-	 */
+
 	protected double invokeRideTime(Position origin, Position end) {
 		return notificationMod.rideTime(origin, end);
 	}

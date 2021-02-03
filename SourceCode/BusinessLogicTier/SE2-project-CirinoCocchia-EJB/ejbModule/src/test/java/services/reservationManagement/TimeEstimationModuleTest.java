@@ -17,6 +17,8 @@ import src.main.java.model.Queue;
 import src.main.java.model.Reservation;
 import src.main.java.services.reservationManagement.implementation.TimeEstimationModuleImplementation;
 import src.main.java.services.reservationManagement.interfaces.TimeEstimationModule;
+import src.main.java.services.tools.GroceryToolbox;
+import src.main.java.services.tools.ReservationToolbox;
 import src.main.java.utils.ReservationStatus;
 
 public class TimeEstimationModuleTest {
@@ -66,7 +68,7 @@ public class TimeEstimationModuleTest {
 		}	
 		
 		assertFalse(-1.0 == spreadTime);		
-		assertTrue(timeMod.ADDITIONAL_TIME_COMPUTATION_SPREAD_TIME_IN_SEC == spreadTime);
+		assertTrue(TimeEstimationModule.ADDITIONAL_TIME_COMPUTATION_SPREAD_TIME_IN_SEC == spreadTime);
 	}
 	
 	@Test
@@ -83,7 +85,7 @@ public class TimeEstimationModuleTest {
 		}
 		
 		assertFalse(-1.0 == spreadTime);
-		assertTrue(2 * timeMod.ADDITIONAL_TIME_COMPUTATION_SPREAD_TIME_IN_SEC == spreadTime);
+		assertTrue(2 * TimeEstimationModule.ADDITIONAL_TIME_COMPUTATION_SPREAD_TIME_IN_SEC == spreadTime);
 	}
 
 	@Test
@@ -231,12 +233,65 @@ public class TimeEstimationModuleTest {
 	}
 
 	class MockTimeEstimationModule extends TimeEstimationModuleImplementation{
+		
+		public MockTimeEstimationModule() {
+			this.grocTools = new MockGrocTools();
+			this.resTools = new MockResTools();
+		}
+	
+		
+		protected double invokeRideTime(Position origin, Position end) {
+			return RIDE_TIME;
+		}
+		
+	}
+	
+	class MockResTools extends ReservationToolbox {
+		
+		public MockResTools() {
+			
+		}
+		
+		public Reservation findReservation(int idreservation) {
+			if(idreservation == reservation.getIdreservation()) {
+				return reservation;
+			}
+			return null;
+		}
+		
+		public List<Reservation> findByInterval(Queue queue, Date start, Date end ){
+			List<Reservation> newList = new ArrayList<>();
+			int id = queue.getIdqueue();
+			
+			if(id == IDQUEUE_ALMOST_FULL) {
+				for(int i = 0; i < TimeEstimationModule.INTERVAL_NUMBER_RESERVATIONS_COMPUTATION_SREAD_TIME; i++) {
+					Reservation res = new Reservation();
+					newList.add(res);
+				}
+				return newList;
+			} else if(id == IDQUEUE_FULL) {
+				for(int i = 0; i < 2* TimeEstimationModule.INTERVAL_NUMBER_RESERVATIONS_COMPUTATION_SREAD_TIME; i++) {
+					Reservation res = new Reservation();
+					newList.add(res);
+				}
+				return newList;
+			} else if(id == IDQUEUE_EMPTY) {
+				return newList;
+			}
+			
+			
+			return null;
+		}
+	}
+	
+	class MockGrocTools extends GroceryToolbox {
+		
 		private Queue queue_empty;
 		private Queue queue_almost_full;
 		private Queue queue_full;
 		private Grocery grocery;
 		
-		public MockTimeEstimationModule() {
+		public MockGrocTools() {
 			reservation = new Reservation();
 			reservation.setIdreservation(IDRESERVATION);
 			queue_empty = new Queue();
@@ -255,42 +310,6 @@ public class TimeEstimationModuleTest {
 			queue_full = new Queue();
 			queue_full.setIdqueue(IDQUEUE_FULL);
 		}
-		
-		protected Reservation findReservation(int idreservation) {
-			if(idreservation == reservation.getIdreservation()) {
-				return reservation;
-			}
-			return null;
-		}
-		
-		protected List<Reservation> namedQueryReservationFindByInterval(Queue queue, Date start, Date end) {
-			List<Reservation> newList = new ArrayList<>();
-			int id = queue.getIdqueue();
-			
-			if(id == queue_almost_full.getIdqueue()) {
-				for(int i = 0; i < this.INTERVAL_NUMBER_RESERVATIONS_COMPUTATION_SREAD_TIME; i++) {
-					Reservation res = new Reservation();
-					newList.add(res);
-				}
-				return newList;
-			} else if(id == queue_full.getIdqueue()) {
-				for(int i = 0; i < 2* this.INTERVAL_NUMBER_RESERVATIONS_COMPUTATION_SREAD_TIME; i++) {
-					Reservation res = new Reservation();
-					newList.add(res);
-				}
-				return newList;
-			} else if(id == queue_empty.getIdqueue()) {
-				return newList;
-			}
-			
-			
-			return null;
-		}
-		
-		protected double invokeRideTime(Position origin, Position end) {
-			return RIDE_TIME;
-		}
-		
 	}
 
 }

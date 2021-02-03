@@ -48,7 +48,7 @@ public class QueueUpdateManagementImplementation extends QueueUpdateManagement{
 	
 	@Override
 	public boolean setIntoTheStore(int idreservation) throws CLupException {
-		Reservation reservation = findReservation(idreservation);
+		Reservation reservation = resTools.findReservation(idreservation);
 		
 		if(reservation == null) {
 			throw new CLupException("id of the reservation passed not existent on the DB");
@@ -86,7 +86,7 @@ public class QueueUpdateManagementImplementation extends QueueUpdateManagement{
 		TimerTask task = new TimerTask() {
 			public void run() {
 				// align the reservation with the one on the DB
-				refresh(reservation);
+				resTools.refreshReservation(reservation);
 				if(reservation.getStatus() == ReservationStatus.OPEN) {
 					queue.addReservation(reservation);
 				}
@@ -103,14 +103,7 @@ public class QueueUpdateManagementImplementation extends QueueUpdateManagement{
 		// TODO: delete, out of focus with the scope
 		return 0;
 	}
-	
-	protected Reservation findReservation(int idreservation) {
-		return resTools.findReservation(idreservation);
-	}
-	
-	protected void refresh(Reservation reservation) {
-		resTools.detachReservation(reservation);
-	}
+
 	
 	protected Reservation invokeAddReservation(int iduser, int idgrocery, ReservationType type, Date date, Position position) throws CLupException {
 		return reservationHandler

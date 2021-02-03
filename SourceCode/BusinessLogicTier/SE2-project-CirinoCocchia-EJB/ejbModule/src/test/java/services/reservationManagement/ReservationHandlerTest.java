@@ -17,6 +17,9 @@ import src.main.java.model.Reservation;
 import src.main.java.model.User;
 import src.main.java.services.reservationManagement.implementation.ReservationHandlerImplementation;
 import src.main.java.services.reservationManagement.interfaces.ReservationHandlerModule;
+import src.main.java.services.tools.GroceryToolbox;
+import src.main.java.services.tools.ReservationToolbox;
+import src.main.java.services.tools.UserToolbox;
 import src.main.java.utils.ReservationStatus;
 import src.main.java.utils.ReservationType;
 
@@ -209,66 +212,99 @@ public class ReservationHandlerTest {
 	}
 	
 	class MockReservationHandler extends ReservationHandlerImplementation{
-		private User user;
+		
 		private Reservation oldReservation;
-		private Grocery grocery;
-		private Queue queue;
 		
 		public MockReservationHandler() {
-			user = new User();
-			user.setIduser(IDUSER);
 			oldReservation = new Reservation();
 			oldReservation.setIdreservation(IDRESERVATION);
 			oldReservation.setStatus(ReservationStatus.OPEN);
 			oldReservation.setQueueTimer(new Timer());
+			
+			this.resTools = new MockResTools(oldReservation);
+			this.usrTools = new MockUsrTools();
+			this.grocTools = new MockGrocTools(oldReservation);
+						
+			User user = this.usrTools.findUser(IDUSER);
+			oldReservation.setCustomer(user);
+			Queue queue = this.grocTools.findGrocery(IDGROCERY).getQueue();
+			oldReservation.setQueue(queue);
+		}
+			
+		protected void invokeEstimateTime(Reservation reservation, Position position) {
+			reservation.setEstimatedTime(Calendar.getInstance().getTime());
+		}
+	}
+	
+	class MockGrocTools extends GroceryToolbox {
+		
+		private Grocery grocery;
+		private Queue queue;
+		 
+		public MockGrocTools(Reservation old) {
 			grocery = new Grocery();
 			grocery.setIdgrocery(IDGROCERY);
 			queue = new Queue();
 			queue.setIdqueue(IDQUEUE);
-			queue.addReservation(oldReservation);
+			queue.addReservation(old);
 			grocery.setQueue(queue);
 			queue.setGrocery(grocery);
-			
-			oldReservation.setCustomer(user);
-			oldReservation.setQueue(queue);
 		}
 		
-		protected User findUser(int iduser) {
-			if(iduser == user.getIduser()) {
-				return user;
-			}
-			return null;
-		}
-		
-		protected Grocery findGrocery(int idgrocery) {
+		public Grocery findGrocery(int idgrocery) {
 			if(idgrocery == grocery.getIdgrocery()) {
 				return grocery;
 			}
 			return null;
 		}
+
+	}
+	
+	class MockUsrTools extends UserToolbox {
 		
-		protected Reservation findReservation(int idreservation) {
+		private User user;
+		
+		public MockUsrTools() {
+			user = new User();
+			user.setIduser(IDUSER);
+		}
+		
+		public User findUser(int iduser) {
+			if(iduser == user.getIduser()) {
+				return user;
+			}
+			return null;
+		}
+	}
+	
+	class MockResTools extends ReservationToolbox {
+		
+		private Reservation oldReservation;
+		
+		public MockResTools(Reservation res) {
+			super();
+			this.oldReservation = res;			
+		}
+		
+		public Reservation findReservation(int idreservation) {
 			if(idreservation == IDRESERVATION) {
 				return oldReservation;
 			}
 			return null;
 		}
 		
-		protected void persistReservation(Reservation reservation) {
+		public void persistReservation(Reservation reservation) {
 		}
 		
-		protected void emRemoveReservation(Reservation reservation) {
+		public void detachReservation(Reservation reservation) {
+		}
+		
+		public void removeReservation(Reservation reservation) {
 			if(reservation.equals(oldReservation)) {
 				oldReservation = null;
 			}
 		}
-		
-		protected void detachReservation(Reservation reservation) {
-		}
-			
-		protected void invokeEstimateTime(Reservation reservation, Position position) {
-			reservation.setEstimatedTime(Calendar.getInstance().getTime());
-		}
+
 	}
 
 	class MockTimer extends Timer {

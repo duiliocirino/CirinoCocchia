@@ -14,29 +14,29 @@ public abstract class TimeEstimationModule extends ReservationManagement {
 	 * How many seconds more and less we should consider when computing the 
 	 * estimated time considering the other reservations.
 	 */
-	protected final int INTERVAL_TIME_COMPUTATION_SPREAD_TIME_IN_SEC = 60;
+	protected final static int INTERVAL_TIME_COMPUTATION_SPREAD_TIME_IN_SEC = 60;
 	/**
 	 * Number of reservations for which we can consider a certain grocery 
 	 * almost full for a certain instant of time. Will be considered as full 
 	 * when the number of reservations will be the double with respect of 
 	 * this value.
 	 */
-	public final int INTERVAL_NUMBER_RESERVATIONS_COMPUTATION_SREAD_TIME = 3;
+	public final static int INTERVAL_NUMBER_RESERVATIONS_COMPUTATION_SREAD_TIME = 3;
 	/**
 	 * How much more time is added for each interval.
 	 */
-	public final double ADDITIONAL_TIME_COMPUTATION_SPREAD_TIME_IN_SEC = 60;
+	public final static double ADDITIONAL_TIME_COMPUTATION_SPREAD_TIME_IN_SEC = 60;
 	/**
 	 * How many minutes preceeding the moment of the request are acceptable 
 	 * by the program, if a request arrives before of these minutes, it is 
 	 * classified as a "past" request and an exception will arise
 	 */
-	public final int MINIMUM_THRESHOLD_MINUTES = 1;
+	public final static int MINIMUM_THRESHOLD_MINUTES = 1;
 
 	/**
 	 * Fixed time set in order to do pessimistic estimations.
 	 */
-	protected final double FIX_TIME = 60.0;
+	protected final static double FIX_TIME = 60.0;
 	/**
 	 * Calculates the spread time (see DD) for a certain period of time, accordingly to other
 	 * Reservations already made and for a specific queue.

@@ -27,8 +27,8 @@ public class ReservationHandlerImplementation extends ReservationHandlerModule {
 	
 	@Override
 	public Reservation addReservation(int iduser, int idgrocery, ReservationType type, Date bookTime, Position position) throws CLupException {
-		User user = findUser(iduser);
-		Grocery grocery = findGrocery(idgrocery);
+		User user =  usrTools.findUser(iduser);
+		Grocery grocery = grocTools.findGrocery(idgrocery);
 		
 		if(grocery == null) {
 			throw new CLupException("Can't find the grocery in new reservation");
@@ -44,7 +44,7 @@ public class ReservationHandlerImplementation extends ReservationHandlerModule {
 		// create a new Reservation object
 		Reservation newReservation = new Reservation(user, grocery, type, bookTime);
 		// persist it
-		persistReservation(newReservation);
+		resTools.persistReservation(newReservation);
 		
 		// create time estimation
 		invokeEstimateTime(newReservation, position);
@@ -70,7 +70,7 @@ public class ReservationHandlerImplementation extends ReservationHandlerModule {
 			reservation.setStatus(ReservationStatus.CLOSED);
 		}
 		
-		emRemoveReservation(reservation);
+		resTools.removeReservation(reservation);
 		
 		return reservation;
 	}
@@ -78,13 +78,13 @@ public class ReservationHandlerImplementation extends ReservationHandlerModule {
 	
 	@Override
 	public Reservation getReservation(int idreservation) {
-		return findReservation(idreservation);
+		return resTools.findReservation(idreservation);
 	}
 
 
 	@Override
 	public int closeReservation(int idreservation) throws CLupException {
-		Reservation reservation = findReservation(idreservation);
+		Reservation reservation = resTools.findReservation(idreservation);
 		if(reservation == null) {
 			throw new CLupException("Can't find the reservation to close");
 		}
@@ -95,35 +95,11 @@ public class ReservationHandlerImplementation extends ReservationHandlerModule {
 		// this operation closes the reservation too
 		reservation.getQueue().removeReservation(reservation);
 		
-		detachReservation(reservation);
+		resTools.detachReservation(reservation);
 		
 		return 0;
 	}
-	
-	protected User findUser(int iduser) {
-		return usrTools.findUser(iduser);
-	}
-	
-	protected Grocery findGrocery(int idgrocery) {
-		return grocTools.findGrocery(idgrocery);
-	}
-	
-	protected Reservation findReservation(int idreservation) {
-		return resTools.findReservation(idreservation);
-	}
-	
-	protected void persistReservation(Reservation reservation) {
-		resTools.persistReservation(reservation);
-	}
-	
-	protected void emRemoveReservation(Reservation reservation) {
-		resTools.removeReservation(reservation);
-	}
-	
-	protected void detachReservation(Reservation reservation) {
-		resTools.detachReservation(reservation);
-	}
-		
+			
 	protected void invokeEstimateTime(Reservation reservation, Position position) throws CLupException {
 		timeEstimationMod.estimateTime(reservation, position);
 	}

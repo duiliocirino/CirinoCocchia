@@ -63,7 +63,7 @@ public class UserToolbox {
 	 */
 	public List<User> findByUsername(String username){
 		return em.createNamedQuery("User.findByUsername", User.class)
-				.setParameter("usern", username)
+				.setParameter("usrn", username)
 				.getResultList();
 	}
 }

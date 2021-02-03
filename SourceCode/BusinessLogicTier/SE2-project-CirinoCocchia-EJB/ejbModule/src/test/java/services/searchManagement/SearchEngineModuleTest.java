@@ -14,6 +14,7 @@ import src.main.java.model.Position;
 import src.main.java.model.User;
 import src.main.java.services.searchManagement.implementation.SearchEngineModuleImplementation;
 import src.main.java.services.searchManagement.interfaces.SearchEngineModule;
+import src.main.java.services.tools.GroceryToolbox;
 import src.main.java.services.tools.UserToolbox;
 
 public class SearchEngineModuleTest {
@@ -199,49 +200,56 @@ public class SearchEngineModuleTest {
 	}
 	
 	class MockSearchEngineModule extends SearchEngineModuleImplementation {
+		public MockSearchEngineModule() {
+			this.usrTools = new MockUsrTools();
+			this.grocTools = new MockGrocTools();
+		}
+	}
+	
+	class MockUsrTools extends UserToolbox {
 		
 		private User user;
-		private Grocery grocery;
 		
-		public MockSearchEngineModule() {
+		public MockUsrTools() {
 			user = new User();
 			user.setIduser(IDUSER);
-			
-			grocery = new Grocery();
-			grocery.setIdgrocery(IDGROCERY);
-			grocery.setLatitude(GROC_POSITION.getLat());
-			grocery.setLongitude(GROC_POSITION.getLon());
-			
-			this.usrTools = new MockUsrTools();
 		}
 		
-		protected User findUser(int iduser) {
+		public User findUser(int iduser) {
 			if(iduser == user.getIduser()) {
 				return user;
 			}
 			return null;
 		}
 		
-		protected Grocery findGrocery(int idgrocery) {
+	}
+	
+	class MockGrocTools extends GroceryToolbox {
+		private Grocery grocery;
+
+		public MockGrocTools() {
+			grocery = new Grocery();
+			grocery.setIdgrocery(IDGROCERY);
+			grocery.setLatitude(GROC_POSITION.getLat());
+			grocery.setLongitude(GROC_POSITION.getLon());
+		}
+		
+		public Grocery findGrocery(int idgrocery) {
 			if(idgrocery == grocery.getIdgrocery()) {
 				return grocery;
 			}
 			return null;
 		}
 		
-		protected List<Grocery> namedQueryGroceryFindAll(){
+		public List<Grocery> findAllGroceries(){
 			List<Grocery> groceries = new ArrayList<>();
 			groceries.add(grocery);
 			return groceries;
 		}
 		
-		protected List<Grocery> namedQueryReservationFindCustomersFavourites(User customer, int nFav) {
-			return namedQueryGroceryFindAll();
+		public List<Grocery> findCustomersFavourites(User customer, int numberFavourites){
+			return findAllGroceries();
 		}
-	}
-	
-	class MockUsrTools extends UserToolbox {
-		
 	}
 
 }

@@ -8,6 +8,10 @@ import java.util.stream.Collectors;
 import javax.persistence.*;
 
 import src.main.java.utils.ReservationStatus;
+import static javax.persistence.CascadeType.MERGE;
+import static javax.persistence.CascadeType.REMOVE;
+import static javax.persistence.CascadeType.REFRESH;
+import static javax.persistence.CascadeType.DETACH;
 
 
 /**
@@ -29,7 +33,7 @@ public class Queue implements Serializable {
 	 * This attribute represents the grocery of which this queue
 	 * is assigned to
 	 */
-	@OneToOne
+	@OneToOne(cascade = { MERGE, REMOVE, REFRESH, DETACH })
 	@JoinColumn(name = "idgrocery")
 	private Grocery grocery;
 	/**

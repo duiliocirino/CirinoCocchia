@@ -22,7 +22,7 @@ public class LoginModuleImplementation extends LoginModule {
 			throw new CLupException("Can't check null or empty credentials");
 		}
 		
-		List<User> result = namedQueryUserCheckCredentials(username, password);
+		List<User> result = usrTools.checkCredentials(username, password);
 		
 		if(!result.isEmpty()) {
 			User instance = result.get(0);
@@ -34,21 +34,6 @@ public class LoginModuleImplementation extends LoginModule {
 	
 	@Override
 	public User getUserById(int iduser) {
-		return findUser(iduser);
-	}
-	
-	/**
-	 * Decouple the invocation of entity manager
-	 */
-	protected User findUser(int iduser) {
 		return usrTools.findUser(iduser);
 	}
-	/**
-	 * Decouple the invocation of entity manager
-	 */
-	protected List<User> namedQueryUserCheckCredentials(String usern, String pass){
-		return usrTools.checkCredentials(usern, pass);
-	}
-
-
 }

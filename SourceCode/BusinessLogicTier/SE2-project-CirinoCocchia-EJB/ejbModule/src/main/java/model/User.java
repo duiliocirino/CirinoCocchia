@@ -26,7 +26,7 @@ import src.main.java.utils.Roles;
 @Entity
 @Table(name = "user", schema = "db_project_se2")
 @NamedQuery(name = "User.checkCredentials", query = "SELECT r FROM User r  WHERE r.username = :usern and r.password = :pass")
-@NamedQuery(name = "User.findUserByUsername", query = "SELECT r FROM User r  WHERE r.username = :usrn")
+@NamedQuery(name = "User.findByUsername", query = "SELECT r FROM User r  WHERE r.username = :usrn")
 public class User implements Serializable {
 	private static final long serialVersionUID = 1L;
 

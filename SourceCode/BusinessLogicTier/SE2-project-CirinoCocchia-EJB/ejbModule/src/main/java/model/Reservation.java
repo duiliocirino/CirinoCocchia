@@ -10,6 +10,8 @@ import src.main.java.utils.ReservationStatus;
 import src.main.java.utils.ReservationType;
 
 import static javax.persistence.TemporalType.TIMESTAMP;
+import static javax.persistence.CascadeType.MERGE;
+import static javax.persistence.CascadeType.REFRESH;
 
 /**
  * Javabean class for Entity: Reservation
@@ -52,7 +54,7 @@ public class Reservation implements Serializable {
 	/**
 	 * Entity representing the customer who did the reservation
 	 */
-	@ManyToOne(fetch = FetchType.EAGER, cascade = {CascadeType.REFRESH})
+	@ManyToOne(fetch = FetchType.EAGER, cascade = { REFRESH, MERGE })
 	@JoinColumn(name = "idcustomer")
 	private User customer;
 	
@@ -60,7 +62,7 @@ public class Reservation implements Serializable {
 	 * Entity representing the grocery for which the reservation
 	 * has been made
 	 */
-	@OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+	@OneToOne(fetch = FetchType.EAGER, cascade ={ MERGE, REFRESH } )
 	@JoinColumn(name = "idqueue")
 	private Queue queue;
 	
@@ -69,13 +71,7 @@ public class Reservation implements Serializable {
 	 */
 	@Enumerated(EnumType.STRING)
 	private ReservationType type;
-	
-	/**
-	 * This attribute identifies the reservation in a machine-readable way
-	 * and serves to the grocery's specific assets to recognize this specific 
-	 * reservation
-	 */
-	private int QRcode;
+
 	/**
 	 * This attribute identifies the estimated time for which the customer
 	 * will be allowed to be lined-up to the grocery's queue
@@ -87,12 +83,6 @@ public class Reservation implements Serializable {
 	 */
 	@Enumerated(EnumType.STRING)
 	private ReservationStatus status;
-	
-	/**
-	 * This attribute represents the lineup number (see RASD for definition)
-	 * assigned to this reservation
-	 */
-	private int lineUpNumber;
 	
 	/**
 	 * This attribute tracks the time in which the customer entered into the grocery store
@@ -175,14 +165,6 @@ public class Reservation implements Serializable {
 		this.type = resType;
 	}
 
-	public int getQRcode() {
-		return QRcode;
-	}
-
-	public void setQRcode(int qRcode) {
-		QRcode = qRcode;
-	}
-
 	public ReservationStatus getStatus() {
 		return status;
 	}
@@ -194,14 +176,6 @@ public class Reservation implements Serializable {
 	public void setStatus(String status) {
 		ReservationStatus resStatus = ReservationStatus.getResStatusByString(status);
 		this.status = resStatus;
-	}
-
-	public int getLineUpNumber() {
-		return lineUpNumber;
-	}
-
-	public void setLineUpNumber(int lineUpNumber) {
-		this.lineUpNumber = lineUpNumber;
 	}
 
 	public Date getTimeEntrance() {
@@ -220,13 +194,6 @@ public class Reservation implements Serializable {
 		this.timeExit = timeExit;
 	}
 
-	public Date getBookTime() {
-		return bookTime;
-	}
-
-	public void setBookTime(Date bookTime) {
-		this.bookTime = bookTime;
-	}
 	public Timer getQueueTimer() {
 		return queueTimer;
 	}

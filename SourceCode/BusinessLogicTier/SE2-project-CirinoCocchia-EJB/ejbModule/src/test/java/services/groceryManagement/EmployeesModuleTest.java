@@ -10,6 +10,8 @@ import src.main.java.model.Grocery;
 import src.main.java.model.User;
 import src.main.java.services.groceryManagement.implementation.EmployeesModuleImplementation;
 import src.main.java.services.groceryManagement.interfaces.EmployeesModule;
+import src.main.java.services.tools.GroceryToolbox;
+import src.main.java.services.tools.UserToolbox;
 import src.main.java.utils.Roles;
 
 public class EmployeesModuleTest {
@@ -171,12 +173,19 @@ public class EmployeesModuleTest {
 		assertEquals(1, grocery.getEmployees().size());
 	}
 	
-	class MockEmployeesModule extends EmployeesModuleImplementation {
-		
+	class MockEmployeesModule extends EmployeesModuleImplementation {		
+		public MockEmployeesModule() {
+			this.grocTools = new MockGrocTools();
+			this.usrTools = new MockUsrTools();
+			
+		}
+	}
+	
+	class MockUsrTools extends UserToolbox {
 		private User employee;
 		private User customer;
 		
-		public MockEmployeesModule() {
+		public MockUsrTools() {
 			employee = new User();
 			employee.setIduser(IDEMP);
 			employee.setRole(Roles.EMPLOYEE);
@@ -184,19 +193,9 @@ public class EmployeesModuleTest {
 			customer = new User();
 			customer.setIduser(IDCUSTOMER);
 			customer.setRole(Roles.REG_CUSTOMER);
-			
-			grocery = new Grocery();
-			grocery.setIdgrocery(IDGROCERY);
 		}
 		
-		/**
-		 * just to test purposes
-		 */
-		Grocery getGrocery() {
-			return grocery;
-		}
-		
-		protected User findUser(int iduser) {
+		public User findUser(int iduser) {
 			if(iduser == employee.getIduser()) {
 				return employee;
 			}
@@ -205,8 +204,16 @@ public class EmployeesModuleTest {
 			}
 			return null;
 		}
+	}
+	
+	public class MockGrocTools extends GroceryToolbox {
 		
-		protected Grocery findGrocery(int idgrocery) {
+		public MockGrocTools() {
+			grocery = new Grocery();
+			grocery.setIdgrocery(IDGROCERY);
+		}
+		
+		public Grocery findGrocery(int idgrocery) {
 			if(idgrocery == grocery.getIdgrocery()) {
 				return grocery;
 			}

@@ -17,6 +17,8 @@ import src.main.java.model.Grocery;
 import src.main.java.model.Queue;
 import src.main.java.services.groceryManagement.implementation.MonitorModuleImplementation;
 import src.main.java.services.groceryManagement.interfaces.MonitorModule;
+import src.main.java.services.tools.GroceryToolbox;
+import src.main.java.services.tools.ReservationToolbox;
 import src.main.java.utils.GroceryData;
 
 public class MonitorModuleTest {
@@ -24,7 +26,7 @@ public class MonitorModuleTest {
 	private final int IDGROCERY = 1;
 	private final int IDGROCERY_NOT_DB = 10;
 	private final Integer[] VISITSTIMEMIN = {2, 3, 4, 5};
-	private final int VISITSNUM = 4;
+	private final long VISITSNUM = 4;
 	
 	private Queue queue;
 	private MonitorModule monMod;
@@ -153,16 +155,43 @@ public class MonitorModuleTest {
 
 	
 	class MockMonitorModule extends MonitorModuleImplementation {
-		private List<Integer> visitIntervals;
-		private List<Integer> numOfVisits;
-		private Grocery grocery;
 		
 		public MockMonitorModule() {
+			this.grocTools = new MockGrocTools();
+			this.resTools = new MockResTools(
+					this.grocTools.findGrocery(IDGROCERY));
+		}
+		
+	}
+	
+	public class MockGrocTools extends GroceryToolbox{
+		
+		private Grocery grocery;
+		
+		public MockGrocTools() {
 			grocery = new Grocery();
 			queue = new Queue();
 			grocery.setIdgrocery(IDGROCERY);
 			grocery.setQueue(queue);
-			
+		}
+		
+		public Grocery findGrocery(int idgrocery) {
+			if(idgrocery == grocery.getIdgrocery()) {
+				return grocery;
+			}
+			return null;
+		}
+	}
+	
+	public class MockResTools extends ReservationToolbox {
+		
+		private Grocery grocery;
+		private List<Long> numOfVisits;
+		private List<Integer> visitIntervals;
+		
+		public MockResTools(Grocery grocery) {
+			super();
+			this.grocery = grocery;
 			visitIntervals = new ArrayList<>();
 			Collections.addAll(visitIntervals, VISITSTIMEMIN);
 			
@@ -170,27 +199,19 @@ public class MonitorModuleTest {
 			Collections.addAll(numOfVisits, VISITSNUM);
 		}
 		
-		protected Grocery findGrocery(int idgrocery) {
-			if(idgrocery == grocery.getIdgrocery()) {
-				return grocery;
-			}
-			return null;
-		}
-		
-		protected List<Integer> namedQueryReservationTotalVisitsInInterval(Queue queue, Date start, Date end) {
+		public List<Long> totalVisitsInInterval(Queue queue, Date start, Date end) {
 			if(queue.equals(grocery.getQueue())) {
 				return numOfVisits;
 			}
 			return null;
 		}
 		
-		protected List<Integer> namedQueryReservationTotalTimeSpentInInterval(Queue queue, Date start, Date end) {
+		public List<Integer> totalTimeSpentInInterval(Queue queue, Date start, Date end) {
 			if(queue.equals(grocery.getQueue())) {
 				return visitIntervals;
 			}
 			return null;
 		}
-		
 	}
 
 }

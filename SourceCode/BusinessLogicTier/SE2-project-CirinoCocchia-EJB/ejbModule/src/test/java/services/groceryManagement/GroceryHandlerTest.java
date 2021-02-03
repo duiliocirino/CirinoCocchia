@@ -14,6 +14,8 @@ import src.main.java.model.Position;
 import src.main.java.model.User;
 import src.main.java.services.groceryManagement.implementation.GroceryHandlerModuleImplementation;
 import src.main.java.services.groceryManagement.interfaces.GroceryHandlerModule;
+import src.main.java.services.tools.GroceryToolbox;
+import src.main.java.services.tools.UserToolbox;
 import src.main.java.utils.Roles;
 
 public class GroceryHandlerTest {
@@ -46,6 +48,7 @@ public class GroceryHandlerTest {
 		}
 		
 		assertNotNull(newGrocery);
+		assertNotNull(newGrocery.getQueue());
 		assertEquals(NEW_NAME, newGrocery.getName());
 		assertEquals(NEW_MAX_SPOTS, newGrocery.getMaxSpotsInside());
 		assertEquals(IDOWNER, newGrocery.getOwner().getIduser());
@@ -206,12 +209,19 @@ public class GroceryHandlerTest {
 	}
 	
 	class MockGroceryHandlerModule extends GroceryHandlerModuleImplementation {
-		
+				
+		MockGroceryHandlerModule(){
+			this.usrTools = new MockUsrTools();
+			this.grocTools = new MockGrocTools(
+					this.usrTools.findUser(IDOWNER));
+		}
+	}
+	
+	class MockUsrTools extends UserToolbox {
 		private User owner;
 		private User customer;
-		private Grocery grocery;
 		
-		MockGroceryHandlerModule(){
+		public MockUsrTools() {
 			owner = new User();
 			owner.setIduser(IDOWNER);
 			owner.setRole(Roles.MANAGER);
@@ -219,16 +229,9 @@ public class GroceryHandlerTest {
 			customer = new User();
 			customer.setIduser(IDCUSTOMER);
 			customer.setRole(Roles.REG_CUSTOMER);
-			
-			grocery = new Grocery();
-			grocery.setIdgrocery(IDGROCERY);
-			grocery.setOwner(owner);
-			grocery.setName(NAME);
-			grocery.setMaxSpotsInside(MAX_SPOTS);
 		}
 		
-
-		protected User findUser(int iduser) {
+		public User findUser(int iduser) {
 			if(iduser == owner.getIduser()) {
 				return owner;
 			}
@@ -238,21 +241,35 @@ public class GroceryHandlerTest {
 			return null;
 		}
 		
-		protected Grocery findGrocery(int idgrocery) {
+	}
+
+	class MockGrocTools extends GroceryToolbox {
+		private Grocery grocery;
+
+		public MockGrocTools(User owner) {
+			super();
+			grocery = new Grocery();
+			grocery.setIdgrocery(IDGROCERY);
+			grocery.setOwner(owner);
+			grocery.setName(NAME);
+			grocery.setMaxSpotsInside(MAX_SPOTS);
+		}
+		
+		public Grocery findGrocery(int idgrocery) {
 			if(idgrocery == grocery.getIdgrocery()) {
 				return grocery;
 			}
 			return null;
 		}
 
-		protected void persistGrocery(Grocery grocery) {
+		public void persistGrocery(Grocery grocery) {
 		}
 
-		protected void removeGrocery(Grocery grocery) {
+		public void removeGrocery(Grocery grocery) {
 			grocery = null;
 		}
 
-		protected List<Grocery> namedQueryGroceryFindGroceryByName(String name){
+		public List<Grocery> findGroceryByName(String name){
 			List<Grocery> groceries = new ArrayList<>();
 			if(name.equals(grocery.getName())) {
 				groceries.add(grocery);
@@ -260,5 +277,4 @@ public class GroceryHandlerTest {
 			return groceries;
 		}
 	}
-
 }

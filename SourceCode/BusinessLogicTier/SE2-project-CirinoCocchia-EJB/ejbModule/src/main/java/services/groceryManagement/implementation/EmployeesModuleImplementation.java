@@ -13,8 +13,8 @@ public class EmployeesModuleImplementation extends EmployeesModule {
 
 	@Override
 	public User addEmployee(int idemployee, int idgrocery) throws CLupException {
-		User emp = findUser(idemployee);
-		Grocery grocery = findGrocery(idgrocery);
+		User emp =  usrTools.findUser(idemployee);
+		Grocery grocery = grocTools.findGrocery(idgrocery);
 		
 		if(grocery == null) {
 			throw new CLupException("The grocery instance have to be already "
@@ -36,8 +36,8 @@ public class EmployeesModuleImplementation extends EmployeesModule {
 
 	@Override
 	public User removeEmployee(int idemployee, int idgrocery) throws CLupException {
-		User emp = findUser(idemployee);
-		Grocery grocery = findGrocery(idgrocery);
+		User emp =  usrTools.findUser(idemployee);
+		Grocery grocery = grocTools.findGrocery(idgrocery);
 		
 		if(emp == null || grocery == null) {
 			throw new CLupException("Can't find the user and/or grocery to remove "
@@ -53,24 +53,5 @@ public class EmployeesModuleImplementation extends EmployeesModule {
 		
 		return emp;
 	}
-	
-	
-	/**
-	 * Decouple the invocation of entity manager
-	 * @param iduser id of the user to be searched
-	 * @return User instance if found, null otherwise
-	 */
-	protected User findUser(int iduser) {
-		return usrTools.findUser(iduser);
-	}
-	/**
-	 * Decouple the invocation of entity manager
-	 * @param idgrocery id of the grocery to be searched
-	 * @return Grocery instance if found, null otherwise
-	 */
-	protected Grocery findGrocery(int idgrocery) {
-		return grocTools.findGrocery(idgrocery);
-	}
-
 
 }

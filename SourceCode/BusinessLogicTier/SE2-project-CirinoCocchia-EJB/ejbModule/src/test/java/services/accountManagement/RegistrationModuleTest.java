@@ -12,6 +12,7 @@ import src.main.java.exceptions.CLupException;
 import src.main.java.model.User;
 import src.main.java.services.accountManagement.implementation.RegistrationModuleImplementation;
 import src.main.java.services.accountManagement.interfaces.RegistrationModule;
+import src.main.java.services.tools.UserToolbox;
 import src.main.java.utils.Roles;
 
 public class RegistrationModuleTest {
@@ -215,7 +216,7 @@ public class RegistrationModuleTest {
 	 * DB. This method has to be tested through Integration Testing
 	 */
 	@Test
-	public void getUserByUsernameTest() {	
+	public void getByUsernameTest() {	
 	}
 	
 	/**
@@ -224,15 +225,21 @@ public class RegistrationModuleTest {
 	 * manager
 	 */
 	class MockRegistrationModule extends RegistrationModuleImplementation {
-		private User user;
-		
 		public MockRegistrationModule() {
+			this.usrTools = new MockUsrTools();
+		}
+	}
+	
+	class MockUsrTools extends UserToolbox {
+		private User user;
+
+		public MockUsrTools() {
 			user = new User();
 			user.setIduser(IDUSER2);
 			user.setUsername(USERNAME2);
 		}
 		
-		protected User findUser(int iduser) {
+		public User findUser(int iduser) {
 			if(iduser == user.getIduser()) {
 				return user;
 			} else {
@@ -240,10 +247,10 @@ public class RegistrationModuleTest {
 			}
 		}
 		
-		protected void persistUser(User user) {
+		public void persistUser(User user) {
 		}
 		
-		protected List<User> namedQueryUserFindUserByUsername(String usrn) {
+		public List<User> findByUsername(String usrn) {
 			List<User> users = new ArrayList<>();
 			
 			if(usrn.equals(user.getUsername())) {

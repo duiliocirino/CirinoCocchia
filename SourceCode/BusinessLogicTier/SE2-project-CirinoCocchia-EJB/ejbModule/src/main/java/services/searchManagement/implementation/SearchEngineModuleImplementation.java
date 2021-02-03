@@ -17,7 +17,7 @@ public class SearchEngineModuleImplementation extends SearchEngineModule {
 	@Override
 	public List<Grocery> getNearGroceries(Position position, double radius) throws CLupException {
 		
-		List<Grocery> allGroceries = namedQueryGroceryFindAll();
+		List<Grocery> allGroceries = grocTools.findAllGroceries();
 		List<Grocery> nearGroceries = new ArrayList<Grocery>();
 		
 		if(position == null) {
@@ -39,7 +39,7 @@ public class SearchEngineModuleImplementation extends SearchEngineModule {
 
 	@Override
 	public List<Grocery> getFavouriteGroceries(int iduser, int nFavourites) throws CLupException {
-		User customer = findUser(iduser);
+		User customer = usrTools.findUser(iduser);
 		
 		if(customer == null) {
 			throw new CLupException("Can't find the user in the DB");
@@ -50,7 +50,7 @@ public class SearchEngineModuleImplementation extends SearchEngineModule {
 					+ " less than 0");
 		}
 		
-		List<Grocery> favouriteGroceries = namedQueryReservationFindCustomersFavourites(customer, nFavourites);	
+		List<Grocery> favouriteGroceries = grocTools.findCustomersFavourites(customer, nFavourites);
 				
 		return favouriteGroceries;
 	}
@@ -58,7 +58,7 @@ public class SearchEngineModuleImplementation extends SearchEngineModule {
 	@Override
 	public boolean isNear(Position position, int idgrocery, double radius) throws CLupException {
 		
-		Grocery grocery = findGrocery(idgrocery);
+		Grocery grocery = grocTools.findGrocery(idgrocery);
 		if(grocery == null) {
 			throw new CLupException("Can't find the grocery");
 		}
@@ -81,21 +81,4 @@ public class SearchEngineModuleImplementation extends SearchEngineModule {
 				(minLon <= grocery.getLongitude() &&
 						grocery.getLongitude() <= maxLon);
 	}
-	
-	protected User findUser(int iduser) {
-		return usrTools.findUser(iduser);
-	}
-	
-	protected Grocery findGrocery(int idgrocery) {
-		return grocTools.findGrocery(idgrocery);
-	}
-	
-	protected List<Grocery> namedQueryGroceryFindAll(){
-		return grocTools.findAllGroceries();
-	}
-	
-	protected List<Grocery> namedQueryReservationFindCustomersFavourites(User customer, int nFav) {
-		return grocTools.findCustomersFavourites(customer, nFav);
-	}
-
 }

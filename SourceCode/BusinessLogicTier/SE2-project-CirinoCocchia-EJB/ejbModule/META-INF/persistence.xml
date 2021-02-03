@@ -5,7 +5,7 @@
 	xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence http://xmlns.jcp.org/xml/ns/persistence/persistence_2_2.xsd">
 	<persistence-unit name="SE2-project-CirinoCocchia-EJB">
 	  	<provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
-	  	<jta-data-source>SE2-project-resource</jta-data-source>
+ 	  	<jta-data-source>SE2-project-resource</jta-data-source>
 	  	<class>src.main.java.model.Employees</class>
 	  	<class>src.main.java.model.Grocery</class>
 	  	<class>src.main.java.model.Queue</class>

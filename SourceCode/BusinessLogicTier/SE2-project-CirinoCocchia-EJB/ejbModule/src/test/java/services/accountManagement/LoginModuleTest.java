@@ -12,6 +12,7 @@ import src.main.java.exceptions.CLupException;
 import src.main.java.model.User;
 import src.main.java.services.accountManagement.implementation.LoginModuleImplementation;
 import src.main.java.services.accountManagement.interfaces.LoginModule;
+import src.main.java.services.tools.UserToolbox;
 
 /**
  * Unit test for the LoginModuleImplementation class
@@ -99,16 +100,22 @@ public class LoginModuleTest {
 	 * LoginModule mock which only overrides the entity manager call
 	 */
 	class MockLoginModule extends LoginModuleImplementation {
+		public MockLoginModule(){
+			this.usrTools = new MockUsrTools();
+		}
 		
+	}
+	
+	class MockUsrTools extends UserToolbox {
 		private User user;
 		
-		MockLoginModule(){
+		public MockUsrTools() {
 			user = new User();
 			user.setUsername(USERNAME);
 			user.setPassword(PASSWORD);
 		}
 		
-		 protected List<User> namedQueryUserCheckCredentials(String usern, String pass){
+		public List<User> checkCredentials(String usern, String pass){
 			List<User> usersList = new ArrayList<>();
 			if(usern.equals(user.getUsername()) && 
 					pass.equals(user.getPassword())) {
@@ -117,6 +124,7 @@ public class LoginModuleTest {
 			
 			return usersList;
 		}
+
 	}
 
 }

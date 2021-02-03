@@ -43,7 +43,14 @@ public class ReservationToolbox {
 	 * @param reservation reservation to be detached
 	 */
 	public void detachReservation(Reservation reservation) {
-		em.detach(reservation);
+		em.refresh(reservation);
+	}
+	/**
+	 * Refreshes the state of the reservation as is on the DB
+	 * @param reservation reservation to e refreshed
+	 */
+	public void refreshReservation(Reservation reservation) {
+		em.refresh(reservation);
 	}
 	/**
 	 * Removes an instance of reservation from the persistence context
@@ -101,10 +108,10 @@ public class ReservationToolbox {
 	 * @param start start of the interval
 	 * @param end end of the interval
 	 * @return list with one component, thus the number of reservations made in a certain
-	 *  interval of time for a certain grocery
+	 *  interval of time for a certain grocery. The list is made by Long numbers.
 	 */
-	public List<Integer> totalVisitsInInterval(Queue queue, Date start, Date end){
-		return em.createNamedQuery("Reservation.TotalVisitsInInterval", Integer.class)
+	public List<Long> totalVisitsInInterval(Queue queue, Date start, Date end){
+		return em.createNamedQuery("Reservation.TotalVisitsInInterval", Long.class)
 				.setParameter("queue", queue)
 				.setParameter("start", start)
 				.setParameter("end", end)
@@ -123,8 +130,8 @@ public class ReservationToolbox {
 	public List<Integer> totalTimeSpentInInterval(Queue queue, Date start, Date end){
 		return em.createNamedQuery("Reservation.TotalTimeSpentInInterval", Integer.class)
 				.setParameter("queue", queue)
-				.setParameter("timeEntrance", start)
-				.setParameter("timeExit", end)
+				.setParameter("start", start)
+				.setParameter("end", end)
 				.getResultList();
 	}
 }

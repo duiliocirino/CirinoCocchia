@@ -50,14 +50,14 @@ public class RegistrationModuleImplementation extends RegistrationModule {
 			newUser.setTelephoneNumber(telephoneNum);
 		}
 		
-		persistUser(newUser);
+		usrTools.persistUser(newUser);
 		
 		return newUser;
 	}
 
 	@Override
 	public User editProfile(int iduser, String telephoneNum, String username, String password, String email) throws CLupException {
-		User user = findUser(iduser);
+		User user = usrTools.findUser(iduser);
 		if(user == null) {
 			throw new CLupException("Can't find the user");
 		}
@@ -87,35 +87,11 @@ public class RegistrationModuleImplementation extends RegistrationModule {
 
 	@Override
 	public User getUserByUsername(String username) {
-		List<User> usernames = namedQueryUserFindUserByUsername(username);
+		List<User> usernames = usrTools.findByUsername(username);
 		if(!usernames.isEmpty()) {
 			return usernames.get(0);
 		} else {
 			return null;
 		}
-	}
-	
-	/**
-	 * Decouple the invocation of entity manager
-	 * @param iduser id of the user to be searched
-	 * @return the result of em.find
-	 */
-	protected User findUser(int iduser) {
-		return usrTools.findUser(iduser);
-	}
-	/**
-	 * Decouple the invocation of entity manager 
-	 * @param user user to be persisted
-	 */
-	protected void persistUser(User user) {
-		usrTools.persistUser(user);
-	}
-	/**
-	 * Decouple the invocation of entity manager
-	 * @param usrn username to be searched
-	 * @return result of the namedQuery User.findUserByUsername
-	 */
-	protected List<User> namedQueryUserFindUserByUsername(String usrn) {
-		return usrTools.findByUsername(usrn);
 	}
 }

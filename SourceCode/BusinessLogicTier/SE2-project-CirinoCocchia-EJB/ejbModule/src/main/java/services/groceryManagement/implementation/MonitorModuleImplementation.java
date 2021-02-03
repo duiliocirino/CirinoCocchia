@@ -6,12 +6,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.ejb.Stateless;
+
 import src.main.java.exceptions.CLupException;
 import src.main.java.model.Grocery;
 import src.main.java.model.Queue;
 import src.main.java.services.groceryManagement.interfaces.MonitorModule;
 import src.main.java.utils.GroceryData;
 
+@Stateless
 public class MonitorModuleImplementation extends MonitorModule {
 	
 	private final int DAYS_IN_A_MONTH = 30;
@@ -32,7 +35,7 @@ public class MonitorModuleImplementation extends MonitorModule {
 	@Override
 	public float getGroceryStats(int idgrocery, GroceryData groceryData, Date date) throws CLupException {
 		
-		Grocery grocery = findGrocery(idgrocery);
+		Grocery grocery = grocTools.findGrocery(idgrocery);
 		if(grocery == null) {
 			throw new CLupException("Can't find the grocery");
 		}
@@ -84,46 +87,26 @@ public class MonitorModuleImplementation extends MonitorModule {
 		startTime = calDate.getTime();
 		endTime = calEnd.getTime();
 		
-		List<Integer> customersQuery = namedQueryReservationTotalVisitsInInterval(queue, startTime, endTime);
+		List<Long> customersQuery = resTools.totalVisitsInInterval(queue, startTime, endTime);
 		
 		if(customersQuery.isEmpty()) {
 			return -1;
 		} 
 		
-		int numCustomers = customersQuery.get(0);
+		long numCustomers = customersQuery.get(0);
 			
 		switch(groceryData) {
 		case NUM_MONTH_CUSTOMERS:
 		case NUM_WEEK_CUSTOMERS:
-			return numCustomers;
+			return (float) numCustomers;
 			
 		case AVG_TIME_MONTH:
 		case AVG_TIME_WEEK:
-			List<Integer> visitDurations = namedQueryReservationTotalTimeSpentInInterval(queue, startTime, endTime);			
+			List<Integer> visitDurations =  resTools.totalTimeSpentInInterval(queue, startTime, endTime);
 			return getSumOfList(visitDurations) / numCustomers;
 		}
 		
 		return -1;
-	}
-	
-	protected Grocery findGrocery(int idgrocery) {
-		return em.find(Grocery.class, idgrocery);
-	}
-	
-	protected List<Integer> namedQueryReservationTotalVisitsInInterval(Queue queue, Date start, Date end){
-		return em.createNamedQuery("Reservation.TotalVisitsInInterval", Integer.class)
-				.setParameter("queue", queue)
-				.setParameter("start", start)
-				.setParameter("end", end)
-				.getResultList();
-	}
-	
-	protected List<Integer> namedQueryReservationTotalTimeSpentInInterval(Queue queue, Date start, Date end){
-		return em.createNamedQuery("Reservation.TotalTimeSpentInInterval", Integer.class)
-				.setParameter("queue", queue)
-				.setParameter("start", start)
-				.setParameter("end", end)
-				.getResultList();
 	}
 	
 	private int getSumOfList(List<Integer> list) {

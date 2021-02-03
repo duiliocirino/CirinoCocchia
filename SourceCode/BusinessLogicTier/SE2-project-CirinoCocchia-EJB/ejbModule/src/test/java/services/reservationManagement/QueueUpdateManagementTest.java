@@ -15,6 +15,7 @@ import src.main.java.model.Queue;
 import src.main.java.model.Reservation;
 import src.main.java.services.reservationManagement.implementation.QueueUpdateManagementImplementation;
 import src.main.java.services.reservationManagement.interfaces.QueueUpdateManagement;
+import src.main.java.services.tools.ReservationToolbox;
 import src.main.java.utils.ReservationStatus;
 import src.main.java.utils.ReservationType;
 
@@ -156,24 +157,8 @@ public class QueueUpdateManagementTest {
 
 	class MockQueueUpdateManagement extends QueueUpdateManagementImplementation{
 				
-		Reservation reservation;
-		Reservation reservation2;
-		
 		public MockQueueUpdateManagement() {
-			reservation = new Reservation();
-			reservation.setIdreservation(IDRESERVATION);
-			reservation.setQueue(queue);
-			
-			queue.addReservation(reservation);
-		}
-		
-		protected Reservation findReservation(int idreservation) {
-			if(idreservation == reservation.getIdreservation()) {
-				return reservation;
-			} if(idreservation == reservationOpen.getIdreservation()) {
-				return reservationOpen;
-			}
-			return null;
+			this.resTools = new MockResTools();
 		}
 		
 		public Reservation invokeAddReservation(int iduser, int idgrocery, ReservationType type, Date date, Position position) {
@@ -183,9 +168,30 @@ public class QueueUpdateManagementTest {
 			}
 			return null;
 		}
+	}
+	
+	class MockResTools extends ReservationToolbox {
+		Reservation reservation;
+		Reservation reservation2;
 		
-		protected void refresh (Reservation reservation) {
+		public MockResTools() {
+			reservation = new Reservation();
+			reservation.setIdreservation(IDRESERVATION);
+			reservation.setQueue(queue);
 			
+			queue.addReservation(reservation);
+		}
+		
+		public void refreshReservation(Reservation reservation) {
+		}
+		
+		public Reservation findReservation(int idreservation) {
+			if(idreservation == reservation.getIdreservation()) {
+				return reservation;
+			} if(idreservation == reservationOpen.getIdreservation()) {
+				return reservationOpen;
+			}
+			return null;
 		}
 	}
 }

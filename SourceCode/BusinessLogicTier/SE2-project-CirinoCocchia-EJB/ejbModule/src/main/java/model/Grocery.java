@@ -18,11 +18,12 @@ import static javax.persistence.CascadeType.ALL;
 	"SELECT q.grocery "
 	+ "FROM Reservation r JOIN r.queue q "
 	+ "WHERE r.customer = :customer "
-	+ "GROUP BY q.grocery "
-	+ "HAVING :nFav < (SELECT COUNT(r2) FROM Reservation r2 JOIN r2.queue q2 "
-		+ "WHERE r2.customer = :customer "
-		+ "GROUP BY q.grocery "
-		+ "HAVING COUNT(r2) > COUNT(r))")
+	+ "GROUP BY r.queue, r.customer "
+	+ "HAVING :nFav < (SELECT COUNT(r2.queue) "
+		+ "FROM Reservation r2 JOIN r2.queue q2 "
+		+ "WHERE r2.customer = :customer AND q != q2 "
+		+ "GROUP BY r2.queue, r.customer "
+		+ "HAVING COUNT(r2.customer) > COUNT(r.customer))")
 public class Grocery implements Serializable {
 
 	
@@ -39,7 +40,7 @@ public class Grocery implements Serializable {
 	 * This attribute represents the User class that owns this grocery.
 	 * The user represented by this attribute is an admin.
 	 */
-	@ManyToOne(fetch = FetchType.EAGER ,cascade = CascadeType.ALL)
+	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "idowner")
 	private User owner;
 	/**
@@ -77,11 +78,6 @@ public class Grocery implements Serializable {
 	 */
 	private int maxSpotsInside;
 	
-	/**
-	 * This integer number represents the line-up number currently allowed to get into
-	 * the store (see RASD&DD for further details on the definition) 
-	 */
-	private int currentLineUpNumber;
 
 	public int getIdgrocery() {
 		return idgrocery;
@@ -154,19 +150,6 @@ public class Grocery implements Serializable {
 	}
 
 
-
-	public int getCurrentLineUpNumber() {
-		return currentLineUpNumber;
-	}
-
-
-
-	public void setCurrentLineUpNumber(int currentLineUpNumber) {
-		this.currentLineUpNumber = currentLineUpNumber;
-	}
-
-
-
 	public Grocery() {
 	}
 
@@ -187,12 +170,7 @@ public class Grocery implements Serializable {
 	public List<User> getEmployees() {
 		return employees;
 	}
-
-
-
-	public void setEmployees(List<User> employees) {
-		this.employees = employees;
-	}
+	
 	
 	public void addEmployee(User employee) {
 		if(employee != null) {
