@@ -22,7 +22,6 @@ import src.main.java.model.Grocery;
 import src.main.java.model.User;
 import src.main.java.services.accountManagement.interfaces.LoginModule;
 import src.main.java.services.groceryManagement.interfaces.EmployeesModule;
-import src.main.java.utils.Roles;
 
 /**
  * Servlet implementation class RemoveEmployee.
@@ -61,10 +60,6 @@ public class RemoveEmployee extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		HttpSession session = request.getSession();
 		User user = (User) session.getAttribute("user");
-		if(user.getRole() != Roles.MANAGER) {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "You are not allowed to do this operation");
-			return;
-		}
 		
 		// GET USERS EMPLOYEES
 		
@@ -75,6 +70,18 @@ public class RemoveEmployee extends HttpServlet {
 		}
 		
 		String path = "remove_employee.html";
+		getTemplate(request, response, path, employees);
+	}
+	
+	/**
+	 * Utility class for unit testing, we don't want to test Thymeleaf.
+	 * @param request
+	 * @param response
+	 * @param path 
+	 * @param employees 
+	 * @throws IOException
+	 */
+	protected void getTemplate(HttpServletRequest request, HttpServletResponse response, String path, List<User> employees) throws IOException {
 		ServletContext servletContext = getServletContext();
 		final WebContext ctx = new WebContext(request, response, servletContext, request.getLocale());
 		ctx.setVariable("employees", employees);
@@ -88,16 +95,9 @@ public class RemoveEmployee extends HttpServlet {
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
-		//ALLOW ONLY MANAGERS TO DO THIS OPERATION
 		
 		HttpSession session = request.getSession();
 		User user = (User) session.getAttribute("user");
-		
-		if(user.getRole() != Roles.MANAGER) {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "You are not allowed to do this operation");
-			return;
-		}
 		
 		// GET AND CHECK PARAMETERS
 		
@@ -108,15 +108,16 @@ public class RemoveEmployee extends HttpServlet {
 			employeeId = Integer.parseInt(request.getParameter("employeeId"));
 			groceryId = Integer.parseInt(request.getParameter("groceryId"));
 		} catch (NumberFormatException | NullPointerException e) {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Incorrect param values");
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Incorrect or missing param values");
 			return;
 		}
 
 		try {
 			employeesModule = EmployeesModule.getInstance();
 			loginModule = LoginModule.getInstance();
+			
 			employeesModule.removeEmployee(employeeId, groceryId);
-			user = loginModule.checkCredentials(user.getUsername(), user.getPassword());
+			user = loginModule.getUserById(user.getIduser());
 			session.setAttribute("user", user);
 		} catch (Exception e) {
 			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Employee not deleteable");
@@ -125,6 +126,17 @@ public class RemoveEmployee extends HttpServlet {
 
 		// RETURN VIEW
 		
+		postTemplate(request, response, groceryId);
+	}
+	
+	/**
+	 * Utility class for unit testing, we don't want to test Thymeleaf.
+	 * @param request
+	 * @param groceryId 
+	 * @param response 
+	 * @throws IOException
+	 */
+	protected void postTemplate(HttpServletRequest request, HttpServletResponse response, Integer groceryId) throws IOException {
 		final WebContext ctx = new WebContext(request, response, getServletContext(), request.getLocale());
 		ctx.setVariable("groceryId", groceryId);
 		String ctxpath = getServletContext().getContextPath();

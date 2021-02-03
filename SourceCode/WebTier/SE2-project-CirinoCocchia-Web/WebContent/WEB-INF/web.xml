@@ -5,8 +5,16 @@
     	<welcome-file>login.html</welcome-file>
   	</welcome-file-list>
   	<filter>
-  	<filter-name>Checker</filter-name> 
+  		<filter-name>Checker</filter-name> 
       	<filter-class>filters.LoggedIn</filter-class> 
+ 	</filter> 
+	<filter>
+  		<filter-name>ManagerChecker</filter-name> 
+      	<filter-class>filters.ManagerFilter</filter-class> 
+ 	</filter> 
+	<filter>
+  		<filter-name>ManagerEmployeeChecker</filter-name> 
+      	<filter-class>filters.ManagerEmployeeFilter</filter-class> 
  	</filter> 
   	<filter-mapping> 
     	<filter-name>Checker</filter-name>
@@ -25,5 +33,23 @@
     	<url-pattern>/MakeReservation</url-pattern> 
     	<url-pattern>/RegisterUser</url-pattern> 
 		<url-pattern>/RemoveEmployee</url-pattern> 
+		<url-pattern>/RemoveGrocery</url-pattern> 
+  	</filter-mapping>
+	<filter-mapping> 
+    	<filter-name>ManagerChecker</filter-name>
+		<url-pattern>/AddEmployee</url-pattern>
+		<url-pattern>/AddGrocery</url-pattern>
+		<url-pattern>/EditGroceryInfo</url-pattern> 
+    	<url-pattern>/GetGroceryData</url-pattern>
+    	<url-pattern>/GoToEmployeePage</url-pattern>
+		<url-pattern>/RemoveEmployee</url-pattern>
+		<url-pattern>/RemoveGrocery</url-pattern>
+  	</filter-mapping>
+	<filter-mapping> 
+    	<filter-name>ManagerEmployeeChecker</filter-name>
+    	<url-pattern>/DeleteReservation</url-pattern>
+    	<url-pattern>/EditReservation</url-pattern>
+		<url-pattern>/MakeReservation</url-pattern>
+    	<url-pattern>/GetReservationPage</url-pattern>
   	</filter-mapping>
 </web-app>

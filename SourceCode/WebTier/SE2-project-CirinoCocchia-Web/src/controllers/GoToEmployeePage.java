@@ -8,15 +8,12 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.WebContext;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
 
-import src.main.java.model.User;
-import src.main.java.utils.Roles;
 
 /**
  * Servlet implementation class GoToEmployeePage.
@@ -49,17 +46,7 @@ public class GoToEmployeePage extends HttpServlet {
 	 * This method creates the page requested.
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		
-		// CHECKS THE ROLE OF THE USER
-		
-		HttpSession session = request.getSession();
-		User user = (User) session.getAttribute("user");
-		if(user.getRole() != Roles.MANAGER) {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "You are not allowed to do this operation");
-			return;
-		}
-		
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {		
 		String path = "employees_page.html";
 		ServletContext servletContext = getServletContext();
 		final WebContext ctx = new WebContext(request, response, servletContext, request.getLocale());

@@ -22,7 +22,6 @@ import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
 import src.main.java.model.Grocery;
 import src.main.java.model.User;
 import src.main.java.services.groceryManagement.interfaces.GroceryHandlerModule;
-import src.main.java.utils.Roles;
 
 /**
  * Servlet implementation class EditGroceryInfo.
@@ -60,14 +59,8 @@ public class EditGroceryInfo extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		
-		// CHECK USER ROLE
-		
 		HttpSession session = request.getSession();
 		User user = (User) session.getAttribute("user");
-		if(user.getRole() != Roles.MANAGER) {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "You are not allowed to do this operation");
-			return;
-		}
 		
 		// GET AND CHECK PARAMETERS
 		
@@ -75,10 +68,9 @@ public class EditGroceryInfo extends HttpServlet {
 		
 		try {
 			groceryId = Integer.parseInt(request.getParameter("groceryId"));
-			if(!user.getGroceries().stream().map(x -> x.getIdgrocery()).collect(Collectors.toList()).contains(groceryId));
+			if(!user.getGroceries().stream().map(x -> x.getIdgrocery()).collect(Collectors.toList()).contains(groceryId)) throw new NullPointerException();
 		} catch (NumberFormatException | NullPointerException e) {
-			// for debugging only e.printStackTrace();
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Incorrect param values");
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Incorrect or missing param values");
 			return;
 		}
 		
@@ -86,8 +78,17 @@ public class EditGroceryInfo extends HttpServlet {
 		
 		final Integer id = groceryId;
 		Grocery grocery = user.getGroceries().stream().filter(x -> x.getIdgrocery() == id).findFirst().get();
-		
 		String path = "editgrocery.html";
+		getTemplate(request, response, grocery, path);
+	}
+	
+	/**
+	 * Utility class for unit testing, we don't want to test Thymeleaf.
+	 * @param request
+	 * @param response
+	 * @throws IOException
+	 */
+	protected void getTemplate(HttpServletRequest request, HttpServletResponse response, Grocery grocery, String path) throws IOException {
 		ServletContext servletContext = getServletContext();
 		final WebContext ctx = new WebContext(request, response, servletContext, request.getLocale());
 		ctx.setVariable("grocery", grocery);
@@ -101,15 +102,9 @@ public class EditGroceryInfo extends HttpServlet {
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		
-		// CHECK USER ROLE
-		
 		HttpSession session = request.getSession();
 		User user = (User) session.getAttribute("user");
-		if(user.getRole() != Roles.MANAGER) {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "You are not allowed to do this operation");
-			return;
-		}
-
+		
 		// GET AND PARSE ALL PARAMETERS FROM REQUEST
 		
 		boolean isBadRequest = false;
@@ -121,13 +116,14 @@ public class EditGroceryInfo extends HttpServlet {
 			name = StringEscapeUtils.escapeJava(request.getParameter("name"));
 			groceryId = Integer.parseInt(request.getParameter("groceryId"));
 			maxSpots = Integer.parseInt(request.getParameter("maxSpots"));
+			
+			isBadRequest = isBadRequest || groceryId == null || name.isEmpty() || maxSpots < 1 || ((name == null) && (maxSpots == null)) ||
+					!user.getGroceries().stream().map(x -> x.getIdgrocery()).collect(Collectors.toList()).contains(groceryId);
 		} catch (NumberFormatException | NullPointerException e) {
 			isBadRequest = true;
-			e.printStackTrace();
 		}
 		
-		isBadRequest = isBadRequest || groceryId == null || (((name == null) || (name.isEmpty())) && (maxSpots == null)) ||
-				!user.getGroceries().stream().map(x -> x.getIdgrocery()).collect(Collectors.toList()).contains(groceryId);
+		
 		
 		if (isBadRequest) {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Incorrect or missing param values");
@@ -139,6 +135,7 @@ public class EditGroceryInfo extends HttpServlet {
 		
 		try {
 			groModule = GroceryHandlerModule.getInstance();
+			
 			Grocery editedGro = groModule.editGrocery(groceryId, name, maxSpots);
 			List<Grocery> groceries = user.getGroceries();
 			groceries.removeIf(x -> x.getIdgrocery() == id);
@@ -146,13 +143,23 @@ public class EditGroceryInfo extends HttpServlet {
 			user.setGroceries(groceries);
 			session.setAttribute("user", user);
 		} catch (Exception e) {
-			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Not possible to update profile");
+			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Not possible to edit grocery");
 			return;
 		}
 
 		// RETURN THE USER TO THE RIGHT VIEW
 		String successMessage = "Your edits were applied successfully!";
 		String path = "outcome_page.html";
+		postTemplate(request, response, path, successMessage);
+	}
+	
+	/**
+	 * Utility class for unit testing, we don't want to test Thymeleaf.
+	 * @param request
+	 * @param response
+	 * @throws IOException
+	 */
+	protected void postTemplate(HttpServletRequest request, HttpServletResponse response, String path, String successMessage) throws IOException {
 		ServletContext servletContext = getServletContext();
 		final WebContext ctx = new WebContext(request, response, servletContext, request.getLocale());
 		ctx.setVariable("message", successMessage);

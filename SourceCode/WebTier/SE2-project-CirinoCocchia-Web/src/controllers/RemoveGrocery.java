@@ -20,7 +20,6 @@ import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
 import src.main.java.model.User;
 import src.main.java.services.accountManagement.interfaces.LoginModule;
 import src.main.java.services.groceryManagement.interfaces.GroceryHandlerModule;
-import src.main.java.utils.Roles;
 
 /**
  * Servlet implementation class RemoveGrocery.
@@ -67,15 +66,8 @@ public class RemoveGrocery extends HttpServlet {
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
-		//ALLOW ONLY MANAGERS TO DO THIS OPERATION
-		
 		HttpSession session = request.getSession();
 		User user = (User) session.getAttribute("user");
-		
-		if(user.getRole() != Roles.MANAGER) {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "You are not allowed to do this operation");
-			return;
-		}
 		
 		// GET AND CHECK PARAMETERS
 		
@@ -84,7 +76,7 @@ public class RemoveGrocery extends HttpServlet {
 		try {
 			groceryId = Integer.parseInt(request.getParameter("groceryId"));
 		} catch (NumberFormatException | NullPointerException e) {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Incorrect param values");
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Incorrect or missing param values");
 			return;
 		}
 		
@@ -100,12 +92,22 @@ public class RemoveGrocery extends HttpServlet {
 			user = loginModule.checkCredentials(user.getUsername(), user.getPassword());
 			session.setAttribute("user", user);
 		} catch (Exception e) {
-			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Employee not deleteable");
+			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Grocery not deleteable");
 			return;
 		}
 
 		// RETURN VIEW
 		
+		postTemplate(request, response);
+	}
+	
+	/**
+	 * Utility class for unit testing, we don't want to test Thymeleaf.
+	 * @param request
+	 * @param groceryId 
+	 * @throws IOException
+	 */
+	protected void postTemplate(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		final WebContext ctx = new WebContext(request, response, getServletContext(), request.getLocale());
 		String ctxpath = getServletContext().getContextPath();
 		String path = ctxpath + "/GoToHomePage";

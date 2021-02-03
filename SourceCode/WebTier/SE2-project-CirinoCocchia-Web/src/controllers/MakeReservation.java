@@ -1,11 +1,7 @@
 package controllers;
 
 import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.stream.Collectors;
 
 import javax.ejb.EJB;
@@ -28,7 +24,6 @@ import src.main.java.model.User;
 import src.main.java.services.accountManagement.interfaces.LoginModule;
 import src.main.java.services.groceryManagement.interfaces.GroceryHandlerModule;
 import src.main.java.services.reservationManagement.interfaces.ReservationHandlerModule;
-import src.main.java.services.searchManagement.interfaces.SearchEngineModule;
 import src.main.java.utils.ReservationType;
 import src.main.java.utils.Roles;
 
@@ -42,8 +37,8 @@ public class MakeReservation extends HttpServlet {
 	private TemplateEngine templateEngine;
 	@EJB(name = "src/main/java/services/reservationManagement/interfaces/ReservationHandlerModule")
 	private ReservationHandlerModule resModule;
-	@EJB(name = "src/main/java/services/searchManagement/interfaces/SearchEngineModule")
-	private SearchEngineModule searchModule;
+	@EJB(name = "src/main/java/services/groceryManagement/interfaces/GroceryHandlerModule")
+	private GroceryHandlerModule groModule;
 	@EJB(name = "src/main/java/services/accountManagement/interfaces/LoginModule")
 	private LoginModule loginModule;
 	
@@ -95,26 +90,26 @@ public class MakeReservation extends HttpServlet {
 			groceryId = Integer.parseInt(request.getParameter("groceryId"));
 			latitude = Double.parseDouble(request.getParameter("latitude"));
 			longitude = Double.parseDouble(request.getParameter("longitude"));
+			
+			if(latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) {
+				throw new NumberFormatException();
+			}
 		} catch (NumberFormatException | NullPointerException e) {
-			isBadRequest = true;
-			e.printStackTrace();
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Incorrect or missing param values");
+			return;
 		}
 		
-		// CHECK EXISTENCE
+		// CHECK EXISTENCE		
 		
-		searchModule = SearchEngineModule.getInstance();
-		resModule = ReservationHandlerModule.getInstance();
-		
-		
-		if (groceryId != null) {
-			try {
-				searchModule.getGrocery(groceryId);
-			} catch (Exception e) {
-				isBadRequest = true;
-			}
-		} else isBadRequest = true;
-		
-		if(latitude == null || longitude == null) isBadRequest = true;
+		try {
+			groModule = GroceryHandlerModule.getInstance();
+			
+			Grocery grocery = groModule.getGrocery(groceryId);
+			
+			if(grocery == null) throw new Exception();
+		} catch (Exception e) {
+			isBadRequest = true;
+		}
 		
 		if(user.getRole() == Roles.MANAGER) {
 			if(!user.getGroceries().stream().map(x -> x.getIdgrocery()).collect(Collectors.toList()).contains(groceryId)) isBadRequest = true;
@@ -132,10 +127,15 @@ public class MakeReservation extends HttpServlet {
 		// CREATE RESERVATION IN DB
 		
 		try {
-			resModule.addReservation(user.getIduser(), groceryId, ReservationType.LINEUP,
-					(java.sql.Date) Calendar.getInstance().getTime(), new Position(latitude, longitude));
+			resModule = ReservationHandlerModule.getInstance();
+			
+			
+			resModule.addReservation(user.getIduser(), groceryId, ReservationType.LINEUP, 
+					Calendar.getInstance().getTime(), new Position(latitude, longitude));
+			
 			loginModule = LoginModule.getInstance();
-			user = loginModule.checkCredentials(user.getUsername(), user.getPassword());
+			
+			user = loginModule.getUserById(user.getIduser());
 			session.setAttribute("user", user);
 		} catch (Exception e) {
 			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Not possible to create reservation");
@@ -144,11 +144,20 @@ public class MakeReservation extends HttpServlet {
 
 		// RETURN THE USER TO THE RIGHT VIEW
 		
+		String path = "outcome_page.html";
+		getTemplate(request, response, path);
+	}
+	
+	/**
+	 * Utility class for unit testing, we don't want to test Thymeleaf.
+	 * @param request
+	 * @param response
+	 * @param path 
+	 * @throws IOException
+	 */
+	protected void getTemplate(HttpServletRequest request, HttpServletResponse response, String path) throws IOException {
 		final WebContext ctx = new WebContext(request, response, getServletContext(), request.getLocale());
 		ctx.setVariable("message", "You created your reservation!");
-		String ctxpath = getServletContext().getContextPath();
-		String path = "outcome_page.html";
 		templateEngine.process(path, ctx, response.getWriter());
 	}
-
 }

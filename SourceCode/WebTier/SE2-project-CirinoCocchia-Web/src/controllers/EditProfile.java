@@ -69,7 +69,7 @@ public class EditProfile extends HttpServlet {
 		HttpSession session = request.getSession();
 		User user = (User) session.getAttribute("user");
 
-		// GET AND PARSE ALL PARAMETERS FROM REQUEST
+		// GET AND PARSE ALL PARAMETERS FROM REQUEST AND CHECK THAT THERE IS SOMETHING TO EDIT, CORRECTNESS AND APPLY ALL NULL VALUES
 		boolean isBadRequest = false;
 		String username = null;
 		String password = null;
@@ -81,34 +81,32 @@ public class EditProfile extends HttpServlet {
 		email = StringEscapeUtils.escapeJava(request.getParameter("email"));
 		password = StringEscapeUtils.escapeJava(request.getParameter("password"));
 		telephoneNum = StringEscapeUtils.escapeJava(request.getParameter("telephoneNumber"));
-		if(telephoneNum != null) if(!telephoneNum.isBlank()) Integer.parseInt(telephoneNum);
-		} catch (NumberFormatException | NullPointerException e) {
-			isBadRequest = true;
-			e.printStackTrace();
-		}
 		
-		// CHECK THAT THERE IS SOMETHING TO EDIT, CORRECTNESS AND APPLY ALL NULL VALUES
 		isBadRequest = isBadRequest || (username == null && email == null && password == null && telephoneNum == null);
 		
 		if(username != null) {
-			if(!username.isEmpty() && username.isBlank()) isBadRequest = true;
+			if(username.isEmpty()) isBadRequest = true;
 			else username = user.getUsername();
 		} else username = user.getUsername();
 		
 		if(email != null) {
-			if(!email.isEmpty() && email.isBlank()) isBadRequest = true;
+			if(email.isEmpty()) isBadRequest = true;
 			else email = user.getEmail();
 		} else email = user.getEmail();
 		
 		if(password != null) {
-			if(!password.isEmpty() && password.isBlank()) isBadRequest = true;
+			if(password.isEmpty()) isBadRequest = true;
 			else password = user.getPassword();
 		} else password = user.getPassword();
 		
 		if(telephoneNum != null) {
-			if(!telephoneNum.isEmpty() && telephoneNum.isBlank()) isBadRequest = true;
+			if(Double.parseDouble(telephoneNum) < 10000000) isBadRequest = true;
 			else telephoneNum = user.getTelephoneNumber();
 		} else telephoneNum = user.getTelephoneNumber();
+		
+		} catch (NumberFormatException | NullPointerException e) {
+			isBadRequest = true;
+		}
 		
 		if (isBadRequest) {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Incorrect or missing param values");
@@ -118,11 +116,9 @@ public class EditProfile extends HttpServlet {
 		// UPDATE USER DETAILS AND SESSION
 		
 		try {
-			regModule.editProfile(user.getIduser(), telephoneNum, username, password, email);
-			user.setUsername(username);
-			user.setEmail(email);
-			user.setPassword(password);
-			user.setTelephoneNumber(telephoneNum);
+			regModule = RegistrationModule.getInstance();
+			
+			user = regModule.editProfile(user.getIduser(), telephoneNum, username, password, email);
 			session.setAttribute("user", user);
 		} catch (Exception e) {
 			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Not possible to update profile");
@@ -133,12 +129,23 @@ public class EditProfile extends HttpServlet {
 		
 		String successMessage = "Your edits were applied successfully!";
 		String path = "outcome_page.html";
+		postTemplate(request, response, path, successMessage);
+	}
+	
+	/**
+	 * Utility class for unit testing, we don't want to test Thymeleaf.
+	 * @param request
+	 * @param response
+	 * @throws IOException
+	 */
+	protected void postTemplate(HttpServletRequest request, HttpServletResponse response, String path,
+			String successMessage) throws IOException {
 		ServletContext servletContext = getServletContext();
 		final WebContext ctx = new WebContext(request, response, servletContext, request.getLocale());
 		ctx.setVariable("message", successMessage);
-		response.sendRedirect(path);
+		templateEngine.process(path, ctx, response.getWriter());	
 	}
-	
+
 	public void destroy() {
 		
 	}

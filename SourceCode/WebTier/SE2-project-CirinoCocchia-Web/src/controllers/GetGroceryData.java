@@ -25,7 +25,6 @@ import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
 import src.main.java.model.User;
 import src.main.java.services.groceryManagement.interfaces.MonitorModule;
 import src.main.java.utils.GroceryData;
-import src.main.java.utils.Roles;
 
 /**
  * Servlet implementation class GetGroceryData.
@@ -64,14 +63,8 @@ public class GetGroceryData extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		
-		// CHECKS THE ROLE OF THE USER
-		
 		HttpSession session = request.getSession();
 		User user = (User) session.getAttribute("user");
-		if(user.getRole() != Roles.MANAGER) {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "You are not allowed to do this operation");
-			return;
-		}
 		
 		// GET AND CHECK PARAMETERS
 		
@@ -85,12 +78,7 @@ public class GetGroceryData extends HttpServlet {
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 			startDate = (Date) sdf.parse(request.getParameter("date"));
 		} catch (NumberFormatException | NullPointerException | ParseException e) {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Incorrect param values");
-			return;
-		}
-		
-		if(groceryId == null) {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "No grocery was selected");
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Incorrect or missing param values");
 			return;
 		}
 		
@@ -105,11 +93,12 @@ public class GetGroceryData extends HttpServlet {
 		Map<GroceryData, Float> res = null;
 		
 		try {
+			monitorModule = MonitorModule.getInstance();
 			
 			if(groceryData.equals("All")) res = monitorModule.getGroceryStats(groceryId, startDate);
 			else if(groceryData != null){
 				res = new HashMap<GroceryData, Float>();
-				res.put(GroceryData.valueOf(groceryData), monitorModule.getGroceryStats(groceryId, GroceryData.valueOf(groceryData), startDate));
+				res.put(GroceryData.getMissionStatusFromInt(groceryData), monitorModule.getGroceryStats(groceryId, GroceryData.getMissionStatusFromInt(groceryData), startDate));
 			}
 		} catch (Exception e) {
 			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Data not retrievable");
@@ -123,6 +112,19 @@ public class GetGroceryData extends HttpServlet {
 		for(Map.Entry<GroceryData, Float> entry: res.entrySet()) {
 			dataMap.put(entry.getKey().getValue(), entry.getValue());
 		}
+		getTemplate(request, response, groceryData, dataMap, startDate);
+	}
+	
+	/**
+	 * Utility class for unit testing, we don't want to test Thymeleaf.
+	 * @param request
+	 * @param response
+	 * @param startDate 
+	 * @param dataMap 
+	 * @param groceryData 
+	 * @throws IOException
+	 */
+	protected void getTemplate(HttpServletRequest request, HttpServletResponse response, String groceryData, Map<String, Object> dataMap, Date startDate) throws IOException {
 		final WebContext ctx = new WebContext(request, response, request.getServletContext(), request.getLocale());
 		if(groceryData != null) {
 			ctx.setVariable("dataMap", dataMap);

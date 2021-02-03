@@ -18,6 +18,7 @@ import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
 
 import src.main.java.services.accountManagement.interfaces.LoginModule;
 import src.main.java.services.accountManagement.interfaces.RegistrationModule;
+import src.main.java.utils.Roles;
 import src.main.java.model.User;
 import src.main.java.exceptions.CLupException;
 import javax.persistence.NonUniqueResultException;
@@ -80,11 +81,11 @@ public class CheckLogin extends HttpServlet {
 			}
 
 		} catch (Exception e) {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing credential value");
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing or empty credential value");
 			return;
 		}
 		
-		//AUTHENTICATE USER
+		// AUTHENTICATE USER
 		User user = null;
 		try {
 			loginModule = LoginModule.getInstance();
@@ -97,20 +98,41 @@ public class CheckLogin extends HttpServlet {
 		// IF THE USER EXISTS, ADD INFO TO THE SESSION AND GO TO HOMEPAGE, OTHERWISE
 		// SHOW LOGIN PAGE WITH ERROR MESSAGE
 
-		String path;
 		if (user == null) {
-			ServletContext servletContext = getServletContext();
-			final WebContext ctx = new WebContext(request, response, servletContext, request.getLocale());
-			ctx.setVariable("errorMsg", "Incorrect username or password");
-			path = "login.html";
-			templateEngine.process(path, ctx, response.getWriter());
+			postTemplate(request, response);
 		} else {
 			request.getSession().setAttribute("user", user);
-			path = getServletContext().getContextPath() + "/GoToHomePage";
+			String path = getContext(request, response);
 			response.sendRedirect(path);
 		}
 	}
+	
+	/**
+	 * Utility class for unit testing, we don't want to test javax library.
+	 * @param request
+	 * @param response
+	 * @throws IOException
+	 */
+	protected String getContext(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		return getServletContext().getContextPath() + "/GoToHomePage";
+	}
+
+	
+	/**
+	 * Utility class for unit testing, we don't want to test Thymeleaf.
+	 * @param request
+	 * @param response
+	 * @throws IOException
+	 */
+	protected void postTemplate(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		ServletContext servletContext = getServletContext();
+		final WebContext ctx = new WebContext(request, response, servletContext, request.getLocale());
+		ctx.setVariable("errorMsg", "Incorrect username or password");
+		String path = "login.html";
+		templateEngine.process(path, ctx, response.getWriter());
+	}
 
 	public void destroy() {
+		
 	}
 }

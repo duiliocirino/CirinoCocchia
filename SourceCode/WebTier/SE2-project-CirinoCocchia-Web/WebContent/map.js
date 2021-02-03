@@ -22,7 +22,7 @@ function initializeMap(){
         accessToken: 'pk.eyJ1IjoiZHVpbGlvY2lyaW5vIiwiYSI6ImNra2dvazc0ZDE1bmoycXF0ZTk3aTBjcTgifQ.rgL0JFVT3tYfioUROB3TwQ'
     }).addTo(mymap);
 
-    var groceries = [[${groceries}]];
+    /*var groceries = [[${groceries}]];*/
     for(i = 0; i < groceries.length; i++){
         var marker = L.marker([groceries[i].latitude],[groceries[i].longitude]).addTo(mymap);
         marker.bindPopup(groceries[i].getName + "<br>");

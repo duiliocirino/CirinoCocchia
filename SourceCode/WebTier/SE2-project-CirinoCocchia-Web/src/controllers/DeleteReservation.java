@@ -1,6 +1,7 @@
 package controllers;
 
 import java.io.IOException;
+import java.util.stream.Collectors;
 
 import javax.ejb.EJB;
 import javax.servlet.ServletContext;
@@ -17,6 +18,7 @@ import org.thymeleaf.context.WebContext;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
 
+import src.main.java.exceptions.CLupException;
 import src.main.java.model.Reservation;
 import src.main.java.model.User;
 import src.main.java.services.accountManagement.interfaces.LoginModule;
@@ -68,15 +70,8 @@ public class DeleteReservation extends HttpServlet {
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		
-		//ALLOW ONLY EMPLOYEES AND MANAGERS TO DO THIS OPERATION
-		
 		HttpSession session = request.getSession();
 		User user = (User) session.getAttribute("user");
-		
-		if(user.getRole() != Roles.EMPLOYEE || user.getRole() != Roles.MANAGER) {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "You are not allowed to do this operation");
-			return;
-		}
 		
 		// GET AND CHECK PARAMETERS
 		
@@ -86,29 +81,58 @@ public class DeleteReservation extends HttpServlet {
 		try {
 			reservationId = Integer.parseInt(request.getParameter("reservationId"));
 			groceryId = Integer.parseInt(request.getParameter("groceryId"));
+			if (groceryId == null || reservationId == null) throw new NullPointerException();
 		} catch (NumberFormatException | NullPointerException e) {
 			// for debugging only e.printStackTrace();
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Incorrect param values");
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Incorrect or missing param values");
 			return;
+		}
+		
+
+		if (user.getRole() == Roles.EMPLOYEE) {
+			if (!user.getEmployedGroceries().stream().map(x -> x.getIdgrocery()).collect(Collectors.toList()).contains(groceryId)) {
+				response.sendError(HttpServletResponse.SC_PRECONDITION_FAILED, "You are not allowed to do this operation");
+				return;
+			}
+		}
+		
+		if(user.getRole() == Roles.MANAGER) {
+			if (!user.getGroceries().stream().map(x -> x.getIdgrocery()).collect(Collectors.toList()).contains(groceryId)) {
+				response.sendError(HttpServletResponse.SC_PRECONDITION_FAILED, "You are not allowed to do this operation");
+				return;
+			}
 		}
 
 		try {
+			resModule = ReservationHandlerModule.getInstance();
+			loginModule = LoginModule.getInstance();
+			
 			Reservation reservation = resModule.getReservation(reservationId);
-			if (reservation == null || reservation.getGrocery().getIdgrocery() != groceryId) {
-				response.sendError(HttpServletResponse.SC_PRECONDITION_FAILED, "Reservation not found");
+			if (reservation == null || reservation.getQueue().getGrocery().getIdgrocery() != groceryId) {
+				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Reservation not found");
 				return;
 			}
 			resModule.removeReservation(reservation);
 			loginModule = LoginModule.getInstance();
 			user = loginModule.checkCredentials(user.getUsername(), user.getPassword());
 			session.setAttribute("user", user);
-		} catch (Exception e) {
+		} catch (CLupException e) {
 			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Reservation not closable");
 			return;
 		}
 
 		// RETURN VIEW
 		
+		postTemplate(request, response, groceryId);
+	}
+	
+	/**
+	 * Utility class for unit testing, we don't want to test Thymeleaf.
+	 * @param request
+	 * @param response
+	 * @throws IOException
+	 */
+	protected void postTemplate(HttpServletRequest request, HttpServletResponse response, int groceryId) throws IOException {
 		final WebContext ctx = new WebContext(request, response, getServletContext(), request.getLocale());
 		ctx.setVariable("groceryId", groceryId);
 		String ctxpath = getServletContext().getContextPath();

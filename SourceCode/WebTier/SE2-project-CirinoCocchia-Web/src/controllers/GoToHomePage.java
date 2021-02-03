@@ -15,6 +15,7 @@ import src.main.java.utils.ReservationStatus;
 import src.main.java.utils.Roles;
 import src.main.java.model.*;
 import src.main.java.services.accountManagement.interfaces.LoginModule;
+import src.main.java.services.groceryManagement.interfaces.GroceryHandlerModule;
 import src.main.java.services.searchManagement.interfaces.SearchEngineModule;
 
 import java.util.List;
@@ -37,6 +38,8 @@ public class GoToHomePage extends HttpServlet {
 	private LoginModule loginModule;
 	@EJB(name = "src/main/java/services/searchManagement/interfaces/SearchEngineModule")
 	private SearchEngineModule searchModule;
+	@EJB(name = "src/main/java/services/groceryManagement/interfaces/GroceryHandlerModule")
+	private GroceryHandlerModule groModule;
 	
 	/**
 	 * This attribute is editable based on the number of groceries to display on the map when the page is accessed.
@@ -74,10 +77,11 @@ public class GoToHomePage extends HttpServlet {
 		
 		try {
 			loginModule = LoginModule.getInstance();
-			user = loginModule.checkCredentials(user.getUsername(), user.getPassword());
+			user = loginModule.getUserById(user.getIduser());
+			if (user == null) throw new Exception();
 			session.setAttribute("user", user);
 		} catch(Exception e) {
-			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "The server didn't respond well");
+			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Couldn't retrieve data from server");
 			return;
 		}
 		
@@ -90,6 +94,7 @@ public class GoToHomePage extends HttpServlet {
 		try {
 			latitude = Double.parseDouble(request.getParameter("latitude"));
 			longitude = Double.parseDouble(request.getParameter("longitude"));
+			if(latitude > 90 || latitude < -90 || longitude > 180 || longitude < -180) throw new Exception();
 		} catch (Exception e) {
 			latitude = null;
 			longitude = null;
@@ -98,7 +103,7 @@ public class GoToHomePage extends HttpServlet {
 		try {
 			groceryId = Integer.parseInt(request.getParameter("groceryId"));
 		} catch (Exception e) {
-			
+			groceryId = null;
 		}
 		
 		// RETURN THE USER TO THE RIGHT VIEW
@@ -110,14 +115,16 @@ public class GoToHomePage extends HttpServlet {
 			
 			if(groceryId != null) {
 				try {
-					searchModule.getInstance();
-					grocery = searchModule.getGrocery(groceryId);
+					groModule = GroceryHandlerModule.getInstance();
+					grocery = groModule.getGrocery(groceryId);
+					if(grocery == null) throw new Exception();
 				} catch (Exception e) {
 					grocery = null;
 				}
 			} else {
 				try {
-					//searchModule = SearchEngineModule.getInstance();
+					searchModule = SearchEngineModule.getInstance();
+					
 					int min = MIN;
 					
 					nearGroceries = searchModule.getNearGroceries(new Position(latitude, longitude), 2000);
@@ -131,21 +138,13 @@ public class GoToHomePage extends HttpServlet {
 			}
 			
 			List<Reservation> activeReservations = null;
-			activeReservations = user.getReservations().stream().filter(x -> x.getStatus() == ReservationStatus.OPEN).collect(Collectors.toList());
+			activeReservations = user.getReservations().stream().filter(x -> x.getStatus() != ReservationStatus.CLOSED).collect(Collectors.toList());
 			
 			String path = "main_page_user.html";
-			ServletContext servletContext = getServletContext();
-			final WebContext ctx = new WebContext(request, response, servletContext, request.getLocale());
-			if (activeReservations != null)
-				ctx.setVariable("activeReservations", activeReservations);
-			if(nearGroceries != null) {
-				ctx.setVariable("groceries", nearGroceries);
-			}
-			if(grocery != null) {
-				ctx.setVariable("groceries", grocery);
-			}
-			templateEngine.process(path, ctx, response.getWriter());
-		} else if(user.getRole() == Roles.EMPLOYEE || user.getRole() == Roles.MANAGER) {
+			getTemplateCustomer(request, response, path, activeReservations, nearGroceries, grocery);
+		}
+		
+		if(user.getRole() == Roles.EMPLOYEE || user.getRole() == Roles.MANAGER) {
 			
 			List<Grocery> userGroceries = null;
 					
@@ -155,13 +154,46 @@ public class GoToHomePage extends HttpServlet {
 				userGroceries = user.getGroceries();
 			}
 			String path = "admin_home_page.html";
-			ServletContext servletContext = getServletContext();
-			final WebContext ctx = new WebContext(request, response, servletContext, request.getLocale());
-			if (userGroceries != null)
-				ctx.setVariable("groceries", userGroceries);
-			templateEngine.process(path, ctx, response.getWriter());
+			getTemplateAdmin(request, response, path, userGroceries);
 		}
+	}
+	
+	/**
+	 * Utility class for unit testing, we don't want to test Thymeleaf.
+	 * @param request
+	 * @param response
+	 * @param path 
+	 * @param grocery 
+	 * @param nearGroceries 
+	 * @param activeReservations 
+	 * @throws IOException
+	 */
+	protected void getTemplateCustomer(HttpServletRequest request, HttpServletResponse response, String path, List<Reservation> activeReservations, List<Grocery> nearGroceries, Grocery grocery) throws IOException {
+		ServletContext servletContext = getServletContext();
+		final WebContext ctx = new WebContext(request, response, servletContext, request.getLocale());
+		
+		if (activeReservations != null) ctx.setVariable("activeReservations", activeReservations);
+		
+		if(nearGroceries != null) ctx.setVariable("groceries", nearGroceries);
 
+		if(grocery != null) ctx.setVariable("groceries", grocery);
+		templateEngine.process(path, ctx, response.getWriter());
+	}
+	
+	/**
+	 * Utility class for unit testing, we don't want to test Thymeleaf.
+	 * @param request
+	 * @param response
+	 * @param userGroceries 
+	 * @param path 
+	 * @throws IOException
+	 */
+	protected void getTemplateAdmin(HttpServletRequest request, HttpServletResponse response, String path, List<Grocery> userGroceries) throws IOException {
+		ServletContext servletContext = getServletContext();
+		final WebContext ctx = new WebContext(request, response, servletContext, request.getLocale());
+		if (userGroceries != null)
+			ctx.setVariable("groceries", userGroceries);
+		templateEngine.process(path, ctx, response.getWriter());
 	}
 
 	/**

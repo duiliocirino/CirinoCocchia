@@ -1,7 +1,6 @@
 package controllers;
 
 import java.io.IOException;
-import java.util.stream.Collectors;
 
 import javax.ejb.EJB;
 import javax.servlet.ServletContext;
@@ -18,15 +17,10 @@ import org.thymeleaf.context.WebContext;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
 
-import src.main.java.model.Grocery;
 import src.main.java.model.Position;
 import src.main.java.model.User;
 import src.main.java.services.accountManagement.interfaces.LoginModule;
-import src.main.java.services.accountManagement.interfaces.RegistrationModule;
-import src.main.java.services.groceryManagement.interfaces.EmployeesModule;
 import src.main.java.services.groceryManagement.interfaces.GroceryHandlerModule;
-import src.main.java.services.searchManagement.interfaces.SearchEngineModule;
-import src.main.java.utils.Roles;
 
 /**
  * Servlet implementation class AddGrocery.
@@ -71,16 +65,8 @@ public class AddGrocery extends HttpServlet {
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		
-		//ALLOW ONLY MANAGERS TO DO THIS OPERATION
-		
 		HttpSession session = request.getSession();
 		User user = (User) session.getAttribute("user");
-		
-		if(user.getRole() != Roles.MANAGER) {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "You are not allowed to do this operation");
-			return;
-		}
 		
 		// GET AND PARSE ALL PARAMETERS FROM REQUEST
 		
@@ -97,10 +83,10 @@ public class AddGrocery extends HttpServlet {
 		longitude = Double.parseDouble(request.getParameter("longitude"));
 		} catch (NumberFormatException | NullPointerException e) {
 			isBadRequest = true;
-			e.printStackTrace();
 		}
 		
-		isBadRequest = isBadRequest || (name == null) || (maxSpotsInside == null) || (maxSpotsInside < 1) || (latitude == null) || (longitude == null);
+		isBadRequest = isBadRequest || (name == null) || name.isEmpty() || (maxSpotsInside == null) || (maxSpotsInside < 1) || (latitude == null) || (longitude == null) ||
+				 latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180;
 		
 		if (isBadRequest) {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Incorrect or missing param values");
@@ -116,12 +102,22 @@ public class AddGrocery extends HttpServlet {
 			user = loginModule.checkCredentials(user.getUsername(), user.getPassword());
 			session.setAttribute("user", user);
 		} catch (Exception e) {
-			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Not possible to create profile");
+			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Not possible to create grocery");
 			return;
 		}
 
 		// RETURN THE USER TO THE RIGHT VIEW
 		
+		postTemplate(request, response);
+	}
+	
+	/**
+	 * Utility class for unit testing, we don't want to test Thymeleaf.
+	 * @param request
+	 * @param response
+	 * @throws IOException
+	 */
+	public void postTemplate(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String successMessage = "You successfully added a new grocery!";
 		String path = "outcome_page.html";
 		ServletContext servletContext = getServletContext();

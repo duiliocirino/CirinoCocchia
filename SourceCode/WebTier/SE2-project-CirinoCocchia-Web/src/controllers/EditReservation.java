@@ -86,18 +86,27 @@ public class EditReservation extends HttpServlet {
 				return;
 			}
 			//TODO : DOVREBBE ESSERE FATTA PER FARE AVANZARE LO STATUS
-			resModule.editReservation(idreservation, user.getIduser(), reservation.getGrocery().getIdgrocery(), reservation.getType(), null);
+			//resModule.editReservation(idreservation, user.getIduser(), reservation.getGrocery().getIdgrocery(), reservation.getType(), null);
 		} catch (Exception e) {
 			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Reservation not closable");
 			return;
 		}
 
 		// Return view
+		postTemplate(request, response, groceryId);
+	}
+
+	/**
+	 * Utility class for unit testing, we don't want to test Thymeleaf.
+	 * @param request
+	 * @param response
+	 * @throws IOException
+	 */
+	private void postTemplate(HttpServletRequest request, HttpServletResponse response, int groceryId) throws IOException {
 		final WebContext ctx = new WebContext(request, response, getServletContext(), request.getLocale());
 		ctx.setVariable("groceryId", groceryId);
 		String ctxpath = getServletContext().getContextPath();
 		String path = ctxpath + "/GetReservationPage";
 		templateEngine.process(path, ctx, response.getWriter());
 	}
-
 }

@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.text.StringEscapeUtils;
 import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.WebContext;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
 
@@ -67,72 +68,93 @@ public class RegisterUser extends HttpServlet {
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		
-		boolean isBadRequest = false;
 		String username = null;
 		String password = null;
-		String telephoneNum = null;
+		Double telephoneNum = null;
 		String email = null;
 		String roles = null;
 		
 		try {
-		username = StringEscapeUtils.escapeJava(request.getParameter("username"));
-		password = StringEscapeUtils.escapeJava(request.getParameter("password"));
-		email = StringEscapeUtils.escapeJava(request.getParameter("email"));
-		telephoneNum = StringEscapeUtils.escapeJava(request.getParameter("telephoneNum"));
-		roles = StringEscapeUtils.escapeJava(request.getParameter("role"));
-		if(telephoneNum != null) Integer.parseInt(telephoneNum);
-		} catch (NumberFormatException | NullPointerException e) {
-			isBadRequest = true;
-			e.printStackTrace();
-		}
+			username = StringEscapeUtils.escapeJava(request.getParameter("username"));
+			password = StringEscapeUtils.escapeJava(request.getParameter("password"));
+			email = StringEscapeUtils.escapeJava(request.getParameter("email"));
+			telephoneNum = Double.parseDouble(request.getParameter("telephoneNumber"));
+			roles = StringEscapeUtils.escapeJava(request.getParameter("role"));
 		
-		if (isBadRequest || username == null || password == null || email == null || roles == null || 
-				((!roles.equals("manager") || roles.equals("customer")) && (roles.equals("manager") || !roles.equals("customer") )) || 
-				telephoneNum == null || username.isEmpty() || password.isEmpty() || email.isEmpty()) {
-			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			response.getWriter().println("Wrong parameters");
+			if (username == null || password == null || email == null || roles == null || (!roles.equals("manager") && !roles.equals("customer")) || 
+				telephoneNum == null || telephoneNum < 100000000 || username.isEmpty() || password.isEmpty() || email.isEmpty()) {
+					throw new NullPointerException();
+			}
+		} catch (NumberFormatException | NullPointerException e) {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Incorrect or missing param values");
 			return;
 		}
 		
+		
+		
 		//CREATE ROLE
 		Roles role = null;
-		if(role.equals("manager")) role = Roles.MANAGER;
+		if(roles.equals("manager")) role = Roles.MANAGER;
 		else role = Roles.REG_CUSTOMER;
 		
 		User user = null;
 		
 		try {
+			loginModule = LoginModule.getInstance();
+			
 			user = loginModule.checkCredentials(username, password);
 		} catch (Exception e) {
-			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-			response.getWriter().println("Internal server error, retry later");
+			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Internal server error, retry later");
 			return;
 		}
 
 		if (user == null) {
 			String error = null;
 			try {
-				regModule.register(role, telephoneNum, username, password, email);
+				regModule = RegistrationModule.getInstance();
+				
+				regModule.register(role, Double.toString(telephoneNum), username, password, email);
 			} catch (Exception e) {
-				error = "Bad database insertion input";
+				error = "Bad database insertion";
 			}
 			if(error != null) {
-				response.sendError(505, error);
+				response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, error);
 				return;
 			} else {
-				response.setStatus(HttpServletResponse.SC_OK);
-				response.getWriter().println("Registration success");
-				String path = getServletContext().getContextPath() + "login.html";
-				response.sendRedirect(path);
+				postTemplate(request, response);
 			}
 		} else {
-			response.setStatus(HttpServletResponse.SC_OK);
+			response.setStatus(HttpServletResponse.SC_CONFLICT);
 			response.setCharacterEncoding("UTF-8");
-			String path = getServletContext().getContextPath() + "login.html";
-			response.sendRedirect(path);
+			postTemplateExist(request, response);
 		}
 	}
 
-	public void destroy() {
+	/**
+	 * Utility class for unit testing, we don't want to test servlets utils.
+	 * @param request
+	 * @param response
+	 * @param path 
+	 * @throws IOException
+	 */
+	protected void postTemplate(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		response.setStatus(HttpServletResponse.SC_OK);
+		response.getWriter().println("Registration success");
+		String path = getServletContext().getContextPath() + "login.html";
+		response.sendRedirect(path);
+	}
+	
+	/**
+	 * Utility class for unit testing, we don't want to test Thymeleaf.
+	 * @param request
+	 * @param response
+	 * @throws IOException
+	 */
+	protected void postTemplateExist(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		ServletContext servletContext = getServletContext();
+		final WebContext ctx = new WebContext(request, response, servletContext, request.getLocale());
+		ctx.setVariable("errorMsg", "A corresponding user exists");
+		String path = "login.html";
+		templateEngine.process(path, ctx, response.getWriter());
 	}
 }

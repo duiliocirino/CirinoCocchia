@@ -61,19 +61,12 @@ public class AddEmployee extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		HttpSession session = request.getSession();
-		User user = (User) session.getAttribute("user");
-		if(user.getRole() != Roles.MANAGER) {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "You are not allowed to do this operation");
-			return;
-		}
-		
 		String path = "add_employee.html";
 		ServletContext servletContext = getServletContext();
 		final WebContext ctx = new WebContext(request, response, servletContext, request.getLocale());
 		templateEngine.process(path, ctx, response.getWriter());
 	}
-
+	
 	/**
 	 * This method adds a new employee if the parameters given in the request are correct, the user is 
 	 * allowed to do the operation and the server successfully do his operations.
@@ -89,7 +82,7 @@ public class AddEmployee extends HttpServlet {
 		String username = null;
 		String password = null;
 		String email = null;
-		Integer telephoneNum = null;
+		Double telephoneNum = null;
 		Integer groceryId = null;
 		
 		try {
@@ -97,10 +90,9 @@ public class AddEmployee extends HttpServlet {
 		email = StringEscapeUtils.escapeJava(request.getParameter("email"));
 		password = StringEscapeUtils.escapeJava(request.getParameter("password"));
 		groceryId = Integer.parseInt(request.getParameter("groceryId"));
-		telephoneNum = Integer.parseInt(request.getParameter("telephoneNumber"));
+		telephoneNum = Double.parseDouble(request.getParameter("telephoneNumber"));
 		} catch (NumberFormatException | NullPointerException e) {
 			isBadRequest = true;
-			e.printStackTrace();
 		}
 		
 		//CHECK THAT THE MANAGER OWNS THE GROCERY AND THE GROCERY EXISTS
@@ -108,6 +100,9 @@ public class AddEmployee extends HttpServlet {
 		if(!user.getGroceries().stream().map(x->x.getIdgrocery()).collect(Collectors.toList()).contains(groceryId)) {
 			isBadRequest = true;
 		}
+		
+		isBadRequest = isBadRequest || username == null || email == null || password == null || groceryId == null ||
+				telephoneNum == null || username.isEmpty() || email.isEmpty() || password.isEmpty() || telephoneNum < 100000000;
 		
 		if (isBadRequest) {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Incorrect or missing param values");
@@ -132,12 +127,22 @@ public class AddEmployee extends HttpServlet {
 
 		// RETURN THE USER TO THE RIGHT VIEW
 		
+		postTemplate(request, response);
+	}
+	
+	/**
+	 * Utility class for unit testing, we don't want to test Thymeleaf.
+	 * @param request
+	 * @param response
+	 * @throws IOException
+	 */
+	protected void postTemplate(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String successMessage = "You successfully added a new employee!";
 		String path = "outcome_page.html";
 		ServletContext servletContext = getServletContext();
 		final WebContext ctx = new WebContext(request, response, servletContext, request.getLocale());
 		ctx.setVariable("message", successMessage);
 		templateEngine.process(path, ctx, response.getWriter());
-	}
+    }
 
 }

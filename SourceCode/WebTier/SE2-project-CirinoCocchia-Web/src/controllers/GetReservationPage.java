@@ -58,14 +58,8 @@ public class GetReservationPage extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		
-		// CHECKS THE ROLE OF THE USER
-		
 		HttpSession session = request.getSession();
 		User user = (User) session.getAttribute("user");
-		if(user.getRole() != Roles.EMPLOYEE && user.getRole() != Roles.MANAGER) {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "You are not allowed to do this operation");
-			return;
-		}
 		
 		// GET AND CHECK PARAMETERS
 		
@@ -73,12 +67,12 @@ public class GetReservationPage extends HttpServlet {
 		
 		try {
 			groceryId = Integer.parseInt(request.getParameter("groceryId"));
-			if(!user.getGroceries().stream().map(x -> x.getIdgrocery()).collect(Collectors.toList()).contains(groceryId) ||
-					!user.getEmployedGroceries().stream().map(x -> x.getIdgrocery()).collect(Collectors.toList()).contains(groceryId)) {
+			if(((user.getRole() == Roles.MANAGER) && !user.getGroceries().stream().map(x -> x.getIdgrocery()).collect(Collectors.toList()).contains(groceryId)) ||
+					((user.getRole() == Roles.EMPLOYEE)  && !user.getEmployedGroceries().stream().map(x -> x.getIdgrocery()).collect(Collectors.toList()).contains(groceryId))) {
 				throw new Exception("The user doesn't have the given grocery");
 			}
 		} catch (Exception e) {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Incorrect param values");
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Incorrect or missing param values");
 			return;
 		}
 
@@ -86,6 +80,7 @@ public class GetReservationPage extends HttpServlet {
 		
 		try {
 			loginModule = LoginModule.getInstance();
+			
 			user = loginModule.checkCredentials(user.getUsername(), user.getPassword());
 			session.setAttribute("user", user);
 		} catch (Exception e) {
@@ -99,6 +94,17 @@ public class GetReservationPage extends HttpServlet {
 		
 		// RETURN THE USER TO THE RIGHT VIEW
 		
+		getTemplate(request, response, queue);
+	}
+	
+	/**
+	 * Utility class for unit testing, we don't want to test Thymeleaf.
+	 * @param request
+	 * @param response
+	 * @param queue 
+	 * @throws IOException
+	 */
+	protected void getTemplate(HttpServletRequest request, HttpServletResponse response, Queue queue) throws IOException {
 		final WebContext ctx = new WebContext(request, response, request.getServletContext(), request.getLocale());
 		ctx.setVariable("reservations", queue.getReservations());
 		String path = "grocery_search_page.html";
