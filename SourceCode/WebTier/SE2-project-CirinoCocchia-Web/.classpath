@@ -3,39 +3,7 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.web.container"/>
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.module.container"/>
-	<classpathentry kind="lib" path="C:/apache-tomee-plume-8.0.3/lib/javax.servlet-api-4.0.1.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="https://tomcat.apache.org/tomcat-9.0-doc/api/"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="C:/apache-tomee-plume-8.0.3/lib/javaee-api-8.0-4.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="https://tomcat.apache.org/tomcat-9.0-doc/api/"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="C:/apache-tomee-plume-8.0.3/lib/commons-text-1.9.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="https://tomcat.apache.org/tomcat-9.0-doc/api/"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="C:/apache-tomee-plume-8.0.3/lib/openejb-http-8.0.3.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="https://tomcat.apache.org/tomcat-9.0-doc/api/"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="C:/apache-tomee-plume-8.0.3/lib/servlet-api.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="https://javaee.github.io/javaee-spec/javadocs/"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="C:/apache-tomee-plume-8.0.3/lib/thymeleaf-3.0.11.RELEASE.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="https://tomcat.apache.org/tomcat-9.0-doc/api/"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
-	<classpathentry kind="lib" path="C:/Users/dulio/Downloads/mockito-inline-3.7.7.jar"/>
-	<classpathentry kind="lib" path="C:/apache-tomee-plume-8.0.3/lib/mockito-core-3.7.7.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jst.server.core.container/org.eclipse.jst.server.tomcat.runtimeTarget/Apache Tomcat v9.0">
 		<attributes>
 			<attribute name="owner.project.facets" value="jst.web;#system#"/>
@@ -46,5 +14,14 @@
 			<attribute name="owner.project.facets" value="java"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/commons-lang3-3.8.1.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/commons-text-1.9.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/javaee-api-8.0-4.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/javax.servlet-api-4.0.1.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/mockito-core-3.7.7.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/mockito-inline-3.7.7.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/openejb-http-8.0.3.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/servlet-api.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/thymeleaf-3.0.11.RELEASE.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>
