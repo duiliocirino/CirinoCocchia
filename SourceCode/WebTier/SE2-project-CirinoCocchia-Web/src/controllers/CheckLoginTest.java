@@ -47,7 +47,7 @@ public class CheckLoginTest {
 	@Before
 	public void setup() throws IOException, ServletException {
 		controllerServlet = spy(new CheckLogin());
-		doNothing().when(controllerServlet).postTemplate(req, res);
+		doNothing().when(controllerServlet).postTemplate(any(), any(), anyString());
 		doReturn("").when(controllerServlet).getContext(any(), any());
 		doNothing().when(res).sendRedirect(anyString());
 		when(req.getSession()).thenReturn(session, session);
@@ -127,7 +127,7 @@ public class CheckLoginTest {
 		
 		logMock.close();
 		verify(req, times(2)).getParameter(anyString());
-		verify(controllerServlet, times(1)).postTemplate(req, res);
+		verify(controllerServlet, times(1)).postTemplate(any(), any(), anyString());
 	}
 	
 	@Test

@@ -16,15 +16,15 @@ import src.main.java.model.User;
 import src.main.java.utils.Roles;
 
 /**
- * Servlet Filter implementation class MangerEmployeeFilter
+ * Servlet Filter implementation class MangerEmployeeFilter.
  */
 @WebFilter("/MangerEmployeeFilter")
-public class MangerEmployeeFilter implements Filter {
+public class ManagerEmployeeFilter implements Filter {
 
     /**
      * Default constructor. 
      */
-    public MangerEmployeeFilter() {
+    public ManagerEmployeeFilter() {
         // TODO Auto-generated constructor stub
     }
 

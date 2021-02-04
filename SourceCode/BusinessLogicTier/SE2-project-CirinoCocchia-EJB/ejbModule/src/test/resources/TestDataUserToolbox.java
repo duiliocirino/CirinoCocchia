@@ -6,7 +6,6 @@ import javax.persistence.EntityManager;
 import src.main.java.model.User;
 import src.main.java.utils.Roles;
 
-@Stateless
 public class TestDataUserToolbox {
 
 	protected EntityManager em;
@@ -28,6 +27,14 @@ public class TestDataUserToolbox {
 		this.em = em;
 	}
 	
+	
+	
+	public TestDataUserToolbox() {
+		super();
+	}
+
+
+
 	public void createTestData() {
 		User user1 = new User();
 		user1.setUsername(USERNAME1);

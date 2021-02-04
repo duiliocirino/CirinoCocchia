@@ -30,8 +30,7 @@
 		<url-pattern>/GoToHomePage</url-pattern> 
     	<url-pattern>/GoToSearchPage</url-pattern> 
     	<url-pattern>/Logout</url-pattern> 
-    	<url-pattern>/MakeReservation</url-pattern> 
-    	<url-pattern>/RegisterUser</url-pattern> 
+    	<url-pattern>/MakeReservation</url-pattern>
 		<url-pattern>/RemoveEmployee</url-pattern> 
 		<url-pattern>/RemoveGrocery</url-pattern> 
   	</filter-mapping>

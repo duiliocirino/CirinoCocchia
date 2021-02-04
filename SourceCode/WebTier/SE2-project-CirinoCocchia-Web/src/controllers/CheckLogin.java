@@ -59,7 +59,20 @@ public class CheckLogin extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException{
 		
-		//TODO : CREATE NEW VISITOR USER
+		User user = null;
+		
+		try {
+			regModule = RegistrationModule.getInstance();
+			
+			user = regModule.register(Roles.VISITOR, "0", "visitor", null, null);
+		} catch (CLupException e) {
+			String error = "Cannot access as a visitor at the moment";
+			postTemplate(request, response, error);
+			return;
+		}
+		request.getSession().setAttribute("user", user);
+		String path = getContext(request, response);
+		response.sendRedirect(path);
 	}
 
 	/**
@@ -99,7 +112,8 @@ public class CheckLogin extends HttpServlet {
 		// SHOW LOGIN PAGE WITH ERROR MESSAGE
 
 		if (user == null) {
-			postTemplate(request, response);
+			String error = "Incorrect username or password";
+			postTemplate(request, response, error);
 		} else {
 			request.getSession().setAttribute("user", user);
 			String path = getContext(request, response);
@@ -122,12 +136,13 @@ public class CheckLogin extends HttpServlet {
 	 * Utility class for unit testing, we don't want to test Thymeleaf.
 	 * @param request
 	 * @param response
+	 * @param error 
 	 * @throws IOException
 	 */
-	protected void postTemplate(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	protected void postTemplate(HttpServletRequest request, HttpServletResponse response, String error) throws IOException {
 		ServletContext servletContext = getServletContext();
 		final WebContext ctx = new WebContext(request, response, servletContext, request.getLocale());
-		ctx.setVariable("errorMsg", "Incorrect username or password");
+		ctx.setVariable("errorMsg", error);
 		String path = "login.html";
 		templateEngine.process(path, ctx, response.getWriter());
 	}

@@ -20,7 +20,6 @@ import src.main.java.utils.ReservationStatus;
 import src.main.java.utils.ReservationType;
 import src.main.java.utils.Roles;
 
-@Stateless
 public class TestDataGroceryToolbox {
 	
 	protected EntityManager em;
@@ -60,6 +59,14 @@ public class TestDataGroceryToolbox {
 		this.em = em;
 	}
 	
+	
+	
+	public TestDataGroceryToolbox() {
+		super();
+	}
+
+
+
 	public void createTestData() {
 		
 		User owner = new User();

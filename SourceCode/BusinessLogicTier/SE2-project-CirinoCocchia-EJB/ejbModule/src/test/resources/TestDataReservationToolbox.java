@@ -15,7 +15,6 @@ import src.main.java.utils.ReservationStatus;
 import src.main.java.utils.ReservationType;
 import src.main.java.utils.Roles;
 
-@Stateless
 public class TestDataReservationToolbox {
 	
 	protected EntityManager em;
@@ -75,6 +74,31 @@ public class TestDataReservationToolbox {
 		END_INTERVAL = calEnd.getTime();
 	}
 	
+	
+	
+	public TestDataReservationToolbox() {
+		super();
+		Calendar calDate1 = Calendar.getInstance();
+		calDate1.setTime(DATE1);
+		Calendar calDate2 = Calendar.getInstance();
+		int y = calDate2.get(Calendar.YEAR);
+		calDate2.set(Calendar.YEAR, y + 2);
+		
+		Calendar calStart = Calendar.getInstance();
+		Calendar calEnd = Calendar.getInstance();;
+		int h = calStart.get(Calendar.HOUR);
+		calStart.set(Calendar.HOUR, h - 1);
+		calEnd.set(Calendar.HOUR, h + 1);
+		
+		DATE1_f = DATE1;
+		DATE2 = calDate2.getTime();
+		DATE2_f = DATE2;
+		START_INTERVAL = calStart.getTime();
+		END_INTERVAL = calEnd.getTime();
+	}
+
+
+
 	public void createTestData() {
 		Grocery grocery1 = new Grocery();
 		grocery1.setLatitude(POS_GROCERY1.getLat());

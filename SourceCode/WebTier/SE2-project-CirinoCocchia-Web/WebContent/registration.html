@@ -1,15 +1,10 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-
     <meta charset="utf-8"/>
-    <meta http-equiv="X-UA-Compatible" content=="IE=edge"/>
-    <meta name="google" value="notranslate"/>
     <title>CLup</title>
-
     <link rel="stylesheet" type="text/css" href="bar_style.css">
-    <link rel="stylesheet" type="text/css" href="https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
-
+    <link rel="stylesheet" type="text/css" href="https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css">
 </head>
 <body>
 
@@ -52,7 +47,7 @@
 <div class="center-container">
     <label class="titles">REGISTRATION</label>
     <div class="border-container" id="search_section">
-        <form action="" class="form-style">
+        <form action="RegisterUser" method="post" class="form-style">
             <label class="subtitles">Username</label><br>
             <input type="text" name="username" placeholder="Username" required><br>
             <label class="subtitles">Email</label><br>
