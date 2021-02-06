@@ -33,7 +33,7 @@ public class Queue implements Serializable {
 	 * This attribute represents the grocery of which this queue
 	 * is assigned to
 	 */
-	@OneToOne(cascade = { MERGE, REMOVE, REFRESH, DETACH })
+	@OneToOne(fetch = FetchType.EAGER, cascade = { MERGE, REMOVE, REFRESH, DETACH })
 	@JoinColumn(name = "idgrocery")
 	private Grocery grocery;
 	/**

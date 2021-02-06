@@ -103,6 +103,7 @@ public class MonitorModuleImplementation extends MonitorModule {
 		case AVG_TIME_MONTH:
 		case AVG_TIME_WEEK:
 			List<Integer> visitDurations =  resTools.totalTimeSpentInInterval(queue, startTime, endTime);
+			if(numCustomers == 0) return 0;
 			return getSumOfList(visitDurations) / numCustomers;
 		}
 		

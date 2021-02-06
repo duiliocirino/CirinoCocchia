@@ -121,7 +121,7 @@ public class Reservation implements Serializable {
 		this.queue = grocery.getQueue();
 		this.type = type;
 		this.bookTime = bookTime;
-		this.status = ReservationStatus.NONE;
+		this.status = ReservationStatus.OPEN;
 	}
 
 	public int getIdreservation() {

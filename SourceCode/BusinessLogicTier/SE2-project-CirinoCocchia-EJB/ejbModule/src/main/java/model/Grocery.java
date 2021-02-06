@@ -46,7 +46,7 @@ public class Grocery implements Serializable {
 	/**
 	 * This attribute represents the queue in which the people can line-up
 	 */
-	@OneToOne(cascade = ALL, mappedBy = "grocery")
+	@OneToOne(fetch = FetchType.EAGER, cascade = ALL, mappedBy = "grocery")
 	private Queue queue;
 	/**
 	 * This attribute contains all the employees instances for this grocery

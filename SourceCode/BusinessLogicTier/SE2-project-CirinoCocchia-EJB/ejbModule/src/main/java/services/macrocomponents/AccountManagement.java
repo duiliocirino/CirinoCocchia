@@ -1,5 +1,6 @@
 package src.main.java.services.macrocomponents;
 
+import javax.ejb.EJB;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
@@ -11,5 +12,6 @@ public abstract class AccountManagement {
 	/**
 	 * Set of tools to interact with the entity manager for User class
 	 */
+	@EJB
 	protected UserToolbox usrTools;
 }

@@ -66,13 +66,13 @@ public class User implements Serializable {
 	/**
 	 * List of reservations made by this user
 	 */
-	@OneToMany(fetch = FetchType.LAZY, mappedBy = "customer")
+	@OneToMany(fetch = FetchType.EAGER, mappedBy = "customer")
 	private List<Reservation> reservations = new ArrayList<Reservation>();
 	
 	/**
 	 * List of groceries owned by this user
 	 */
-	@OneToMany(fetch = FetchType.LAZY, mappedBy = "owner")
+	@OneToMany(fetch = FetchType.EAGER, mappedBy = "owner")
 	private List<Grocery> groceries = new ArrayList<Grocery>();
 	
 	/**

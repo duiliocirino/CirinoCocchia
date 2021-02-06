@@ -1,6 +1,7 @@
 package src.main.java.services.macrocomponents;
 
 
+import javax.ejb.EJB;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
@@ -19,13 +20,16 @@ public abstract class ReservationManagement {
 	/**
 	 * Set of tools to interact with the entity manager for User class
 	 */
+	@EJB
 	protected UserToolbox usrTools;
 	/**
 	 * Set of tools to interact with the entity manager for Grocery class
 	 */
+	@EJB
 	protected GroceryToolbox grocTools;
 	/**
 	 * Set of tools to interact with the entity manager for Reservation class
 	 */
+	@EJB
 	protected ReservationToolbox resTools;
 }
