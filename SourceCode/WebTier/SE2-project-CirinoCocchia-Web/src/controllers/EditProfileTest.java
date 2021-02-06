@@ -22,14 +22,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.MockedStatic;
-import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import src.main.java.exceptions.CLupException;
 import src.main.java.model.Grocery;
 import src.main.java.model.User;
-import src.main.java.services.accountManagement.interfaces.RegistrationModule;
+import src.main.java.services.accountManagement.implementation.RegistrationModuleImplementation;
 import src.main.java.utils.Roles;
 
 /**
@@ -40,7 +38,7 @@ public class EditProfileTest {
 	@Mock HttpServletRequest req;
 	@Mock HttpServletResponse res;
 	@Mock HttpSession session;
-	@Mock RegistrationModule regModule;
+	@Mock RegistrationModuleImplementation regModule;
 	EditProfile controllerServlet;
 	final String username = "username";
 	final String email = "email";
@@ -50,7 +48,7 @@ public class EditProfileTest {
 	
 	@Before
 	public void setup() throws IOException, ServletException {
-		controllerServlet = spy(new EditProfile());
+		controllerServlet = spy(new MockEditProfile(regModule));
 		doNothing().when(controllerServlet).postTemplate(any(), any(), any(), any());
 		when(req.getSession()).thenReturn(session, session);
 	}	
@@ -88,61 +86,13 @@ public class EditProfileTest {
 	}
 	
 	@Test
-	public void emptyUsername() throws ServletException, IOException {
+	public void allFieldsEmpty() throws ServletException, IOException {
 		User user = new User();
 		
 		when(session.getAttribute("user")).thenReturn(user);
 		when(req.getParameter("username")).thenReturn("");
-		when(req.getParameter("email")).thenReturn(email);
-		when(req.getParameter("password")).thenReturn(null);
-		when(req.getParameter("telephoneNumber")).thenReturn(telephoneNumber);
-		
-		controllerServlet.doPost(req, res);
-		
-		verify(req, times(4)).getParameter(anyString());
-		verify(res).sendError(HttpServletResponse.SC_BAD_REQUEST, "Incorrect or missing param values");
-	}
-	
-	@Test
-	public void emptyEmail() throws ServletException, IOException {
-		User user = new User();
-		
-		when(session.getAttribute("user")).thenReturn(user);
-		when(req.getParameter("username")).thenReturn(username);
 		when(req.getParameter("email")).thenReturn("");
-		when(req.getParameter("password")).thenReturn(password);
-		when(req.getParameter("telephoneNumber")).thenReturn(null);
-		
-		controllerServlet.doPost(req, res);
-		
-		verify(req, times(4)).getParameter(anyString());
-		verify(res).sendError(HttpServletResponse.SC_BAD_REQUEST, "Incorrect or missing param values");
-	}
-	
-	@Test
-	public void emptyPassword() throws ServletException, IOException {
-		User user = new User();
-		
-		when(session.getAttribute("user")).thenReturn(user);
-		when(req.getParameter("username")).thenReturn(null);
-		when(req.getParameter("email")).thenReturn(email);
 		when(req.getParameter("password")).thenReturn("");
-		when(req.getParameter("telephoneNumber")).thenReturn(telephoneNumber);
-		
-		controllerServlet.doPost(req, res);
-		
-		verify(req, times(4)).getParameter(anyString());
-		verify(res).sendError(HttpServletResponse.SC_BAD_REQUEST, "Incorrect or missing param values");
-	}
-	
-	@Test
-	public void emptyTelephoneNumber() throws ServletException, IOException {
-		User user = new User();
-		
-		when(session.getAttribute("user")).thenReturn(user);
-		when(req.getParameter("username")).thenReturn(username);
-		when(req.getParameter("email")).thenReturn(null);
-		when(req.getParameter("password")).thenReturn(password);
 		when(req.getParameter("telephoneNumber")).thenReturn("");
 		
 		controllerServlet.doPost(req, res);
@@ -153,8 +103,6 @@ public class EditProfileTest {
 	
 	@Test
 	public void dbError() throws ServletException, IOException, CLupException {
-		MockedStatic <RegistrationModule> regMock = Mockito.mockStatic( RegistrationModule.class );
-		regMock.when( () -> RegistrationModule.getInstance()).thenReturn(regModule);
 		
 		User user = new User();
 		user.setRole(Roles.MANAGER);
@@ -184,8 +132,6 @@ public class EditProfileTest {
 
 	@Test
 	public void profileEdited() throws ServletException, IOException, CLupException {
-		MockedStatic <RegistrationModule> regMock = Mockito.mockStatic( RegistrationModule.class );
-		regMock.when( () -> RegistrationModule.getInstance()).thenReturn(regModule);
 		
 		User user = new User();
 		user.setRole(Roles.MANAGER);
@@ -218,8 +164,16 @@ public class EditProfileTest {
 		
 		controllerServlet.doPost(req, res);
 		
-		regMock.close();
 		verify(req, times(4)).getParameter(anyString());
 		verify(controllerServlet, times(1)).postTemplate(any(), any(), any(), any());
+	}
+	
+	class MockEditProfile extends EditProfile {
+
+		private static final long serialVersionUID = 1L;
+		
+		public MockEditProfile (RegistrationModuleImplementation regModule) {
+			this.regModule = regModule;
+		}
 	}
 }

@@ -22,15 +22,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.MockedStatic;
-import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import src.main.java.exceptions.CLupException;
 import src.main.java.model.Grocery;
 import src.main.java.model.User;
-import src.main.java.services.accountManagement.interfaces.LoginModule;
-import src.main.java.services.groceryManagement.interfaces.GroceryHandlerModule;
+import src.main.java.services.groceryManagement.implementation.GroceryHandlerModuleImplementation;
 import src.main.java.utils.Roles;
 
 /**
@@ -41,15 +38,14 @@ public class EditGroceryInfoTest {
 	@Mock HttpServletRequest req;
 	@Mock HttpServletResponse res;
 	@Mock HttpSession session;
-	@Mock GroceryHandlerModule groModule;
-	@Mock LoginModule loginModule;
+	@Mock GroceryHandlerModuleImplementation groModule;
 	EditGroceryInfo controllerServlet;
 	final String groceryName = "GroceryName";
 	
 	
 	@Before
 	public void setup() throws IOException, ServletException {
-		controllerServlet = spy(new EditGroceryInfo());
+		controllerServlet = spy(new MockEditGroceryInfo(groModule));
 		doNothing().when(controllerServlet).getTemplate(any(), any(), any(), any());
 		doNothing().when(controllerServlet).postTemplate(any(), any(), any(), any());
 		when(req.getSession()).thenReturn(session, session);
@@ -181,7 +177,7 @@ public class EditGroceryInfoTest {
 	}
 	
 	@Test
-	public void badMaxSpotsNumber() throws ServletException, IOException {
+	public void badMaxSpotsNumberBadName() throws ServletException, IOException {
 		User user = new User();
 		user.setRole(Roles.MANAGER);
 		user.setIduser(1234);
@@ -196,7 +192,7 @@ public class EditGroceryInfoTest {
 		user.setGroceries(groceries);
 		
 		when(session.getAttribute("user")).thenReturn(user);
-		when(req.getParameter("name")).thenReturn(groceryName);
+		when(req.getParameter("name")).thenReturn("");
 		when(req.getParameter("groceryId")).thenReturn("123");
 		when(req.getParameter("maxSpots")).thenReturn("0");
 		
@@ -207,7 +203,7 @@ public class EditGroceryInfoTest {
 	}
 	
 	@Test
-	public void emptyName() throws ServletException, IOException {
+	public void emptyNameEmptySpots() throws ServletException, IOException {
 		User user = new User();
 		user.setRole(Roles.MANAGER);
 		user.setEmail("ciao@email.com");
@@ -227,7 +223,7 @@ public class EditGroceryInfoTest {
 		when(session.getAttribute("user")).thenReturn(user);
 		when(req.getParameter("name")).thenReturn("");
 		when(req.getParameter("groceryId")).thenReturn("123");
-		when(req.getParameter("maxSpots")).thenReturn("50");
+		when(req.getParameter("maxSpots")).thenReturn("");
 		
 		controllerServlet.doPost(req, res);
 		
@@ -263,8 +259,6 @@ public class EditGroceryInfoTest {
 	
 	@Test
 	public void dbError() throws ServletException, IOException, CLupException {
-		MockedStatic <GroceryHandlerModule> groMock = Mockito.mockStatic( GroceryHandlerModule.class );
-		groMock.when( () -> GroceryHandlerModule.getInstance()).thenReturn(groModule);
 		
 		User user = new User();
 		user.setRole(Roles.MANAGER);
@@ -287,15 +281,12 @@ public class EditGroceryInfoTest {
 		
 		controllerServlet.doPost(req, res);
 		
-		groMock.close();
 		verify(req, times(3)).getParameter(anyString());
 		verify(res).sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Not possible to edit grocery");
 	}
 
 	@Test
 	public void groceryEdited() throws ServletException, IOException, CLupException {
-		MockedStatic <GroceryHandlerModule> groMock = Mockito.mockStatic( GroceryHandlerModule.class );
-		groMock.when( () -> GroceryHandlerModule.getInstance()).thenReturn(groModule);
 		
 		User user = new User();
 		user.setRole(Roles.MANAGER);
@@ -327,9 +318,16 @@ public class EditGroceryInfoTest {
 		groceries.add(newGrocery);
 		user.setGroceries(groceries);
 		
-		groMock.close();
-		
 		verify(req, times(3)).getParameter(anyString());
 		verify(controllerServlet, times(1)).postTemplate(any(), any(), any(), any());
+	}
+	
+	class MockEditGroceryInfo extends EditGroceryInfo {
+
+		private static final long serialVersionUID = 1L;
+		
+		public MockEditGroceryInfo (GroceryHandlerModuleImplementation groModule) {
+			this.groModule = groModule;
+		}
 	}
 }

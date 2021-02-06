@@ -41,7 +41,7 @@ public class ManagerFilter implements Filter {
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
 		
 		//ALLOW ONLY MANAGERS TO DO THIS OPERATION
-		
+		System.out.print("Manager filter executing ...\n");
 		HttpServletRequest req = (HttpServletRequest) request;
 		HttpServletResponse res = (HttpServletResponse) response;
 		HttpSession session = req.getSession();

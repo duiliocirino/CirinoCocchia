@@ -32,9 +32,9 @@ public class RemoveEmployee extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private TemplateEngine templateEngine;
 	@EJB
-	private EmployeesModuleImplementation employeesModule;
+	protected EmployeesModuleImplementation employeesModule;
 	@EJB
-	private LoginModuleImplementation loginModule;
+	protected LoginModuleImplementation loginModule;
        
     /**
      * Class constructor.

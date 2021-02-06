@@ -1,7 +1,5 @@
 package controllers;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -24,15 +22,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.MockedStatic;
-import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import src.main.java.exceptions.CLupException;
 import src.main.java.model.Grocery;
 import src.main.java.model.User;
-import src.main.java.services.accountManagement.interfaces.LoginModule;
-import src.main.java.services.groceryManagement.interfaces.GroceryHandlerModule;
+import src.main.java.services.groceryManagement.implementation.GroceryHandlerModuleImplementation;
 import src.main.java.utils.Roles;
 
 /**
@@ -43,15 +38,14 @@ public class AddGroceryTest {
 	@Mock HttpServletRequest req;
 	@Mock HttpServletResponse res;
 	@Mock HttpSession session;
-	@Mock GroceryHandlerModule groModule;
-	@Mock LoginModule loginModule;
+	@Mock GroceryHandlerModuleImplementation groModule;
 	AddGrocery controllerServlet;
 	final String groceryName = "GroceryName";
 	
 	
 	@Before
 	public void setup() throws IOException, ServletException {
-		controllerServlet = spy(new AddGrocery());
+		controllerServlet = spy(new MockAddGrocery(groModule));
 		doNothing().when(controllerServlet).postTemplate(req, res);
 		when(req.getSession()).thenReturn(session, session);
 	}
@@ -79,10 +73,12 @@ public class AddGroceryTest {
 		when(req.getParameter("maxSpots")).thenReturn("50");
 		when(req.getParameter("latitude")).thenReturn("50");
 		when(req.getParameter("longitude")).thenReturn("50");
+		when(req.getParameter("openHour")).thenReturn("0");
+		when(req.getParameter("closeHour")).thenReturn("24");
 		
 		controllerServlet.doPost(req, res);
 		
-		verify(req, times(4)).getParameter(anyString());
+		verify(req, times(6)).getParameter(anyString());
 		verify(res).sendError(HttpServletResponse.SC_BAD_REQUEST, "Incorrect or missing param values");
 	}
 	
@@ -117,6 +113,37 @@ public class AddGroceryTest {
 	}
 	
 	@Test
+	public void nullParametersTest3() throws ServletException, IOException {
+		User user = new User();
+		user.setRole(Roles.MANAGER);
+		user.setEmail("ciao@email.com");
+		user.setIduser(1234);
+		user.setTelephoneNumber("3278906554");
+		user.setUsername("ciao");
+		
+		List<Grocery> groceries = new ArrayList<>();
+		
+		Grocery grocery = new Grocery();
+		grocery.setIdgrocery(123);
+		grocery.setOwner(user);
+		
+		groceries.add(grocery);
+		user.setGroceries(groceries);
+		
+		when(session.getAttribute("user")).thenReturn(user);
+		when(req.getParameter("name")).thenReturn(groceryName);
+		when(req.getParameter("maxSpots")).thenReturn("50");
+		when(req.getParameter("latitude")).thenReturn("50");
+		when(req.getParameter("longitude")).thenReturn("50");
+		when(req.getParameter("openHour")).thenReturn(null);
+		
+		controllerServlet.doPost(req, res);
+		
+		verify(req, times(5)).getParameter(anyString());
+		verify(res).sendError(HttpServletResponse.SC_BAD_REQUEST, "Incorrect or missing param values");
+	}
+	
+	@Test
 	public void badMaxSpotsNumber1() throws ServletException, IOException {
 		User user = new User();
 		user.setRole(Roles.MANAGER);
@@ -139,10 +166,12 @@ public class AddGroceryTest {
 		when(req.getParameter("maxSpots")).thenReturn("-4");
 		when(req.getParameter("latitude")).thenReturn("50");
 		when(req.getParameter("longitude")).thenReturn("50");
+		when(req.getParameter("openHour")).thenReturn("0");
+		when(req.getParameter("closeHour")).thenReturn("24");		
 		
 		controllerServlet.doPost(req, res);
 		
-		verify(req, times(4)).getParameter(anyString());
+		verify(req, times(6)).getParameter(anyString());
 		verify(res).sendError(HttpServletResponse.SC_BAD_REQUEST, "Incorrect or missing param values");
 	}
 	
@@ -197,10 +226,12 @@ public class AddGroceryTest {
 		when(req.getParameter("maxSpots")).thenReturn("50");
 		when(req.getParameter("latitude")).thenReturn("100");
 		when(req.getParameter("longitude")).thenReturn("50");
+		when(req.getParameter("openHour")).thenReturn("0");
+		when(req.getParameter("closeHour")).thenReturn("24");
 		
 		controllerServlet.doPost(req, res);
 		
-		verify(req, times(4)).getParameter(anyString());
+		verify(req, times(6)).getParameter(anyString());
 		verify(res).sendError(HttpServletResponse.SC_BAD_REQUEST, "Incorrect or missing param values");
 	}
 	
@@ -256,10 +287,12 @@ public class AddGroceryTest {
 		when(req.getParameter("maxSpots")).thenReturn("50");
 		when(req.getParameter("latitude")).thenReturn("50");
 		when(req.getParameter("longitude")).thenReturn("200");
+		when(req.getParameter("openHour")).thenReturn("0");
+		when(req.getParameter("closeHour")).thenReturn("24");
 		
 		controllerServlet.doPost(req, res);
 		
-		verify(req, times(4)).getParameter(anyString());
+		verify(req, times(6)).getParameter(anyString());
 		verify(res).sendError(HttpServletResponse.SC_BAD_REQUEST, "Incorrect or missing param values");
 	}
 
@@ -294,7 +327,166 @@ public class AddGroceryTest {
 	}
 	
 	@Test
-	public void groceryNotCreatedDBError() throws ServletException, IOException {
+	public void badOpeningNumber1() throws ServletException, IOException {
+		User user = new User();
+		user.setRole(Roles.MANAGER);
+		user.setEmail("ciao@email.com");
+		user.setIduser(1234);
+		user.setTelephoneNumber("3278906554");
+		user.setUsername("ciao");
+		
+		List<Grocery> groceries = new ArrayList<>();
+		
+		Grocery grocery = new Grocery();
+		grocery.setIdgrocery(123);
+		grocery.setOwner(user);
+		
+		groceries.add(grocery);
+		user.setGroceries(groceries);
+		
+		when(session.getAttribute("user")).thenReturn(user);
+		when(req.getParameter("name")).thenReturn(groceryName);
+		when(req.getParameter("maxSpots")).thenReturn("50");
+		when(req.getParameter("latitude")).thenReturn("50");
+		when(req.getParameter("longitude")).thenReturn("50");
+		when(req.getParameter("openHour")).thenReturn("fr4");
+		
+		controllerServlet.doPost(req, res);
+		
+		verify(req, times(5)).getParameter(anyString());
+		verify(res).sendError(HttpServletResponse.SC_BAD_REQUEST, "Incorrect or missing param values");
+	}
+	
+	@Test
+	public void badOpeningNumber2() throws ServletException, IOException {
+		User user = new User();
+		user.setRole(Roles.MANAGER);
+		user.setEmail("ciao@email.com");
+		user.setIduser(1234);
+		user.setTelephoneNumber("3278906554");
+		user.setUsername("ciao");
+		
+		List<Grocery> groceries = new ArrayList<>();
+		
+		Grocery grocery = new Grocery();
+		grocery.setIdgrocery(123);
+		grocery.setOwner(user);
+		
+		groceries.add(grocery);
+		user.setGroceries(groceries);
+		
+		when(session.getAttribute("user")).thenReturn(user);
+		when(req.getParameter("name")).thenReturn(groceryName);
+		when(req.getParameter("maxSpots")).thenReturn("50");
+		when(req.getParameter("latitude")).thenReturn("50");
+		when(req.getParameter("longitude")).thenReturn("50");
+		when(req.getParameter("openHour")).thenReturn("-1");
+		when(req.getParameter("closeHour")).thenReturn("24");
+		
+		controllerServlet.doPost(req, res);
+		
+		verify(req, times(6)).getParameter(anyString());
+		verify(res).sendError(HttpServletResponse.SC_BAD_REQUEST, "Incorrect or missing param values");
+	}
+	
+	@Test
+	public void badClosingNumber1() throws ServletException, IOException {
+		User user = new User();
+		user.setRole(Roles.MANAGER);
+		user.setEmail("ciao@email.com");
+		user.setIduser(1234);
+		user.setTelephoneNumber("3278906554");
+		user.setUsername("ciao");
+		
+		List<Grocery> groceries = new ArrayList<>();
+		
+		Grocery grocery = new Grocery();
+		grocery.setIdgrocery(123);
+		grocery.setOwner(user);
+		
+		groceries.add(grocery);
+		user.setGroceries(groceries);
+		
+		when(session.getAttribute("user")).thenReturn(user);
+		when(req.getParameter("name")).thenReturn(groceryName);
+		when(req.getParameter("maxSpots")).thenReturn("50");
+		when(req.getParameter("latitude")).thenReturn("50");
+		when(req.getParameter("longitude")).thenReturn("50");
+		when(req.getParameter("openHour")).thenReturn("0");
+		when(req.getParameter("closeHour")).thenReturn("25");
+		
+		controllerServlet.doPost(req, res);
+		
+		verify(req, times(6)).getParameter(anyString());
+		verify(res).sendError(HttpServletResponse.SC_BAD_REQUEST, "Incorrect or missing param values");
+	}
+	
+	@Test
+	public void badClosingNumber2() throws ServletException, IOException {
+		User user = new User();
+		user.setRole(Roles.MANAGER);
+		user.setEmail("ciao@email.com");
+		user.setIduser(1234);
+		user.setTelephoneNumber("3278906554");
+		user.setUsername("ciao");
+		
+		List<Grocery> groceries = new ArrayList<>();
+		
+		Grocery grocery = new Grocery();
+		grocery.setIdgrocery(123);
+		grocery.setOwner(user);
+		
+		groceries.add(grocery);
+		user.setGroceries(groceries);
+		
+		when(session.getAttribute("user")).thenReturn(user);
+		when(req.getParameter("name")).thenReturn(groceryName);
+		when(req.getParameter("maxSpots")).thenReturn("50");
+		when(req.getParameter("latitude")).thenReturn("50");
+		when(req.getParameter("longitude")).thenReturn("50");
+		when(req.getParameter("openHour")).thenReturn("0");
+		when(req.getParameter("closeHour")).thenReturn("ghr4");
+		
+		controllerServlet.doPost(req, res);
+		
+		verify(req, times(6)).getParameter(anyString());
+		verify(res).sendError(HttpServletResponse.SC_BAD_REQUEST, "Incorrect or missing param values");
+	}
+	
+	@Test
+	public void badClosingNumber3() throws ServletException, IOException {
+		User user = new User();
+		user.setRole(Roles.MANAGER);
+		user.setEmail("ciao@email.com");
+		user.setIduser(1234);
+		user.setTelephoneNumber("3278906554");
+		user.setUsername("ciao");
+		
+		List<Grocery> groceries = new ArrayList<>();
+		
+		Grocery grocery = new Grocery();
+		grocery.setIdgrocery(123);
+		grocery.setOwner(user);
+		
+		groceries.add(grocery);
+		user.setGroceries(groceries);
+		
+		when(session.getAttribute("user")).thenReturn(user);
+		when(req.getParameter("name")).thenReturn(groceryName);
+		when(req.getParameter("maxSpots")).thenReturn("50");
+		when(req.getParameter("latitude")).thenReturn("50");
+		when(req.getParameter("longitude")).thenReturn("50");
+		when(req.getParameter("openHour")).thenReturn("8");
+		when(req.getParameter("closeHour")).thenReturn("7");
+		
+		controllerServlet.doPost(req, res);
+		
+		verify(req, times(6)).getParameter(anyString());
+		verify(res).sendError(HttpServletResponse.SC_BAD_REQUEST, "Incorrect or missing param values");
+	}
+	
+	@Test
+	public void groceryNotCreatedDBError() throws ServletException, IOException, CLupException {
 		User user = new User();
 		user.setRole(Roles.MANAGER);
 		user.setEmail("ciao@email.com");
@@ -318,24 +510,52 @@ public class AddGroceryTest {
 		groceries.add(grocery);
 		user.setGroceries(groceries);
 		
+		when(groModule.addGrocery(anyString(), any(), anyInt(), anyInt(), anyInt(), anyInt())).thenThrow(new CLupException(""));
 		when(session.getAttribute("user")).thenReturn(user);
 		when(req.getParameter("name")).thenReturn(groceryName);
 		when(req.getParameter("maxSpots")).thenReturn("50");
 		when(req.getParameter("latitude")).thenReturn("50");
 		when(req.getParameter("longitude")).thenReturn("50");
+		when(req.getParameter("openHour")).thenReturn("0");
+		when(req.getParameter("closeHour")).thenReturn("24");
 		
 		controllerServlet.doPost(req, res);
 		
-		verify(req, times(4)).getParameter(anyString());
+		verify(req, times(6)).getParameter(anyString());
 		verify(res).sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Not possible to create grocery");
 	}
+	
+	@Test
+	public void firstGroceryCreated() throws ServletException, IOException, CLupException {
+		
+		User user = new User();
+		user.setRole(Roles.MANAGER);
+		user.setEmail("ciao@email.com");
+		user.setIduser(1234);
+		user.setTelephoneNumber("3278906554");
+		user.setUsername("ciao");
+		user.setGroceries(null);
+		
+		Grocery newGrocery = new Grocery();
+		newGrocery.setIdgrocery(456);
+		
+		when(groModule.addGrocery(anyString(), any(), anyInt(), anyInt(), anyInt(), anyInt())).thenReturn(newGrocery);
+		when(session.getAttribute("user")).thenReturn(user);
+		when(req.getParameter("name")).thenReturn(groceryName);
+		when(req.getParameter("maxSpots")).thenReturn("50");
+		when(req.getParameter("latitude")).thenReturn("50");
+		when(req.getParameter("longitude")).thenReturn("50");
+		when(req.getParameter("openHour")).thenReturn("0");
+		when(req.getParameter("closeHour")).thenReturn("24");
+		
+		controllerServlet.doPost(req, res);
+		
+		verify(req, times(6)).getParameter(anyString());
+		verify(controllerServlet, times(1)).postTemplate(any(), any());
+	}	
 
 	@Test
 	public void groceryCreated() throws ServletException, IOException, CLupException {
-		MockedStatic <GroceryHandlerModule> groMock = Mockito.mockStatic( GroceryHandlerModule.class );
-		groMock.when( () -> GroceryHandlerModule.getInstance()).thenReturn(groModule);
-		MockedStatic <LoginModule> logMock = Mockito.mockStatic( LoginModule.class );
-		logMock.when( () -> LoginModule.getInstance()).thenReturn(loginModule);
 		
 		User user = new User();
 		user.setRole(Roles.MANAGER);
@@ -360,32 +580,26 @@ public class AddGroceryTest {
 		groceries.set(0, grocery);
 		user.setGroceries(groceries);
 		
-		when(groModule.addGrocery(anyString(), any(), anyInt(), anyInt())).thenReturn(newGrocery);
+		when(groModule.addGrocery(anyString(), any(), anyInt(), anyInt(), anyInt(), anyInt())).thenReturn(newGrocery);
 		when(session.getAttribute("user")).thenReturn(user);
 		when(req.getParameter("name")).thenReturn(groceryName);
 		when(req.getParameter("maxSpots")).thenReturn("50");
 		when(req.getParameter("latitude")).thenReturn("50");
 		when(req.getParameter("longitude")).thenReturn("50");
+		when(req.getParameter("openHour")).thenReturn("0");
+		when(req.getParameter("closeHour")).thenReturn("24");
 		
 		controllerServlet.doPost(req, res);
 		
 		groceries.add(newGrocery);
 		user.setGroceries(groceries);
 		
-		groMock.close();
-		logMock.close();
-		
-		verify(req, times(4)).getParameter(anyString());
-		assertEquals(session.getAttribute("user"), user);
-		assertTrue(user.getGroceries().contains(grocery));
+		verify(req, times(6)).getParameter(anyString());
+		verify(controllerServlet, times(1)).postTemplate(any(), any());
 	}	
 	
 	@Test
 	public void doGetWorks() throws ServletException, IOException, CLupException {
-		MockedStatic <GroceryHandlerModule> groMock = Mockito.mockStatic( GroceryHandlerModule.class );
-		groMock.when( () -> GroceryHandlerModule.getInstance()).thenReturn(groModule);
-		MockedStatic <LoginModule> logMock = Mockito.mockStatic( LoginModule.class );
-		logMock.when( () -> LoginModule.getInstance()).thenReturn(loginModule);
 		
 		User user = new User();
 		user.setRole(Roles.MANAGER);
@@ -410,23 +624,30 @@ public class AddGroceryTest {
 		groceries.set(0, grocery);
 		user.setGroceries(groceries);
 		
-		when(groModule.addGrocery(anyString(), any(), anyInt(), anyInt())).thenReturn(newGrocery);
+		when(groModule.addGrocery(anyString(), any(), anyInt(), anyInt(), anyInt(), anyInt())).thenReturn(newGrocery);
 		when(session.getAttribute("user")).thenReturn(user);
 		when(req.getParameter("name")).thenReturn(groceryName);
 		when(req.getParameter("maxSpots")).thenReturn("50");
 		when(req.getParameter("latitude")).thenReturn("50");
 		when(req.getParameter("longitude")).thenReturn("50");
+		when(req.getParameter("openHour")).thenReturn("0");
+		when(req.getParameter("closeHour")).thenReturn("24");
 		
 		controllerServlet.doGet(req, res);
 		
 		groceries.add(newGrocery);
 		user.setGroceries(groceries);
 		
-		groMock.close();
-		logMock.close();
+		verify(req, times(6)).getParameter(anyString());
+		verify(controllerServlet, times(1)).postTemplate(any(), any());
+	}
+	
+	class MockAddGrocery extends AddGrocery {
 		
-		verify(req, times(4)).getParameter(anyString());
-		assertEquals(session.getAttribute("user"), user);
-		assertTrue(user.getGroceries().contains(newGrocery));
-	}	
+		private static final long serialVersionUID = 1L;
+
+		public MockAddGrocery(GroceryHandlerModuleImplementation groModule) {
+			this.groModule = groModule;
+		}
+	}
 }

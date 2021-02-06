@@ -23,16 +23,14 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.MockedStatic;
-import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import src.main.java.exceptions.CLupException;
 import src.main.java.model.Grocery;
 import src.main.java.model.User;
-import src.main.java.services.accountManagement.interfaces.LoginModule;
-import src.main.java.services.groceryManagement.interfaces.GroceryHandlerModule;
-import src.main.java.services.searchManagement.interfaces.SearchEngineModule;
+import src.main.java.services.accountManagement.implementation.LoginModuleImplementation;
+import src.main.java.services.groceryManagement.implementation.GroceryHandlerModuleImplementation;
+import src.main.java.services.searchManagement.implementation.SearchEngineModuleImplementation;
 import src.main.java.utils.Roles;
 
 /**
@@ -43,9 +41,9 @@ public class GoToHomePageTest {
 	@Mock HttpServletRequest req;
 	@Mock HttpServletResponse res;
 	@Mock HttpSession session;
-	@Mock LoginModule loginModule;
-	@Mock GroceryHandlerModule groModule;
-	@Mock SearchEngineModule searchModule;
+	@Mock LoginModuleImplementation loginModule;
+	@Mock GroceryHandlerModuleImplementation groModule;
+	@Mock SearchEngineModuleImplementation searchModule;
 	GoToHomePage controllerServlet;
 	final String groceryData = "groceryData";
 	final String date = "2021-02-05";
@@ -53,7 +51,7 @@ public class GoToHomePageTest {
 	
 	@Before
 	public void setup() throws IOException, ServletException {
-		controllerServlet = spy(new GoToHomePage());
+		controllerServlet = spy(new MockGoToHomePage(loginModule, groModule, searchModule));
 		doNothing().when(controllerServlet).getTemplateAdmin(any(), any(), anyString(), any());
 		doNothing().when(controllerServlet).getTemplateCustomer(any(), any(), anyString(), any(), any(), any());
 		when(req.getSession()).thenReturn(session, session);
@@ -61,8 +59,6 @@ public class GoToHomePageTest {
 	
 	@Test
 	public void dbErrorIntro() throws ServletException, IOException, CLupException {
-		MockedStatic <LoginModule> logMock = Mockito.mockStatic( LoginModule.class );
-		logMock.when( () -> LoginModule.getInstance()).thenReturn(loginModule);
 		
 		User user = new User();
 		
@@ -71,15 +67,12 @@ public class GoToHomePageTest {
 		
 		controllerServlet.doGet(req, res);
 		
-		logMock.close();
 		verify(req, times(0)).getParameter(anyString());
 		verify(res).sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Couldn't retrieve data from server");
 	}
 	
 	@Test
 	public void homeEmployee() throws ServletException, IOException, CLupException {
-		MockedStatic <LoginModule> logMock = Mockito.mockStatic( LoginModule.class );
-		logMock.when( () -> LoginModule.getInstance()).thenReturn(loginModule);
 		
 		User user = new User();
 		user.setRole(Roles.EMPLOYEE);
@@ -98,14 +91,11 @@ public class GoToHomePageTest {
 		
 		controllerServlet.doGet(req, res);
 		
-		logMock.close();
 		verify(controllerServlet, times(1)).getTemplateAdmin(any(), any(), anyString(), any());
 	}
 	
 	@Test
 	public void homeManager() throws ServletException, IOException, CLupException {
-		MockedStatic <LoginModule> logMock = Mockito.mockStatic( LoginModule.class );
-		logMock.when( () -> LoginModule.getInstance()).thenReturn(loginModule);
 		
 		User user = new User();
 		user.setRole(Roles.MANAGER);
@@ -124,16 +114,11 @@ public class GoToHomePageTest {
 		
 		controllerServlet.doGet(req, res);
 		
-		logMock.close();
 		verify(controllerServlet, times(1)).getTemplateAdmin(any(), any(), anyString(), any());
 	}
 	
 	@Test
 	public void customerWithGroceryNoActiveRes() throws ServletException, IOException, CLupException {
-		MockedStatic <LoginModule> logMock = Mockito.mockStatic( LoginModule.class );
-		logMock.when( () -> LoginModule.getInstance()).thenReturn(loginModule);
-		MockedStatic <GroceryHandlerModule> groMock = Mockito.mockStatic( GroceryHandlerModule.class );
-		groMock.when( () -> GroceryHandlerModule.getInstance()).thenReturn(groModule);
 		
 		User user = new User();
 		user.setRole(Roles.REG_CUSTOMER);
@@ -148,17 +133,11 @@ public class GoToHomePageTest {
 		
 		controllerServlet.doGet(req, res);
 		
-		logMock.close();
-		groMock.close();
 		verify(controllerServlet, times(1)).getTemplateCustomer(any(), any(), anyString(), any(), any(), any());
 	}
 	
 	@Test
 	public void customerWithErrorGroceryNoActiveRes() throws ServletException, IOException, CLupException {
-		MockedStatic <LoginModule> logMock = Mockito.mockStatic( LoginModule.class );
-		logMock.when( () -> LoginModule.getInstance()).thenReturn(loginModule);
-		MockedStatic <GroceryHandlerModule> groMock = Mockito.mockStatic( GroceryHandlerModule.class );
-		groMock.when( () -> GroceryHandlerModule.getInstance()).thenReturn(groModule);
 		
 		User user = new User();
 		user.setRole(Roles.REG_CUSTOMER);
@@ -173,17 +152,11 @@ public class GoToHomePageTest {
 		
 		controllerServlet.doGet(req, res);
 		
-		logMock.close();
-		groMock.close();
 		verify(controllerServlet, times(1)).getTemplateCustomer(any(), any(), anyString(), any(), any(), any());
 	}
 	
 	@Test
 	public void customerWithNoGroceryNoActiveResNullNear() throws ServletException, IOException, CLupException {
-		MockedStatic <LoginModule> logMock = Mockito.mockStatic( LoginModule.class );
-		logMock.when( () -> LoginModule.getInstance()).thenReturn(loginModule);
-		MockedStatic <SearchEngineModule> searchMock = Mockito.mockStatic( SearchEngineModule.class );
-		searchMock.when( () -> SearchEngineModule.getInstance()).thenReturn(searchModule);
 		
 		User user = new User();
 		user.setRole(Roles.REG_CUSTOMER);
@@ -202,17 +175,11 @@ public class GoToHomePageTest {
 		
 		controllerServlet.doGet(req, res);
 		
-		logMock.close();
-		searchMock.close();
 		verify(controllerServlet, times(1)).getTemplateCustomer(any(), any(), anyString(), any(), any(), any());
 	}
 	
 	@Test
 	public void customerWithNoGroceryNoActiveResOneNear() throws ServletException, IOException, CLupException {
-		MockedStatic <LoginModule> logMock = Mockito.mockStatic( LoginModule.class );
-		logMock.when( () -> LoginModule.getInstance()).thenReturn(loginModule);
-		MockedStatic <SearchEngineModule> searchMock = Mockito.mockStatic( SearchEngineModule.class );
-		searchMock.when( () -> SearchEngineModule.getInstance()).thenReturn(searchModule);
 		
 		User user = new User();
 		user.setRole(Roles.REG_CUSTOMER);
@@ -232,17 +199,11 @@ public class GoToHomePageTest {
 		
 		controllerServlet.doGet(req, res);
 		
-		logMock.close();
-		searchMock.close();
 		verify(controllerServlet, times(1)).getTemplateCustomer(any(), any(), anyString(), any(), any(), any());
 	}
 	
 	@Test
 	public void customerWithNoGroceryNoActiveThreeNear() throws ServletException, IOException, CLupException {
-		MockedStatic <LoginModule> logMock = Mockito.mockStatic( LoginModule.class );
-		logMock.when( () -> LoginModule.getInstance()).thenReturn(loginModule);
-		MockedStatic <SearchEngineModule> searchMock = Mockito.mockStatic( SearchEngineModule.class );
-		searchMock.when( () -> SearchEngineModule.getInstance()).thenReturn(searchModule);
 		
 		User user = new User();
 		user.setRole(Roles.REG_CUSTOMER);
@@ -270,17 +231,11 @@ public class GoToHomePageTest {
 		
 		controllerServlet.doGet(req, res);
 		
-		logMock.close();
-		searchMock.close();
 		verify(controllerServlet, times(1)).getTemplateCustomer(any(), any(), anyString(), any(), any(), any());
 	}
 	
 	@Test
 	public void postOk() throws ServletException, IOException, CLupException {
-		MockedStatic <LoginModule> logMock = Mockito.mockStatic( LoginModule.class );
-		logMock.when( () -> LoginModule.getInstance()).thenReturn(loginModule);
-		MockedStatic <SearchEngineModule> searchMock = Mockito.mockStatic( SearchEngineModule.class );
-		searchMock.when( () -> SearchEngineModule.getInstance()).thenReturn(searchModule);
 		
 		User user = new User();
 		user.setRole(Roles.REG_CUSTOMER);
@@ -308,8 +263,17 @@ public class GoToHomePageTest {
 		
 		controllerServlet.doPost(req, res);
 		
-		logMock.close();
-		searchMock.close();
 		verify(controllerServlet, times(1)).getTemplateCustomer(any(), any(), anyString(), any(), any(), any());
+	}
+	
+	class MockGoToHomePage extends GoToHomePage {
+
+		private static final long serialVersionUID = 1L;
+		
+		public MockGoToHomePage(LoginModuleImplementation loginModule, GroceryHandlerModuleImplementation groModule, SearchEngineModuleImplementation searchModule) {
+			this.loginModule = loginModule;
+			this.groModule = groModule;
+			this.searchModule = searchModule;
+		}
 	}
 }

@@ -35,6 +35,13 @@ public abstract class QueueUpdateManagement extends ReservationManagement {
 	 */
 	public abstract boolean setIntoTheStore(int idreservation) throws CLupException;
 	/**
+	 * This method has to be invoked when a customer which was into the store, gets 
+	 * outside the store
+	 * @param idreservation id of the reservation related to the customer 
+	 * @throws CLupException if there is no reservation with that id
+	 */
+	public abstract void setOutTheStore(int idreservation) throws CLupException;
+	/**
 	 * Line up a new reservation
 	 * @param iduser id of user that wishes to line up
 	 * @param idgrocery id of the grocery in which the user is wishing to line up

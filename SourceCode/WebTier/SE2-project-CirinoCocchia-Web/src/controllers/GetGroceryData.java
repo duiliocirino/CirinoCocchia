@@ -37,7 +37,7 @@ public class GetGroceryData extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private TemplateEngine templateEngine;
 	@EJB
-	private MonitorModuleImplementation monitorModule;
+	protected MonitorModuleImplementation monitorModule;
 	
        
     /**

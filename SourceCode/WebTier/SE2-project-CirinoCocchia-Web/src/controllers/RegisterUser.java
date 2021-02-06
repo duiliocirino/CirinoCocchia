@@ -30,9 +30,9 @@ public class RegisterUser extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private TemplateEngine templateEngine;
 	@EJB
-	private LoginModuleImplementation loginModule;
+	protected LoginModuleImplementation loginModule;
 	@EJB
-	private RegistrationModuleImplementation regModule;
+	protected RegistrationModuleImplementation regModule;
 
 	/**
      * Class constructor.

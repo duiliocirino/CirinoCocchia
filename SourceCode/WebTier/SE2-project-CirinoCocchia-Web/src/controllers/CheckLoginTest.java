@@ -21,13 +21,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.MockedStatic;
-import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import src.main.java.exceptions.CLupException;
 import src.main.java.model.User;
-import src.main.java.services.accountManagement.interfaces.LoginModule;
+import src.main.java.services.accountManagement.implementation.LoginModuleImplementation;
+import src.main.java.services.accountManagement.implementation.RegistrationModuleImplementation;
 import src.main.java.utils.Roles;
 
 /**
@@ -38,7 +37,8 @@ public class CheckLoginTest {
 	@Mock HttpServletRequest req;
 	@Mock HttpServletResponse res;
 	@Mock HttpSession session;
-	@Mock LoginModule loginModule;
+	@Mock LoginModuleImplementation loginModule;
+	@Mock RegistrationModuleImplementation regModule;
 	CheckLogin controllerServlet;
 	final String username = "username";
 	final String password = "password";
@@ -46,7 +46,7 @@ public class CheckLoginTest {
 	
 	@Before
 	public void setup() throws IOException, ServletException {
-		controllerServlet = spy(new CheckLogin());
+		controllerServlet = spy(new MockCheckLogin(loginModule, regModule));
 		doNothing().when(controllerServlet).postTemplate(any(), any(), anyString());
 		doReturn("").when(controllerServlet).getContext(any(), any());
 		doNothing().when(res).sendRedirect(anyString());
@@ -73,7 +73,6 @@ public class CheckLoginTest {
 		
 		verify(req, times(2)).getParameter(anyString());
 		verify(res).sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing or empty credential value");
-		//verify(loginModule, times(1)).checkCredentials(anyString(), anyString());
 	}
 	
 	@Test
@@ -100,8 +99,6 @@ public class CheckLoginTest {
 	
 	@Test
 	public void dbError() throws ServletException, IOException, CLupException {
-		MockedStatic <LoginModule> logMock = Mockito.mockStatic( LoginModule.class );
-		logMock.when( () -> LoginModule.getInstance()).thenReturn(loginModule);
 		
 		when(loginModule.checkCredentials(anyString(), anyString())).thenThrow(new CLupException(""));
 		when(req.getParameter("username")).thenReturn(username);
@@ -109,15 +106,12 @@ public class CheckLoginTest {
 		
 		controllerServlet.doPost(req, res);
 		
-		logMock.close();
 		verify(req, times(2)).getParameter(anyString());
 		verify(res).sendError(HttpServletResponse.SC_BAD_REQUEST, "Could not check credentials");
 	}
 	
 	@Test
 	public void userNotFound() throws ServletException, IOException, CLupException {
-		MockedStatic <LoginModule> logMock = Mockito.mockStatic( LoginModule.class );
-		logMock.when( () -> LoginModule.getInstance()).thenReturn(loginModule);
 		
 		when(loginModule.checkCredentials(anyString(), anyString())).thenReturn(null);
 		when(req.getParameter("username")).thenReturn(username);
@@ -125,15 +119,12 @@ public class CheckLoginTest {
 		
 		controllerServlet.doPost(req, res);
 		
-		logMock.close();
 		verify(req, times(2)).getParameter(anyString());
 		verify(controllerServlet, times(1)).postTemplate(any(), any(), anyString());
 	}
 	
 	@Test
 	public void userFound() throws ServletException, IOException, CLupException {
-		MockedStatic <LoginModule> logMock = Mockito.mockStatic( LoginModule.class );
-		logMock.when( () -> LoginModule.getInstance()).thenReturn(loginModule);
 		
 		User user = new User();
 		user.setRole(Roles.REG_CUSTOMER);
@@ -148,9 +139,38 @@ public class CheckLoginTest {
 		
 		controllerServlet.doPost(req, res);
 		
-		logMock.close();
 		verify(req, times(2)).getParameter(anyString());
 		verify(res, times(1)).sendRedirect(anyString());
 		assertEquals(session.getAttribute("user"), user);
+	}
+	
+	@Test
+	public void visitorLogNegated () throws IOException, CLupException, ServletException {
+		
+		when(regModule.register(any(), anyString(), anyString(), any(), any())).thenThrow(new CLupException(""));
+		
+		controllerServlet.doGet(req, res);
+		
+		verify(controllerServlet, times(1)).postTemplate(any(), any(), anyString());
+	}
+	
+	@Test
+	public void visitorLogOk () throws IOException, CLupException, ServletException {
+		
+		when(regModule.register(any(), anyString(), anyString(), any(), any())).thenReturn(new User());
+		
+		controllerServlet.doGet(req, res);
+		
+		verify(res).sendRedirect(anyString());
+	}
+	
+	class MockCheckLogin extends CheckLogin {
+		
+		private static final long serialVersionUID = 1L;
+
+		public MockCheckLogin (LoginModuleImplementation loginModule, RegistrationModuleImplementation regModule) {
+			this.loginModule = loginModule;
+			this.regModule = regModule;
+		}
 	}
 }

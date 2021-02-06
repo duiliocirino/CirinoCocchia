@@ -1,7 +1,7 @@
 package controllers;
 
-import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.spy;
@@ -22,14 +22,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.MockedStatic;
-import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import src.main.java.exceptions.CLupException;
 import src.main.java.model.Grocery;
 import src.main.java.model.User;
-import src.main.java.services.accountManagement.interfaces.LoginModule;
+import src.main.java.services.accountManagement.implementation.LoginModuleImplementation;
+import src.main.java.services.groceryManagement.implementation.GroceryHandlerModuleImplementation;
 import src.main.java.utils.Roles;
 
 /**
@@ -40,7 +39,8 @@ public class GetReservationPageTest {
 	@Mock HttpServletRequest req;
 	@Mock HttpServletResponse res;
 	@Mock HttpSession session;
-	@Mock LoginModule loginModule;
+	@Mock LoginModuleImplementation loginModule;
+	@Mock GroceryHandlerModuleImplementation groModule;
 	GetReservationPage controllerServlet;
 	final String groceryData = "groceryData";
 	final String date = "2021-02-05";
@@ -48,8 +48,8 @@ public class GetReservationPageTest {
 	
 	@Before
 	public void setup() throws IOException, ServletException {
-		controllerServlet = spy(new GetReservationPage());
-		doNothing().when(controllerServlet).getTemplate(any(), any(), any());
+		controllerServlet = spy(new MockGetReservationPage(loginModule, groModule));
+		doNothing().when(controllerServlet).getTemplate(any(), any(), any(), anyInt());
 		when(req.getSession()).thenReturn(session, session);
 	}
 	
@@ -106,8 +106,6 @@ public class GetReservationPageTest {
 	
 	@Test
 	public void dbError() throws ServletException, IOException, CLupException {
-		MockedStatic <LoginModule> logMock = Mockito.mockStatic( LoginModule.class );
-		logMock.when( () -> LoginModule.getInstance()).thenReturn(loginModule);
 		
 		User user = new User();
 		user.setRole(Roles.MANAGER);
@@ -122,12 +120,12 @@ public class GetReservationPageTest {
 		user.setGroceries(groceries);
 		
 		when(loginModule.checkCredentials(any(), any())).thenThrow(new CLupException(""));
+		
 		when(session.getAttribute("user")).thenReturn(user);
 		when(req.getParameter("groceryId")).thenReturn("123");
 		
 		controllerServlet.doGet(req, res);
 		
-		logMock.close();
 		verify(req, times(1)).getParameter(anyString());
 		verify(res).sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Couldn't retrieve data from server");
 	}
@@ -135,8 +133,6 @@ public class GetReservationPageTest {
 
 	@Test
 	public void getOk() throws ServletException, IOException, CLupException {
-		MockedStatic <LoginModule> logMock = Mockito.mockStatic( LoginModule.class );
-		logMock.when( () -> LoginModule.getInstance()).thenReturn(loginModule);
 		
 		User user = new User();
 		user.setRole(Roles.MANAGER);
@@ -151,21 +147,18 @@ public class GetReservationPageTest {
 		user.setGroceries(groceries);
 		
 		when(loginModule.checkCredentials(any(), any())).thenReturn(user);
+		when(groModule.getGrocery(anyInt())).thenReturn(grocery);
 		when(session.getAttribute("user")).thenReturn(user);
 		when(req.getParameter("groceryId")).thenReturn("123");
 		
 		controllerServlet.doGet(req, res);
 		
-		logMock.close();
 		verify(req, times(1)).getParameter(anyString());
-		assertEquals(session.getAttribute("user"), user);
-		verify(controllerServlet, times(1)).getTemplate(any(), any(), any());
+		verify(controllerServlet, times(1)).getTemplate(any(), any(), any(), anyInt());
 	}
 	
 	@Test
 	public void postOk() throws ServletException, IOException, CLupException {
-		MockedStatic <LoginModule> logMock = Mockito.mockStatic( LoginModule.class );
-		logMock.when( () -> LoginModule.getInstance()).thenReturn(loginModule);
 		
 		User user = new User();
 		user.setRole(Roles.MANAGER);
@@ -180,14 +173,23 @@ public class GetReservationPageTest {
 		user.setGroceries(groceries);
 		
 		when(loginModule.checkCredentials(any(), any())).thenReturn(user);
+		when(groModule.getGrocery(anyInt())).thenReturn(grocery);
 		when(session.getAttribute("user")).thenReturn(user);
 		when(req.getParameter("groceryId")).thenReturn("123");
 		
 		controllerServlet.doPost(req, res);
 		
-		logMock.close();
 		verify(req, times(1)).getParameter(anyString());
-		assertEquals(session.getAttribute("user"), user);
-		verify(controllerServlet, times(1)).getTemplate(any(), any(), any());
+		verify(controllerServlet, times(1)).getTemplate(any(), any(), any(), anyInt());
+	}
+	
+	class MockGetReservationPage extends GetReservationPage {
+
+		private static final long serialVersionUID = 1L;
+		
+		public MockGetReservationPage(LoginModuleImplementation loginModule, GroceryHandlerModuleImplementation groModule) {
+			this.loginModule = loginModule;
+			this.groModule = groModule;
+		}
 	}
 }

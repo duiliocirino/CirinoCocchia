@@ -21,8 +21,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.MockedStatic;
-import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.List;
@@ -30,8 +28,8 @@ import java.util.List;
 import src.main.java.exceptions.CLupException;
 import src.main.java.model.Grocery;
 import src.main.java.model.User;
-import src.main.java.services.accountManagement.interfaces.LoginModule;
-import src.main.java.services.groceryManagement.interfaces.EmployeesModule;
+import src.main.java.services.accountManagement.implementation.LoginModuleImplementation;
+import src.main.java.services.groceryManagement.implementation.EmployeesModuleImplementation;
 import src.main.java.utils.Roles;
 
 /**
@@ -42,15 +40,15 @@ public class RemoveEmployeeTest {
 	@Mock HttpServletRequest req;
 	@Mock HttpServletResponse res;
 	@Mock HttpSession session;
-	@Mock EmployeesModule employeeModule;
-	@Mock LoginModule loginModule;
+	@Mock EmployeesModuleImplementation employeeModule;
+	@Mock LoginModuleImplementation loginModule;
 	RemoveEmployee controllerServlet;
 	
 	
 	@Before
 	public void setup() throws IOException, ServletException {
 		
-		controllerServlet = spy(new RemoveEmployee());
+		controllerServlet = spy(new MockRemoveEmployee(employeeModule, loginModule));
 		doNothing().when(controllerServlet).postTemplate(any(), any(), anyInt());
 		doNothing().when(controllerServlet).getTemplate(any(), any(), anyString(), any());
 		when(req.getSession()).thenReturn(session, session);
@@ -115,8 +113,6 @@ public class RemoveEmployeeTest {
 	
 	@Test
 	public void dbError() throws ServletException, IOException, CLupException {
-		MockedStatic <EmployeesModule> empMock = Mockito.mockStatic( EmployeesModule.class );
-		empMock.when( () -> EmployeesModule.getInstance()).thenReturn(employeeModule);
 		
 		User user = new User();
 		user.setRole(Roles.MANAGER);
@@ -129,17 +125,12 @@ public class RemoveEmployeeTest {
 		
 		controllerServlet.doPost(req, res);
 		
-		empMock.close();
 		verify(req, times(2)).getParameter(anyString());
 		verify(res).sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Employee not deleteable");
 	}
 	
 	@Test
 	public void okPost() throws ServletException, IOException, CLupException {
-		MockedStatic <EmployeesModule> empMock = Mockito.mockStatic( EmployeesModule.class );
-		empMock.when( () -> EmployeesModule.getInstance()).thenReturn(employeeModule);
-		MockedStatic <LoginModule> logMock = Mockito.mockStatic( LoginModule.class );
-		logMock.when( () -> LoginModule.getInstance()).thenReturn(loginModule);
 		
 		User user = new User();
 		user.setRole(Roles.MANAGER);
@@ -153,9 +144,17 @@ public class RemoveEmployeeTest {
 		
 		controllerServlet.doPost(req, res);
 		
-		logMock.close();
-		empMock.close();
 		verify(req, times(2)).getParameter(anyString());
 		verify(controllerServlet, times(1)).postTemplate(any(), any(), anyInt());
+	}
+	
+	class MockRemoveEmployee extends RemoveEmployee {
+
+		private static final long serialVersionUID = 1L;
+
+		public MockRemoveEmployee(EmployeesModuleImplementation employeesModule, LoginModuleImplementation loginModule) {
+			this.employeesModule = employeesModule;
+			this.loginModule = loginModule;
+		}
 	}
 }

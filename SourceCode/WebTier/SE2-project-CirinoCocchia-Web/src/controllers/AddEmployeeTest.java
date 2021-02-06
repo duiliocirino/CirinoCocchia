@@ -1,8 +1,5 @@
 package controllers;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,8 +23,11 @@ import static org.mockito.ArgumentMatchers.anyString;
 import src.main.java.exceptions.CLupException;
 import src.main.java.model.Grocery;
 import src.main.java.model.User;
+import src.main.java.services.accountManagement.implementation.LoginModuleImplementation;
+import src.main.java.services.accountManagement.implementation.RegistrationModuleImplementation;
 import src.main.java.services.accountManagement.interfaces.LoginModule;
 import src.main.java.services.accountManagement.interfaces.RegistrationModule;
+import src.main.java.services.groceryManagement.implementation.EmployeesModuleImplementation;
 import src.main.java.services.groceryManagement.interfaces.EmployeesModule;
 import src.main.java.utils.Roles;
 
@@ -39,16 +39,15 @@ public class AddEmployeeTest {
 	@Mock HttpServletRequest req;
 	@Mock HttpServletResponse res;
 	@Mock HttpSession session;
-	@Mock RegistrationModule regModule;
-	@Mock EmployeesModule employeeModule;
-	@Mock LoginModule loginModule;
+	@Mock RegistrationModuleImplementation regModule;
+	@Mock EmployeesModuleImplementation employeeModule;
+	@Mock LoginModuleImplementation loginModule;
 	AddEmployee controllerServlet;
 	
 	
 	@Before
 	public void setup() throws IOException, ServletException {
-		
-		controllerServlet = spy(new AddEmployee());
+		controllerServlet = spy(new MockAddEmployee(regModule, loginModule, employeeModule));
 		doNothing().when(controllerServlet).postTemplate(req, res);
 		when(req.getSession()).thenReturn(session, session);
 	}
@@ -212,8 +211,7 @@ public class AddEmployeeTest {
 		
 		verify(req, times(5)).getParameter(anyString());
 		verify(res).sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Not possible to create profile");
-	}
-	
+	}	
 	
 	@Test
 	public void userCreated() throws ServletException, IOException, CLupException {
@@ -260,6 +258,7 @@ public class AddEmployeeTest {
 		user.setGroceries(groceries);
 		
 		when(regModule.register(any(), anyString(), anyString(), anyString(), anyString())).thenReturn(employee);
+		when(employeeModule.addEmployee(anyInt(), anyInt())).thenReturn(employee);
 		when(session.getAttribute("user")).thenReturn(user);
 		when(req.getParameter("username")).thenReturn("bill");
 		when(req.getParameter("email")).thenReturn("asd");
@@ -274,7 +273,17 @@ public class AddEmployeeTest {
 		empMock.close();
 		
 		verify(req, times(5)).getParameter(anyString());
-		assertEquals(session.getAttribute("user"), user);
-		assertTrue(user.getGroceries().get(0).getEmployees().contains(employee));
+		verify(controllerServlet, times(1)).postTemplate(req, res);
+	}
+	
+	class MockAddEmployee extends AddEmployee {
+		
+		private static final long serialVersionUID = 1L;
+
+		public MockAddEmployee(RegistrationModuleImplementation regModule, LoginModuleImplementation loginModule, EmployeesModuleImplementation employeesModule) {
+			this.regModule = regModule;
+			this.loginModule = loginModule;
+			this.employeesModule = employeesModule;
+		}
 	}
 }

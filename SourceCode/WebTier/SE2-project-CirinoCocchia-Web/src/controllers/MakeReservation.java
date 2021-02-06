@@ -34,13 +34,13 @@ public class MakeReservation extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private TemplateEngine templateEngine;
 	@EJB
-	private ReservationHandlerImplementation resModule;
+	protected ReservationHandlerImplementation resModule;
 	@EJB
-	private QueueUpdateManagementImplementation queueModule;
+	protected QueueUpdateManagementImplementation queueModule;
 	@EJB
-	private GroceryHandlerModuleImplementation groModule;
+	protected GroceryHandlerModuleImplementation groModule;
 	@EJB
-	private LoginModuleImplementation loginModule;
+	protected LoginModuleImplementation loginModule;
 	
 	/**
      * Class constructor.

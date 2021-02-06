@@ -22,14 +22,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.MockedStatic;
-import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import src.main.java.exceptions.CLupException;
 import src.main.java.model.Grocery;
 import src.main.java.model.User;
-import src.main.java.services.searchManagement.interfaces.SearchEngineModule;
+import src.main.java.services.searchManagement.implementation.SearchEngineModuleImplementation;
 import src.main.java.utils.Roles;
 
 /**
@@ -40,7 +38,7 @@ public class GoToSearchPageTest {
 	@Mock HttpServletRequest req;
 	@Mock HttpServletResponse res;
 	@Mock HttpSession session;
-	@Mock SearchEngineModule searchModule;
+	@Mock SearchEngineModuleImplementation searchModule;
 	GoToSearchPage controllerServlet;
 	final String groceryData = "groceryData";
 	final String date = "2021-02-05";
@@ -48,7 +46,7 @@ public class GoToSearchPageTest {
 	
 	@Before
 	public void setup() throws IOException, ServletException {
-		controllerServlet = spy(new GoToSearchPage());
+		controllerServlet = spy(new MockGoToSearchPage(searchModule));
 		doNothing().when(controllerServlet).getTemplateExc(any(), any());
 		doNothing().when(controllerServlet).getTemplate(any(), any(), anyString(), any(), any());
 		when(req.getSession()).thenReturn(session, session);
@@ -179,8 +177,6 @@ public class GoToSearchPageTest {
 	
 	@Test
 	public void dbError() throws ServletException, IOException, CLupException {
-		MockedStatic <SearchEngineModule> searchMock = Mockito.mockStatic( SearchEngineModule.class );
-		searchMock.when( () -> SearchEngineModule.getInstance()).thenReturn(searchModule);
 		
 		User user = new User();
 		user.setRole(Roles.REG_CUSTOMER);
@@ -194,15 +190,12 @@ public class GoToSearchPageTest {
 		
 		controllerServlet.doGet(req, res);
 		
-		searchMock.close();
 		verify(req, times(3)).getParameter(anyString());
 		verify(res).sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Couldn't retrieve data from server");
 	}
 	
 	@Test
 	public void getOk() throws ServletException, IOException, CLupException {
-		MockedStatic <SearchEngineModule> searchMock = Mockito.mockStatic( SearchEngineModule.class );
-		searchMock.when( () -> SearchEngineModule.getInstance()).thenReturn(searchModule);
 		
 		User user = new User();
 		user.setRole(Roles.REG_CUSTOMER);
@@ -225,15 +218,12 @@ public class GoToSearchPageTest {
 		
 		controllerServlet.doGet(req, res);
 		
-		searchMock.close();
 		verify(req, times(3)).getParameter(anyString());
 		verify(controllerServlet, times(1)).getTemplate(any(), any(), anyString(), any(), any());
 	}
 	
 	@Test
 	public void postOk() throws ServletException, IOException, CLupException {
-		MockedStatic <SearchEngineModule> searchMock = Mockito.mockStatic( SearchEngineModule.class );
-		searchMock.when( () -> SearchEngineModule.getInstance()).thenReturn(searchModule);
 		
 		User user = new User();
 		user.setRole(Roles.REG_CUSTOMER);
@@ -256,8 +246,16 @@ public class GoToSearchPageTest {
 		
 		controllerServlet.doPost(req, res);
 		
-		searchMock.close();
 		verify(req, times(3)).getParameter(anyString());
 		verify(controllerServlet, times(1)).getTemplate(any(), any(), anyString(), any(), any());
+	}
+	
+	class MockGoToSearchPage extends GoToSearchPage {
+
+		private static final long serialVersionUID = 1L;
+		
+		public MockGoToSearchPage(SearchEngineModuleImplementation searchModule) {
+			this.searchModule = searchModule;
+		}
 	}
 }

@@ -22,33 +22,31 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.MockedStatic;
-import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import src.main.java.exceptions.CLupException;
 import src.main.java.model.Grocery;
 import src.main.java.model.User;
-import src.main.java.services.accountManagement.interfaces.LoginModule;
-import src.main.java.services.groceryManagement.interfaces.GroceryHandlerModule;
+import src.main.java.services.accountManagement.implementation.LoginModuleImplementation;
+import src.main.java.services.groceryManagement.implementation.GroceryHandlerModuleImplementation;
 import src.main.java.utils.Roles;
 
 /**
  * Unit test for the RemoveGrocery class.
  */
 @RunWith(MockitoJUnitRunner.class)
-public class RemoveGrocerytest {
+public class RemoveGroceryTest {
 
 	@Mock HttpServletRequest req;
 	@Mock HttpServletResponse res;
 	@Mock HttpSession session;
-	@Mock GroceryHandlerModule groModule;
-	@Mock LoginModule loginModule;
+	@Mock GroceryHandlerModuleImplementation groModule;
+	@Mock LoginModuleImplementation loginModule;
 	RemoveGrocery controllerServlet;
 	
 	@Before
 	public void setup() throws IOException, ServletException {
-		controllerServlet = spy(new RemoveGrocery());
+		controllerServlet = spy(new MockRemoveGrocery(groModule, loginModule));
 		doNothing().when(controllerServlet).postTemplate(any(), any());
 		when(req.getSession()).thenReturn(session, session);
 	}
@@ -92,8 +90,6 @@ public class RemoveGrocerytest {
 	
 	@Test
 	public void dbError() throws ServletException, IOException, CLupException {
-		MockedStatic <GroceryHandlerModule> groMock = Mockito.mockStatic( GroceryHandlerModule.class );
-		groMock.when( () -> GroceryHandlerModule.getInstance()).thenReturn(groModule);
 		
 		User user = new User();
 		user.setRole(Roles.MANAGER);
@@ -113,17 +109,12 @@ public class RemoveGrocerytest {
 		
 		controllerServlet.doPost(req, res);
 		
-		groMock.close();
 		verify(req, times(1)).getParameter(anyString());
 		verify(res).sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Grocery not deleteable");
 	}
 	
 	@Test
 	public void okPost() throws ServletException, IOException, CLupException {
-		MockedStatic <GroceryHandlerModule> groMock = Mockito.mockStatic( GroceryHandlerModule.class );
-		groMock.when( () -> GroceryHandlerModule.getInstance()).thenReturn(groModule);
-		MockedStatic <LoginModule> logMock = Mockito.mockStatic( LoginModule.class );
-		logMock.when( () -> LoginModule.getInstance()).thenReturn(loginModule);
 		
 		User user = new User();
 		user.setRole(Roles.MANAGER);
@@ -143,18 +134,12 @@ public class RemoveGrocerytest {
 		
 		controllerServlet.doPost(req, res);
 		
-		logMock.close();
-		groMock.close();
 		verify(req, times(1)).getParameter(anyString());
 		verify(controllerServlet, times(1)).postTemplate(any(), any());
 	}
 	
 	@Test
 	public void okGet() throws ServletException, IOException, CLupException {
-		MockedStatic <GroceryHandlerModule> groMock = Mockito.mockStatic( GroceryHandlerModule.class );
-		groMock.when( () -> GroceryHandlerModule.getInstance()).thenReturn(groModule);
-		MockedStatic <LoginModule> logMock = Mockito.mockStatic( LoginModule.class );
-		logMock.when( () -> LoginModule.getInstance()).thenReturn(loginModule);
 		
 		User user = new User();
 		user.setRole(Roles.MANAGER);
@@ -174,9 +159,17 @@ public class RemoveGrocerytest {
 		
 		controllerServlet.doPost(req, res);
 		
-		logMock.close();
-		groMock.close();
 		verify(req, times(1)).getParameter(anyString());
 		verify(controllerServlet, times(1)).postTemplate(any(), any());
+	}
+	
+	class MockRemoveGrocery extends RemoveGrocery {
+		
+		private static final long serialVersionUID = 1L;
+
+		public MockRemoveGrocery(GroceryHandlerModuleImplementation groModule, LoginModuleImplementation loginModule) {
+			this.groModule = groModule;
+			this.loginModule = loginModule;
+		}
 	}
 }

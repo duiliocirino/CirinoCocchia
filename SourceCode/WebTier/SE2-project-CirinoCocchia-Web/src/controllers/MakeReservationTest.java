@@ -1,6 +1,7 @@
 package controllers;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
@@ -22,7 +23,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -30,9 +30,10 @@ import src.main.java.exceptions.CLupException;
 import src.main.java.model.Grocery;
 import src.main.java.model.Reservation;
 import src.main.java.model.User;
-import src.main.java.services.accountManagement.interfaces.LoginModule;
-import src.main.java.services.groceryManagement.interfaces.GroceryHandlerModule;
-import src.main.java.services.reservationManagement.interfaces.ReservationHandlerModule;
+import src.main.java.services.accountManagement.implementation.LoginModuleImplementation;
+import src.main.java.services.groceryManagement.implementation.GroceryHandlerModuleImplementation;
+import src.main.java.services.reservationManagement.implementation.QueueUpdateManagementImplementation;
+import src.main.java.services.reservationManagement.implementation.ReservationHandlerImplementation;
 import src.main.java.utils.Roles;
 
 /**
@@ -43,9 +44,10 @@ public class MakeReservationTest {
 	@Mock HttpServletRequest req;
 	@Mock HttpServletResponse res;
 	@Mock HttpSession session;
-	@Mock GroceryHandlerModule groModule;
-	@Mock ReservationHandlerModule resModule;
-	@Mock LoginModule loginModule;
+	@Mock GroceryHandlerModuleImplementation groModule;
+	@Mock ReservationHandlerImplementation resModule;
+	@Mock LoginModuleImplementation loginModule;
+	@Mock QueueUpdateManagementImplementation queueModule;
 	MakeReservation controllerServlet;
 	final String groceryData = "groceryData";
 	final String date = "2021-02-05";
@@ -53,7 +55,7 @@ public class MakeReservationTest {
 	
 	@Before
 	public void setup() throws IOException, ServletException {
-		controllerServlet = spy(new MakeReservation());
+		controllerServlet = spy(new MockMakeReservation(loginModule, groModule, queueModule, resModule));
 		doNothing().when(controllerServlet).getTemplate(any(), any(), anyString());
 		when(req.getSession()).thenReturn(session, session);
 	}
@@ -153,8 +155,6 @@ public class MakeReservationTest {
 	
 	@Test
 	public void dbErrorGetGrocery() throws ServletException, IOException, CLupException {
-		MockedStatic <GroceryHandlerModule> groMock = Mockito.mockStatic( GroceryHandlerModule.class );
-		groMock.when( () -> GroceryHandlerModule.getInstance()).thenReturn(groModule);
 		
 		User user = new User();
 		user.setRole(Roles.REG_CUSTOMER);
@@ -168,15 +168,12 @@ public class MakeReservationTest {
 		
 		controllerServlet.doGet(req, res);
 		
-		groMock.close();
 		verify(req, times(3)).getParameter(anyString());
 		verify(res).sendError(HttpServletResponse.SC_BAD_REQUEST, "Incorrect or missing param values");
 	}
 	
 	@Test
 	public void groceryNotOwnedManager() throws ServletException, IOException {
-		MockedStatic <GroceryHandlerModule> groMock = Mockito.mockStatic( GroceryHandlerModule.class );
-		groMock.when( () -> GroceryHandlerModule.getInstance()).thenReturn(groModule);
 		
 		User user = new User();
 		user.setRole(Roles.MANAGER);
@@ -198,15 +195,12 @@ public class MakeReservationTest {
 		
 		controllerServlet.doPost(req, res);
 		
-		groMock.close();
 		verify(req, times(3)).getParameter(anyString());
 		verify(res).sendError(HttpServletResponse.SC_BAD_REQUEST, "Incorrect or missing param values");
 	}
 	
 	@Test
 	public void groceryNotOwnedEmployeeWith() throws ServletException, IOException {
-		MockedStatic <GroceryHandlerModule> groMock = Mockito.mockStatic( GroceryHandlerModule.class );
-		groMock.when( () -> GroceryHandlerModule.getInstance()).thenReturn(groModule);
 		
 		User user = new User();
 		user.setRole(Roles.EMPLOYEE);
@@ -228,17 +222,12 @@ public class MakeReservationTest {
 		
 		controllerServlet.doGet(req, res);
 		
-		groMock.close();
 		verify(req, times(3)).getParameter(anyString());
 		verify(res).sendError(HttpServletResponse.SC_BAD_REQUEST, "Incorrect or missing param values");
 	}
 	
 	@Test
 	public void dbErrorMakeReservation() throws ServletException, IOException, CLupException {
-		MockedStatic <GroceryHandlerModule> groMock = Mockito.mockStatic( GroceryHandlerModule.class );
-		groMock.when( () -> GroceryHandlerModule.getInstance()).thenReturn(groModule);
-		MockedStatic <ReservationHandlerModule> resMock = Mockito.mockStatic( ReservationHandlerModule.class );
-		resMock.when( () -> ReservationHandlerModule.getInstance()).thenReturn(resModule);
 		
 		User user = new User();
 		user.setRole(Roles.REG_CUSTOMER);
@@ -248,6 +237,7 @@ public class MakeReservationTest {
 		grocery.setIdgrocery(123);
 		
 		when(groModule.getGrocery(anyInt())).thenReturn(grocery);
+		when(queueModule.lineUp(anyInt(), anyInt(), anyDouble(), anyDouble())).thenThrow(new CLupException(""));		
 		when(session.getAttribute("user")).thenReturn(user);
 		when(req.getParameter("groceryId")).thenReturn("123");
 		when(req.getParameter("latitude")).thenReturn("50");
@@ -255,20 +245,12 @@ public class MakeReservationTest {
 		
 		controllerServlet.doGet(req, res);
 		
-		groMock.close();
-		resMock.close();
 		verify(req, times(3)).getParameter(anyString());
 		verify(res).sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Not possible to create reservation");
 	}
 	
 	@Test
 	public void makeReservationTest() throws ServletException, IOException, CLupException {
-		MockedStatic <GroceryHandlerModule> groMock = Mockito.mockStatic( GroceryHandlerModule.class );
-		groMock.when( () -> GroceryHandlerModule.getInstance()).thenReturn(groModule);
-		MockedStatic <ReservationHandlerModule> resMock = Mockito.mockStatic( ReservationHandlerModule.class );
-		resMock.when( () -> ReservationHandlerModule.getInstance()).thenReturn(resModule);
-		MockedStatic <LoginModule> logMock = Mockito.mockStatic( LoginModule.class );
-		logMock.when( () -> LoginModule.getInstance()).thenReturn(loginModule);
 		
 		User user = new User();
 		user.setRole(Roles.EMPLOYEE);
@@ -285,7 +267,7 @@ public class MakeReservationTest {
 		
 		when(groModule.getGrocery(anyInt())).thenReturn(grocery);
 		when(loginModule.getUserById(anyInt())).thenReturn(user);
-		when(resModule.addReservation(anyInt(), anyInt(), any(), any(), any())).thenReturn(reservation);
+		when(queueModule.lineUp(anyInt(), anyInt(), anyDouble(), anyDouble())).thenReturn(reservation);
 		when(session.getAttribute("user")).thenReturn(user);
 		when(req.getParameter("groceryId")).thenReturn("123");
 		when(req.getParameter("latitude")).thenReturn("50");
@@ -293,21 +275,12 @@ public class MakeReservationTest {
 		
 		controllerServlet.doPost(req, res);
 		
-		groMock.close();
-		resMock.close();
-		logMock.close();
 		verify(req, times(3)).getParameter(anyString());
 		verify(controllerServlet, times(1)).getTemplate(any(), any(), anyString());
 	}
 	
 	@Test
 	public void makeReservationGetTest() throws ServletException, IOException, CLupException {
-		MockedStatic <GroceryHandlerModule> groMock = Mockito.mockStatic( GroceryHandlerModule.class );
-		groMock.when( () -> GroceryHandlerModule.getInstance()).thenReturn(groModule);
-		MockedStatic <ReservationHandlerModule> resMock = Mockito.mockStatic( ReservationHandlerModule.class );
-		resMock.when( () -> ReservationHandlerModule.getInstance()).thenReturn(resModule);
-		MockedStatic <LoginModule> logMock = Mockito.mockStatic( LoginModule.class );
-		logMock.when( () -> LoginModule.getInstance()).thenReturn(loginModule);
 		
 		User user = new User();
 		user.setRole(Roles.MANAGER);
@@ -324,7 +297,7 @@ public class MakeReservationTest {
 		
 		when(groModule.getGrocery(anyInt())).thenReturn(grocery);
 		when(loginModule.getUserById(anyInt())).thenReturn(user);
-		when(resModule.addReservation(anyInt(), anyInt(), any(), any(), any())).thenReturn(reservation);
+		when(queueModule.lineUp(anyInt(), anyInt(), anyDouble(), anyDouble())).thenReturn(reservation);
 		when(session.getAttribute("user")).thenReturn(user);
 		when(req.getParameter("groceryId")).thenReturn("123");
 		when(req.getParameter("latitude")).thenReturn("50");
@@ -332,10 +305,19 @@ public class MakeReservationTest {
 		
 		controllerServlet.doGet(req, res);
 		
-		groMock.close();
-		resMock.close();
-		logMock.close();
 		verify(req, times(3)).getParameter(anyString());
 		verify(controllerServlet, times(1)).getTemplate(any(), any(), anyString());
+	}
+	
+	class MockMakeReservation extends MakeReservation {
+
+		private static final long serialVersionUID = 1L;
+		
+		public MockMakeReservation(LoginModuleImplementation loginModule, GroceryHandlerModuleImplementation groModule, QueueUpdateManagementImplementation queueModule, ReservationHandlerImplementation resModule) {
+			this.loginModule = loginModule;
+			this.groModule = groModule;
+			this.queueModule = queueModule;
+			this.resModule = resModule;
+		}
 	}
 }

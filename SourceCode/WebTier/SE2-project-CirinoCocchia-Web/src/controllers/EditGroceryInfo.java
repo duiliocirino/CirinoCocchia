@@ -1,7 +1,6 @@
 package controllers;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.ejb.EJB;
@@ -32,7 +31,7 @@ public class EditGroceryInfo extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private TemplateEngine templateEngine;
 	@EJB
-	private GroceryHandlerModuleImplementation groModule;
+	protected GroceryHandlerModuleImplementation groModule;
        
     /**
      * Class constructor.
@@ -134,6 +133,7 @@ public class EditGroceryInfo extends HttpServlet {
 		}
 			
 		// UPDATE GROCERY INFO AND OF THE USER
+		
 		final Integer id = groceryId;
 		Integer maxSpotsI = 0;
 		if(maxSpots != null) maxSpotsI = Integer.parseInt(maxSpots);

@@ -13,7 +13,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.thymeleaf.TemplateEngine;
-import org.thymeleaf.context.WebContext;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
 
@@ -30,9 +29,9 @@ public class RemoveGrocery extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private TemplateEngine templateEngine;
 	@EJB
-	private GroceryHandlerModuleImplementation groModule;
+	protected GroceryHandlerModuleImplementation groModule;
 	@EJB
-	private LoginModuleImplementation loginModule;
+	protected LoginModuleImplementation loginModule;
        
     /**
      * Class constructor.

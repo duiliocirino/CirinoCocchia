@@ -32,9 +32,9 @@ public class CheckLogin extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private TemplateEngine templateEngine;
 	@EJB
-	private LoginModuleImplementation loginModule;
+	protected LoginModuleImplementation loginModule;
 	@EJB
-	private RegistrationModuleImplementation regModule;
+	protected RegistrationModuleImplementation regModule;
 
 	/**
      * Class constructor.
@@ -62,7 +62,6 @@ public class CheckLogin extends HttpServlet {
 		User user = null;
 		
 		try {
-			
 			user = regModule.register(Roles.VISITOR, "0", "visitor", null, null);
 		} catch (CLupException e) {
 			String error = "Cannot access as a visitor at the moment";

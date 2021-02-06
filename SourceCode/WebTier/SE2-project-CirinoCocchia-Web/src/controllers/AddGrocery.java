@@ -21,8 +21,6 @@ import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
 import src.main.java.model.Grocery;
 import src.main.java.model.Position;
 import src.main.java.model.User;
-import src.main.java.services.accountManagement.implementation.LoginModuleImplementation;
-import src.main.java.services.accountManagement.implementation.RegistrationModuleImplementation;
 import src.main.java.services.groceryManagement.implementation.GroceryHandlerModuleImplementation;
 
 /**
@@ -34,11 +32,7 @@ public class AddGrocery extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private TemplateEngine templateEngine;
 	@EJB
-	private GroceryHandlerModuleImplementation groModule;
-	@EJB
-	private LoginModuleImplementation loginModule;
-	@EJB
-	private RegistrationModuleImplementation regModule;
+	protected GroceryHandlerModuleImplementation groModule;
 	
     /**
      * Class constructor.
@@ -80,18 +74,22 @@ public class AddGrocery extends HttpServlet {
 		Integer maxSpotsInside = null;
 		Double latitude = null;
 		Double longitude = null;
+		Integer openingHour = null;
+		Integer closingHour = null;
 		
 		try {
 		name = StringEscapeUtils.escapeJava(request.getParameter("name"));
 		maxSpotsInside = Integer.parseInt(request.getParameter("maxSpots"));
 		latitude = Double.parseDouble(request.getParameter("latitude"));
 		longitude = Double.parseDouble(request.getParameter("longitude"));
+		openingHour = Integer.parseInt(request.getParameter("openHour"));
+		closingHour = Integer.parseInt(request.getParameter("closeHour"));
 		} catch (NumberFormatException | NullPointerException e) {
 			isBadRequest = true;
 		}
 		
 		isBadRequest = isBadRequest || (name == null) || name.isEmpty() || (maxSpotsInside == null) || (maxSpotsInside < 1) || (latitude == null) || (longitude == null) ||
-				 latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180;
+				 latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180 || closingHour < 0 || closingHour > 24 || closingHour < openingHour || openingHour < 0 || openingHour > 24 ;
 		
 		if (isBadRequest) {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Incorrect or missing param values");
@@ -101,7 +99,7 @@ public class AddGrocery extends HttpServlet {
 		// CREATE NEW GROCERY WITH GIVEN DETAILS
 		
 		try {
-			Grocery grocery = groModule.addGrocery(name, new Position(latitude, longitude), maxSpotsInside, user.getIduser());
+			Grocery grocery = groModule.addGrocery(name, new Position(latitude, longitude), maxSpotsInside, user.getIduser(), openingHour, closingHour);
 			if(user.getGroceries() == null) {
 				user.setGroceries(new ArrayList<>());
 			} 

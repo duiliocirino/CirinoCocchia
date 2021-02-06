@@ -21,10 +21,7 @@ import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
 import src.main.java.model.User;
 import src.main.java.services.accountManagement.implementation.LoginModuleImplementation;
 import src.main.java.services.accountManagement.implementation.RegistrationModuleImplementation;
-import src.main.java.services.accountManagement.interfaces.LoginModule;
-import src.main.java.services.accountManagement.interfaces.RegistrationModule;
 import src.main.java.services.groceryManagement.implementation.EmployeesModuleImplementation;
-import src.main.java.services.groceryManagement.interfaces.EmployeesModule;
 import src.main.java.utils.Roles;
 
 /**
@@ -36,11 +33,11 @@ public class AddEmployee extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private TemplateEngine templateEngine;
 	@EJB
-	private RegistrationModuleImplementation regModule;
+	protected RegistrationModuleImplementation regModule;
 	@EJB
-	private LoginModuleImplementation loginModule;
+	protected LoginModuleImplementation loginModule;
 	@EJB
-	private EmployeesModuleImplementation employeesModule;
+	protected EmployeesModuleImplementation employeesModule;
        
     /**
      * Class constructor.

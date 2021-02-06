@@ -21,7 +21,7 @@ import src.main.java.model.Grocery;
 import src.main.java.model.Queue;
 import src.main.java.model.User;
 import src.main.java.services.accountManagement.implementation.LoginModuleImplementation;
-import src.main.java.services.groceryManagement.interfaces.GroceryHandlerModule;
+import src.main.java.services.groceryManagement.implementation.GroceryHandlerModuleImplementation;
 import src.main.java.utils.Roles;
 
 /**
@@ -33,9 +33,9 @@ public class GetReservationPage extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private TemplateEngine templateEngine;
 	@EJB
-	private LoginModuleImplementation loginModule;
+	protected LoginModuleImplementation loginModule;
 	@EJB
-	private GroceryHandlerModule groModule;
+	protected GroceryHandlerModuleImplementation groModule;
        
     /**
      * Class constructor.
@@ -86,6 +86,7 @@ public class GetReservationPage extends HttpServlet {
 			session.setAttribute("user", user);
 		} catch (Exception e) {
 			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Couldn't retrieve data from server");
+			return;
 		}
 		
 		Grocery grocery = groModule.getGrocery(groceryId);
@@ -104,7 +105,7 @@ public class GetReservationPage extends HttpServlet {
 	 * @param groceryId 
 	 * @throws IOException
 	 */
-	protected void getTemplate(HttpServletRequest request, HttpServletResponse response, Queue queue, Object groceryId) throws IOException {
+	protected void getTemplate(HttpServletRequest request, HttpServletResponse response, Queue queue, Integer groceryId) throws IOException {
 		final WebContext ctx = new WebContext(request, response, request.getServletContext(), request.getLocale());
 		ctx.setVariable("reservations", queue.getReservations());
 		ctx.setVariable("groceryId", groceryId);

@@ -24,8 +24,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.MockedStatic;
-import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import src.main.java.exceptions.CLupException;
@@ -33,8 +31,8 @@ import src.main.java.model.Grocery;
 import src.main.java.model.Queue;
 import src.main.java.model.Reservation;
 import src.main.java.model.User;
-import src.main.java.services.accountManagement.interfaces.LoginModule;
-import src.main.java.services.reservationManagement.interfaces.ReservationHandlerModule;
+import src.main.java.services.accountManagement.implementation.LoginModuleImplementation;
+import src.main.java.services.reservationManagement.implementation.ReservationHandlerImplementation;
 import src.main.java.utils.ReservationType;
 import src.main.java.utils.Roles;
 
@@ -46,8 +44,8 @@ public class DeleteReservationTest {
 	@Mock HttpServletRequest req;
 	@Mock HttpServletResponse res;
 	@Mock HttpSession session;
-	@Mock ReservationHandlerModule resModule;
-	@Mock LoginModule loginModule;
+	@Mock ReservationHandlerImplementation resModule;
+	@Mock LoginModuleImplementation loginModule;
 	DeleteReservation controllerServlet;
 	final Integer groceryId = 123;
 	final Integer reservationId = 789;
@@ -55,7 +53,7 @@ public class DeleteReservationTest {
 	
 	@Before
 	public void setup() throws IOException, ServletException {
-		controllerServlet = spy(new DeleteReservation());
+		controllerServlet = spy(new MockDeleteReservation(loginModule, resModule));
 		doNothing().when(controllerServlet).postTemplate(any(), any(), anyInt());
 		when(req.getSession()).thenReturn(session, session);
 	}
@@ -210,10 +208,6 @@ public class DeleteReservationTest {
 	
 	@Test
 	public void dbError() throws ServletException, IOException, CLupException {
-		MockedStatic <ReservationHandlerModule> resMock = Mockito.mockStatic( ReservationHandlerModule.class );
-		resMock.when( () -> ReservationHandlerModule.getInstance()).thenReturn(resModule);
-		MockedStatic <LoginModule> logMock = Mockito.mockStatic( LoginModule.class );
-		logMock.when( () -> LoginModule.getInstance()).thenReturn(loginModule);
 		
 		User user = new User();
 		user.setRole(Roles.MANAGER);
@@ -243,18 +237,12 @@ public class DeleteReservationTest {
 		
 		controllerServlet.doPost(req, res);
 		
-		resMock.close();
-		logMock.close();
 		verify(req, times(2)).getParameter(anyString());
 		verify(res).sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Reservation not closable");
 	}
 	
 	@Test
 	public void reservationNotFound() throws ServletException, IOException {
-		MockedStatic <ReservationHandlerModule> resMock = Mockito.mockStatic( ReservationHandlerModule.class );
-		resMock.when( () -> ReservationHandlerModule.getInstance()).thenReturn(resModule);
-		MockedStatic <LoginModule> logMock = Mockito.mockStatic( LoginModule.class );
-		logMock.when( () -> LoginModule.getInstance()).thenReturn(loginModule);
 		
 		User user = new User();
 		user.setRole(Roles.MANAGER);
@@ -276,18 +264,12 @@ public class DeleteReservationTest {
 		
 		controllerServlet.doPost(req, res);
 		
-		resMock.close();
-		logMock.close();
 		verify(req, times(2)).getParameter(anyString());
 		verify(res).sendError(HttpServletResponse.SC_BAD_REQUEST, "Reservation not found");
 	}
 	
 	@Test
 	public void reservationGroceryNoMatch() throws ServletException, IOException {
-		MockedStatic <ReservationHandlerModule> resMock = Mockito.mockStatic( ReservationHandlerModule.class );
-		resMock.when( () -> ReservationHandlerModule.getInstance()).thenReturn(resModule);
-		MockedStatic <LoginModule> logMock = Mockito.mockStatic( LoginModule.class );
-		logMock.when( () -> LoginModule.getInstance()).thenReturn(loginModule);
 		
 		User user = new User();
 		user.setRole(Roles.MANAGER);
@@ -326,8 +308,6 @@ public class DeleteReservationTest {
 		
 		controllerServlet.doPost(req, res);
 		
-		resMock.close();
-		logMock.close();
 		verify(req, times(2)).getParameter(anyString());
 		verify(res).sendError(HttpServletResponse.SC_BAD_REQUEST, "Reservation not found");
 	}
@@ -336,10 +316,6 @@ public class DeleteReservationTest {
 
 	@Test
 	public void reservationDeleted() throws ServletException, IOException, CLupException {
-		MockedStatic <ReservationHandlerModule> resMock = Mockito.mockStatic( ReservationHandlerModule.class );
-		resMock.when( () -> ReservationHandlerModule.getInstance()).thenReturn(resModule);
-		MockedStatic <LoginModule> logMock = Mockito.mockStatic( LoginModule.class );
-		logMock.when( () -> LoginModule.getInstance()).thenReturn(loginModule);
 		
 		User user = new User();
 		user.setRole(Roles.MANAGER);
@@ -371,8 +347,6 @@ public class DeleteReservationTest {
 		
 		controllerServlet.doPost(req, res);
 		
-		resMock.close();
-		logMock.close();
 		verify(req, times(2)).getParameter(anyString());
 		assertEquals(session.getAttribute("user"), user);
 		verify(controllerServlet, times(1)).postTemplate(req, res, groceryId);
@@ -380,10 +354,6 @@ public class DeleteReservationTest {
 	
 	@Test
 	public void doGetWorks() throws ServletException, IOException, CLupException {
-		MockedStatic <ReservationHandlerModule> resMock = Mockito.mockStatic( ReservationHandlerModule.class );
-		resMock.when( () -> ReservationHandlerModule.getInstance()).thenReturn(resModule);
-		MockedStatic <LoginModule> logMock = Mockito.mockStatic( LoginModule.class );
-		logMock.when( () -> LoginModule.getInstance()).thenReturn(loginModule);
 		
 		User user = new User();
 		user.setRole(Roles.MANAGER);
@@ -417,9 +387,17 @@ public class DeleteReservationTest {
 		
 		controllerServlet.doGet(req, res);
 		
-		resMock.close();
-		logMock.close();
 		verify(req, times(2)).getParameter(anyString());
 		verify(controllerServlet, times(1)).postTemplate(req, res, groceryId);
-	}	
+	}
+	
+	class MockDeleteReservation extends DeleteReservation {
+
+		private static final long serialVersionUID = 1L;
+		
+		public MockDeleteReservation (LoginModuleImplementation loginModule, ReservationHandlerImplementation resModule) {
+			this.loginModule = loginModule;
+			this.resModule = resModule;
+		}
+	}
 }

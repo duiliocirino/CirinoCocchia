@@ -36,7 +36,7 @@ public class GoToSearchPage extends HttpServlet {
 	private static final int nFavourites = 3;
 	private TemplateEngine templateEngine;
 	@EJB
-	private SearchEngineModuleImplementation searchModule;
+	protected SearchEngineModuleImplementation searchModule;
 	
 	public void init() throws ServletException {
     	ServletContext servletContext = getServletContext();
@@ -90,7 +90,7 @@ public class GoToSearchPage extends HttpServlet {
 		List<Grocery> nearGroceries = null;
 		
 		try {
-			//favoriteGroceries = searchModule.getFavouriteGroceries(user.getIduser(), nFavourites);
+			favoriteGroceries = searchModule.getFavouriteGroceries(user.getIduser(), nFavourites);
 			nearGroceries = searchModule.getNearGroceries(new Position(latitude, longitude), radius);
 		} catch(Exception e) {
 			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Couldn't retrieve data from server");

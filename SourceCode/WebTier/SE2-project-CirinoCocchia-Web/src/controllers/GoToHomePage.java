@@ -36,11 +36,11 @@ public class GoToHomePage extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private TemplateEngine templateEngine;
 	@EJB
-	private LoginModuleImplementation loginModule;
+	protected LoginModuleImplementation loginModule;
 	@EJB
-	private SearchEngineModuleImplementation searchModule;
+	protected SearchEngineModuleImplementation searchModule;
 	@EJB
-	private GroceryHandlerModuleImplementation groModule;
+	protected GroceryHandlerModuleImplementation groModule;
 	
 	/**
 	 * This attribute is editable based on the number of groceries to display on the map when the page is accessed.
@@ -75,7 +75,13 @@ public class GoToHomePage extends HttpServlet {
 		
 		HttpSession session = request.getSession();
 		User user = (User) session.getAttribute("user");
-		user = loginModule.getUserById(user.getIduser());
+		try {
+			user = loginModule.getUserById(user.getIduser());
+			if(user == null) throw new Exception();
+		} catch(Exception e) {
+			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Couldn't retrieve data from server");
+			return;
+		}
 		
 		// GET AND PARSE PARAMETERS
 		

@@ -29,7 +29,7 @@ public class EditProfile extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private TemplateEngine templateEngine;
 	@EJB
-	private RegistrationModuleImplementation regModule;
+	protected RegistrationModuleImplementation regModule;
 	
 	/**
      * Class constructor.
@@ -98,7 +98,7 @@ public class EditProfile extends HttpServlet {
 		
 		if(telephoneNum != null) {
 			if(!telephoneNum.isEmpty()) {
-				if(Double.parseDouble(telephoneNum) < 10000000) telephoneNum = null;
+				if(Double.parseDouble(telephoneNum) < 10000000) throw new NumberFormatException();
 			} else telephoneNum = null;
 			
 		} else telephoneNum = user.getTelephoneNumber();

@@ -67,6 +67,17 @@ public class QueueUpdateManagementImplementation extends QueueUpdateManagement{
 		return true;
 		
 	}
+	
+	@Override
+	public void setOutTheStore(int idreservation) throws CLupException {
+		Reservation reservation = resTools.findReservation(idreservation);
+		
+		if(reservation == null) {
+			throw new CLupException("id of the reservation passed not existent on the DB");
+		}
+		
+		reservation.setStatus(ReservationStatus.CLOSED);		
+	}
 
 	@Override
 	public Reservation lineUp(int iduser, int idgrocery, double lat, double lon) throws CLupException {
