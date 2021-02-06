@@ -19,11 +19,13 @@ public abstract class GroceryHandlerModule extends GroceryManagement {
 	 * @param name name of the grocery
 	 * @param position position of the grocery composed of latitude and longitude
 	 * @param maxSpotsInside higher threshold number of people admitted to stay inside the store 
+	 * @param openingHour hour from which the grocery will be open
+	 * @param closingHour hour from which the grocery will be closed
 	 * @param idowner iduser of the manager who made the request to add the grocery
 	 * @return persisted instance of the grocery just added to the system, null if the name already exists
 	 * @throws CLupException if the user that is doing the request is not existed or allowed to do this 
 	 */
-	public abstract Grocery addGrocery(String name, Position position, int maxSpotsInside, int idowner) throws CLupException;
+	public abstract Grocery addGrocery(String name, Position position, int maxSpotsInside, int openingHour, int closingHour, int idowner) throws CLupException;
 	/**
 	 * This method allows to edit the name of the grocery and/or the maximum allowed 
 	 * number of people to stay inside the store

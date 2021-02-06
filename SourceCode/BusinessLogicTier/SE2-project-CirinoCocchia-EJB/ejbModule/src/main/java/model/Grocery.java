@@ -73,6 +73,14 @@ public class Grocery implements Serializable {
 	 * into the grocery store
 	 */
 	private int maxSpotsInside;
+	/**
+	 * Indicates the hour from which the grocery will be opened every day
+	 */
+	private int openingHour;
+	/**
+	 * Indicates the hour from which the grocery will be closed every day
+	 */
+	private int closingHour;
 	
 
 	public int getIdgrocery() {
@@ -182,6 +190,32 @@ public class Grocery implements Serializable {
 			employee.removeEmployedGrocery(this);
 		}
 	}
+
+
+
+	public int getOpeningHour() {
+		return openingHour;
+	}
+
+
+
+	public void setOpeningHour(int openingHour) {
+		this.openingHour = openingHour;
+	}
+
+
+
+	public int getClosingHour() {
+		return closingHour;
+	}
+
+
+
+	public void setClosingHour(int closingHour) {
+		this.closingHour = closingHour;
+	}
+	
+	
 
    
 }

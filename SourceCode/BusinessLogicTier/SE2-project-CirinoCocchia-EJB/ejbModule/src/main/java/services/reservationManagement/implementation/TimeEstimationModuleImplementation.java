@@ -8,6 +8,7 @@ import javax.ejb.EJB;
 import javax.ejb.Stateless;
 
 import src.main.java.exceptions.CLupException;
+import src.main.java.model.Grocery;
 import src.main.java.model.Position;
 import src.main.java.model.Queue;
 import src.main.java.model.Reservation;
@@ -135,10 +136,22 @@ public class TimeEstimationModuleImplementation extends TimeEstimationModule{
 		estimatedCal.set(Calendar.SECOND, seconds + spread_time);
 		
 		Date estimatedTime = estimatedCal.getTime();
+		
+		checkEstimatedTime(reservation, estimatedCal);
+		
 		// set the estimated time to the reservation
 		reservation.setEstimatedTime(estimatedTime);
 						
 		return estimatedTime;
+	}
+	
+	private void checkEstimatedTime(Reservation reservation, Calendar estimatedTime) throws CLupException {
+		Grocery grocery = reservation.getQueue().getGrocery();
+		int estHour = estimatedTime.get(Calendar.HOUR);
+		
+		if(estHour < grocery.getOpeningHour() || estHour > grocery.getClosingHour()) {
+			throw new CLupException("The market would be closed at that hour");
+		}
 	}
 
 	protected double invokeRideTime(Position origin, Position end) {

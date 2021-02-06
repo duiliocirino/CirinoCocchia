@@ -16,7 +16,7 @@ import src.main.java.utils.Roles;
 public class GroceryHandlerModuleImplementation extends GroceryHandlerModule {
 
 	@Override
-	public Grocery addGrocery(String name, Position position, int maxSpotsInside, int idowner) throws CLupException {
+	public Grocery addGrocery(String name, Position position, int maxSpotsInside, int openingHour, int closingHour, int idowner) throws CLupException {
 		Grocery grocery = new Grocery();
 		User owner = usrTools.findUser(idowner);
 		Queue queue = new Queue();
@@ -36,6 +36,14 @@ public class GroceryHandlerModuleImplementation extends GroceryHandlerModule {
 		
 		if(owner.getRole() != Roles.MANAGER) {
 			throw new CLupException("Not-manager users can't add new groceries");
+		}
+		
+		if(openingHour < 0 || openingHour > 24 || closingHour < 0 || closingHour > 24) {
+			throw new CLupException("You did not insert valid hours");
+		}
+		
+		if(openingHour >= closingHour) {
+			throw new CLupException("Hours are not coherent");
 		}
 		
 		List<Grocery> names = grocTools.findGroceryByName(name);

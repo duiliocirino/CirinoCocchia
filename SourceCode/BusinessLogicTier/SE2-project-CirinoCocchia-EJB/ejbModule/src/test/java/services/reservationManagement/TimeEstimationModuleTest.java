@@ -24,13 +24,18 @@ import src.main.java.utils.ReservationStatus;
 public class TimeEstimationModuleTest {
 	
 	private final int IDRESERVATION = 1;
+	private final int IDRESERVATION2 = 1;
 	private final int IDRESERVATION_NOT_DB = 10;
 	private final int IDQUEUE_EMPTY = 1;
 	private final int IDQUEUE_ALMOST_FULL = 2;
 	private final int IDQUEUE_FULL = 3;
 	private final Position GROCERY_POS = new Position(0.0, 0.0);
+	private final int OPENING_HOUR = 0;
+	private final int CLOSING_HOUR = 24;
+	private final int CLOSING_HOUR2 = 0;
 	private final double RIDE_TIME = 60.0;
 	private Reservation reservation;
+	private Reservation reservation_closed;
 
 	private TimeEstimationModule timeMod;
 	
@@ -178,6 +183,7 @@ public class TimeEstimationModuleTest {
 		try {
 			estimatedTime = timeMod.estimateTime(reservation, new Position(1, 1));
 		} catch (CLupException e) {
+			System.out.println(e.getMessage());
 			fail("Should not throw any exception");
 		}
 		
@@ -225,6 +231,24 @@ public class TimeEstimationModuleTest {
 			estimatedTime = timeMod.estimateTime(reservation, null);
 			fail("Should not reach this line");
 		} catch (CLupException e) {
+			assertTrue(true);
+		}
+		
+		assertNull(estimatedTime);
+		assertNull(reservation.getEstimatedTime());
+	}
+	
+	@Test
+	public void testEstimateTimeWrongHour() {
+		reservation_closed.setStatus(ReservationStatus.OPEN);
+		assertNull(reservation_closed.getEstimatedTime());
+		
+		Date estimatedTime = null;
+		try {
+			estimatedTime = timeMod.estimateTime(reservation_closed, new Position(0,0));
+			fail("Should not reach this line");
+		} catch (CLupException e) {
+			System.out.println(e.getMessage());
 			assertTrue(true);
 		}
 		
@@ -287,23 +311,39 @@ public class TimeEstimationModuleTest {
 	class MockGrocTools extends GroceryToolbox {
 		
 		private Queue queue_empty;
+		private Queue queue_empty2;
 		private Queue queue_almost_full;
 		private Queue queue_full;
 		private Grocery grocery;
+		private Grocery grocery2;
 		
 		public MockGrocTools() {
 			reservation = new Reservation();
 			reservation.setIdreservation(IDRESERVATION);
+			reservation_closed = new Reservation();
+			reservation_closed.setIdreservation(IDRESERVATION2);
 			queue_empty = new Queue();
 			queue_empty.setIdqueue(IDQUEUE_EMPTY);
+			queue_empty2 = new Queue();
+			queue_empty2.setIdqueue(IDQUEUE_EMPTY);
 			grocery = new Grocery();
 			grocery.setLatitude(GROCERY_POS.getLat());
 			grocery.setLongitude(GROCERY_POS.getLon());
+			grocery.setOpeningHour(OPENING_HOUR);
+			grocery.setClosingHour(CLOSING_HOUR);
+			grocery2 = new Grocery();
+			grocery2.setLatitude(GROCERY_POS.getLat());
+			grocery2.setLongitude(GROCERY_POS.getLon());
+			grocery2.setOpeningHour(OPENING_HOUR);
+			grocery2.setClosingHour(CLOSING_HOUR2);
 			
 			grocery.setQueue(queue_empty);
+			grocery.setQueue(queue_empty2);
 			queue_empty.setGrocery(grocery);
+			queue_empty2.setGrocery(grocery2);
 			
 			reservation.setQueue(queue_empty);
+			reservation_closed.setQueue(queue_empty2);
 			
 			queue_almost_full = new Queue();
 			queue_almost_full.setIdqueue(IDQUEUE_ALMOST_FULL);

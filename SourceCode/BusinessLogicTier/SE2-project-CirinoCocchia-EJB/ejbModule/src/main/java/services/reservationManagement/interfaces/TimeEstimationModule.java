@@ -61,7 +61,7 @@ public abstract class TimeEstimationModule extends ReservationManagement {
 	 * @param position position from which the reservation has been made
 	 * @return date of the estimation expressed as a timestamp, null if the estimation is no more possible
 	 *  e.g. when the reservation status is not OPEN
-	 * @throws CLupException if the passed reservation is null
+	 * @throws CLupException if the passed reservation is null, or the grocery is closed at the estimated hour
 	 */
 	public abstract Date estimateTime(Reservation reservation, Position position) throws CLupException;
 	/**
