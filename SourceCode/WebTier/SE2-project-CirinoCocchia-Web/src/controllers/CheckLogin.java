@@ -16,8 +16,8 @@ import org.thymeleaf.context.WebContext;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
 
-import src.main.java.services.accountManagement.interfaces.LoginModule;
-import src.main.java.services.accountManagement.interfaces.RegistrationModule;
+import src.main.java.services.accountManagement.implementation.LoginModuleImplementation;
+import src.main.java.services.accountManagement.implementation.RegistrationModuleImplementation;
 import src.main.java.utils.Roles;
 import src.main.java.model.User;
 import src.main.java.exceptions.CLupException;
@@ -31,10 +31,10 @@ import javax.persistence.NonUniqueResultException;
 public class CheckLogin extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private TemplateEngine templateEngine;
-	@EJB(name = "src/main/java/services/accountManagement/interfaces/LoginModule")
-	private LoginModule loginModule;
-	@EJB(name = "src/main/java/services/accountManagement/interfaces/RegistrationModule")
-	private RegistrationModule regModule;
+	@EJB
+	private LoginModuleImplementation loginModule;
+	@EJB
+	private RegistrationModuleImplementation regModule;
 
 	/**
      * Class constructor.
@@ -62,7 +62,6 @@ public class CheckLogin extends HttpServlet {
 		User user = null;
 		
 		try {
-			regModule = RegistrationModule.getInstance();
 			
 			user = regModule.register(Roles.VISITOR, "0", "visitor", null, null);
 		} catch (CLupException e) {
@@ -101,7 +100,6 @@ public class CheckLogin extends HttpServlet {
 		// AUTHENTICATE USER
 		User user = null;
 		try {
-			loginModule = LoginModule.getInstance();
 			user = loginModule.checkCredentials(usrn, pwd);
 		} catch (NonUniqueResultException | CLupException e) {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Could not check credentials");

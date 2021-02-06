@@ -20,8 +20,8 @@ import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
 
 import src.main.java.model.Grocery;
 import src.main.java.model.User;
-import src.main.java.services.accountManagement.interfaces.LoginModule;
-import src.main.java.services.groceryManagement.interfaces.EmployeesModule;
+import src.main.java.services.accountManagement.implementation.LoginModuleImplementation;
+import src.main.java.services.groceryManagement.implementation.EmployeesModuleImplementation;
 
 /**
  * Servlet implementation class RemoveEmployee.
@@ -31,10 +31,10 @@ import src.main.java.services.groceryManagement.interfaces.EmployeesModule;
 public class RemoveEmployee extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private TemplateEngine templateEngine;
-	@EJB(name = "src/main/java/services/groceryManagement/interfaces/EmployeesModule")
-	private EmployeesModule employeesModule;
-	@EJB(name = "src/main/java/services/accountManagement/interfaces/LoginModule")
-	private LoginModule loginModule;
+	@EJB
+	private EmployeesModuleImplementation employeesModule;
+	@EJB
+	private LoginModuleImplementation loginModule;
        
     /**
      * Class constructor.
@@ -112,10 +112,7 @@ public class RemoveEmployee extends HttpServlet {
 			return;
 		}
 
-		try {
-			employeesModule = EmployeesModule.getInstance();
-			loginModule = LoginModule.getInstance();
-			
+		try {			
 			employeesModule.removeEmployee(employeeId, groceryId);
 			user = loginModule.getUserById(user.getIduser());
 			session.setAttribute("user", user);
@@ -141,7 +138,7 @@ public class RemoveEmployee extends HttpServlet {
 		ctx.setVariable("groceryId", groceryId);
 		String ctxpath = getServletContext().getContextPath();
 		String path = ctxpath + "/RemoveEmployee";
-		templateEngine.process(path, ctx, response.getWriter());
+		response.sendRedirect(path);
 	}
 
 }

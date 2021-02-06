@@ -20,7 +20,8 @@ import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
 import src.main.java.model.Grocery;
 import src.main.java.model.Queue;
 import src.main.java.model.User;
-import src.main.java.services.accountManagement.interfaces.LoginModule;
+import src.main.java.services.accountManagement.implementation.LoginModuleImplementation;
+import src.main.java.services.groceryManagement.interfaces.GroceryHandlerModule;
 import src.main.java.utils.Roles;
 
 /**
@@ -31,8 +32,10 @@ import src.main.java.utils.Roles;
 public class GetReservationPage extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private TemplateEngine templateEngine;
-	@EJB(name = "src/main/java/services/accountManagement/interfaces/LoginModule")
-	private LoginModule loginModule;
+	@EJB
+	private LoginModuleImplementation loginModule;
+	@EJB
+	private GroceryHandlerModule groModule;
        
     /**
      * Class constructor.
@@ -79,22 +82,18 @@ public class GetReservationPage extends HttpServlet {
 		// GET UP TO DATE QUEUE OF THE GROCERY
 		
 		try {
-			loginModule = LoginModule.getInstance();
-			
 			user = loginModule.checkCredentials(user.getUsername(), user.getPassword());
 			session.setAttribute("user", user);
 		} catch (Exception e) {
 			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Couldn't retrieve data from server");
 		}
 		
-		final Integer id = groceryId;
-		
-		Grocery grocery = user.getGroceries().stream().filter(x -> x.getIdgrocery() == id).findFirst().get();
+		Grocery grocery = groModule.getGrocery(groceryId);
 		Queue queue = grocery.getQueue();
 		
 		// RETURN THE USER TO THE RIGHT VIEW
 		
-		getTemplate(request, response, queue);
+		getTemplate(request, response, queue, groceryId);
 	}
 	
 	/**
@@ -102,11 +101,13 @@ public class GetReservationPage extends HttpServlet {
 	 * @param request
 	 * @param response
 	 * @param queue 
+	 * @param groceryId 
 	 * @throws IOException
 	 */
-	protected void getTemplate(HttpServletRequest request, HttpServletResponse response, Queue queue) throws IOException {
+	protected void getTemplate(HttpServletRequest request, HttpServletResponse response, Queue queue, Object groceryId) throws IOException {
 		final WebContext ctx = new WebContext(request, response, request.getServletContext(), request.getLocale());
 		ctx.setVariable("reservations", queue.getReservations());
+		ctx.setVariable("groceryId", groceryId);
 		String path = "grocery_search_page.html";
 		templateEngine.process(path, ctx, response.getWriter());
 	}

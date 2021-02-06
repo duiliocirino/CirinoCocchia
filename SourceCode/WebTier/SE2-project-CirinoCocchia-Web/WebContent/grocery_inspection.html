@@ -9,9 +9,9 @@
 <body>
 
 <div class="topnav">
-    <span th:text="@{session.user.name}">Mockup</span><br>
+    <span th:text="${session.user.username}">Mockup</span><br>
     <span>ID:</span>
-    <span th:text="@{session.user.id}">123456879</span>
+    <span th:text="${session.user.iduser}">123456879</span>
     <a href="Logout">Logout</a>
 </div>
 
@@ -61,9 +61,10 @@
         <div class="border-container" th:each="data: ${dataMap}">
             <span class="subtitles" th:text="${data.key}">AVG NUM</span><br>
             <span class="normal-text" th:text="${data.value}">234</span><br>
+            <label class="titles">Retrieved grocery's data from: <span th:text="${startDate}"></span></label>
         </div>
         <form class="form-style" th:action="@{/GetGroceryData(groceryId=${groceryId})}">
-            <label class="titles" th:text="'Retrieved grocery's data from ' + ${startDate}">Retrieved grocery's data from starting date</label>
+            <input name="groceryId" th:value="${groceryId}" hidden>
             <table style="margin-left: auto; margin-right: auto;">
                 <tr>
                     <td><input type="radio" name="groceryData" value="Average customers per week"></td>

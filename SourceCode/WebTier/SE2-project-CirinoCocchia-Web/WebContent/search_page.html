@@ -48,10 +48,7 @@
 </nav>
 
 <div class="center-container">
-    <label class="titles">Search</label>
-    <div class="generic-container" id="search_section">
-        <input type="search" placeholder="via Terenzio 1">
-    </div>
+    <label class="titles">SEARCH PAGE</label><br>
 
     <label class="titles">Favourite Stores</label>
     <div class="generic-container" id="fav-stores">
@@ -86,8 +83,9 @@
     <label class="titles">Near Stores</label>
     <div class="generic-container" id="near-stores">
         <div class="st-border-container" th:each="near: ${nearGroceries}">
-            <form th:action="@{/GoToHomePage(grocery=${near})}">
+            <form th:action="@{/GoToHomePage(groceryId=${near.idgrocery})}">
         		<label class="subtitles" th:text="${near.name}">Name</label><br>
+        		<input type="text" name ="groceryId" th:value="${near.idgrocery}" hidden>
         		<table style="margin-left: auto; margin-right: auto;">
         			<tr>
         				<td>

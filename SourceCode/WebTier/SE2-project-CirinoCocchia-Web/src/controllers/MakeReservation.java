@@ -1,7 +1,6 @@
 package controllers;
 
 import java.io.IOException;
-import java.util.Calendar;
 import java.util.stream.Collectors;
 
 import javax.ejb.EJB;
@@ -19,12 +18,11 @@ import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
 
 import src.main.java.model.Grocery;
-import src.main.java.model.Position;
 import src.main.java.model.User;
-import src.main.java.services.accountManagement.interfaces.LoginModule;
-import src.main.java.services.groceryManagement.interfaces.GroceryHandlerModule;
-import src.main.java.services.reservationManagement.interfaces.ReservationHandlerModule;
-import src.main.java.utils.ReservationType;
+import src.main.java.services.accountManagement.implementation.LoginModuleImplementation;
+import src.main.java.services.groceryManagement.implementation.GroceryHandlerModuleImplementation;
+import src.main.java.services.reservationManagement.implementation.QueueUpdateManagementImplementation;
+import src.main.java.services.reservationManagement.implementation.ReservationHandlerImplementation;
 import src.main.java.utils.Roles;
 
 /**
@@ -35,12 +33,14 @@ import src.main.java.utils.Roles;
 public class MakeReservation extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private TemplateEngine templateEngine;
-	@EJB(name = "src/main/java/services/reservationManagement/interfaces/ReservationHandlerModule")
-	private ReservationHandlerModule resModule;
-	@EJB(name = "src/main/java/services/groceryManagement/interfaces/GroceryHandlerModule")
-	private GroceryHandlerModule groModule;
-	@EJB(name = "src/main/java/services/accountManagement/interfaces/LoginModule")
-	private LoginModule loginModule;
+	@EJB
+	private ReservationHandlerImplementation resModule;
+	@EJB
+	private QueueUpdateManagementImplementation queueModule;
+	@EJB
+	private GroceryHandlerModuleImplementation groModule;
+	@EJB
+	private LoginModuleImplementation loginModule;
 	
 	/**
      * Class constructor.
@@ -102,8 +102,6 @@ public class MakeReservation extends HttpServlet {
 		// CHECK EXISTENCE		
 		
 		try {
-			groModule = GroceryHandlerModule.getInstance();
-			
 			Grocery grocery = groModule.getGrocery(groceryId);
 			
 			if(grocery == null) throw new Exception();
@@ -127,13 +125,7 @@ public class MakeReservation extends HttpServlet {
 		// CREATE RESERVATION IN DB
 		
 		try {
-			resModule = ReservationHandlerModule.getInstance();
-			
-			
-			resModule.addReservation(user.getIduser(), groceryId, ReservationType.LINEUP, 
-					Calendar.getInstance().getTime(), new Position(latitude, longitude));
-			
-			loginModule = LoginModule.getInstance();
+			queueModule.lineUp(user.getIduser(), groceryId, latitude, longitude);
 			
 			user = loginModule.getUserById(user.getIduser());
 			session.setAttribute("user", user);

@@ -12,9 +12,9 @@
 <body>
 
 <div class="topnav">
-    <span th:text="@{session.user.name}">Mockup</span><br>
+    <span th:text="${session.user.username}">Mockup</span><br>
     <span>ID:</span>
-    <span th:text="@{session.user.id}">123456879</span>
+    <span th:text="${session.user.iduser}">123456879</span>
     <a href="Logout">Logout</a>
 </div>
 

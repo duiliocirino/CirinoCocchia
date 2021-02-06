@@ -9,7 +9,6 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.WebContext;
@@ -17,9 +16,8 @@ import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
 
 import src.main.java.model.Reservation;
-import src.main.java.model.User;
-import src.main.java.services.reservationManagement.interfaces.ReservationHandlerModule;
-import src.main.java.utils.Roles;
+import src.main.java.services.reservationManagement.implementation.QueueUpdateManagementImplementation;
+import src.main.java.services.reservationManagement.implementation.ReservationHandlerImplementation;
 
 /**
  * Servlet implementation class EditReservation.
@@ -29,9 +27,11 @@ import src.main.java.utils.Roles;
 public class EditReservation extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private TemplateEngine templateEngine;
-	@EJB(name = "src/main/java/services/reservationManagement/interfaces/ReservationHandlerModule")
-	private ReservationHandlerModule resModule;
-       
+	@EJB
+	private QueueUpdateManagementImplementation queueModule;
+    @EJB
+    private ReservationHandlerImplementation resModule;
+	
     /**
      * Class constructor.
      * @see HttpServlet#HttpServlet()
@@ -60,12 +60,6 @@ public class EditReservation extends HttpServlet {
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		HttpSession session = request.getSession();
-		User user = (User) session.getAttribute("user");
-		if(user.getRole() != Roles.EMPLOYEE || user.getRole() != Roles.MANAGER) {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "You are not allowed to do this operation");
-			return;
-		}
 		
 		// get and check params
 		Integer idreservation = null;
@@ -85,8 +79,7 @@ public class EditReservation extends HttpServlet {
 				response.sendError(HttpServletResponse.SC_PRECONDITION_FAILED, "Reservation not found");
 				return;
 			}
-			//TODO : DOVREBBE ESSERE FATTA PER FARE AVANZARE LO STATUS
-			//resModule.editReservation(idreservation, user.getIduser(), reservation.getGrocery().getIdgrocery(), reservation.getType(), null);
+			queueModule.setIntoTheStore(idreservation);
 		} catch (Exception e) {
 			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Reservation not closable");
 			return;
@@ -107,6 +100,6 @@ public class EditReservation extends HttpServlet {
 		ctx.setVariable("groceryId", groceryId);
 		String ctxpath = getServletContext().getContextPath();
 		String path = ctxpath + "/GetReservationPage";
-		templateEngine.process(path, ctx, response.getWriter());
+		response.sendRedirect(path);
 	}
 }

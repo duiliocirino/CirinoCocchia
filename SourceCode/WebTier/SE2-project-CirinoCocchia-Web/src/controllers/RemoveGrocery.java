@@ -18,8 +18,8 @@ import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
 
 import src.main.java.model.User;
-import src.main.java.services.accountManagement.interfaces.LoginModule;
-import src.main.java.services.groceryManagement.interfaces.GroceryHandlerModule;
+import src.main.java.services.accountManagement.implementation.LoginModuleImplementation;
+import src.main.java.services.groceryManagement.implementation.GroceryHandlerModuleImplementation;
 
 /**
  * Servlet implementation class RemoveGrocery.
@@ -29,10 +29,10 @@ import src.main.java.services.groceryManagement.interfaces.GroceryHandlerModule;
 public class RemoveGrocery extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private TemplateEngine templateEngine;
-	@EJB(name = "src/main/java/services/groceryManagement/interfaces/GroceryHandlerModule")
-	private GroceryHandlerModule groModule;
-	@EJB(name = "src/main/java/services/accountManagement/interfaces/LoginModule")
-	private LoginModule loginModule;
+	@EJB
+	private GroceryHandlerModuleImplementation groModule;
+	@EJB
+	private LoginModuleImplementation loginModule;
        
     /**
      * Class constructor.
@@ -86,8 +86,6 @@ public class RemoveGrocery extends HttpServlet {
 		}
 
 		try {
-			groModule = GroceryHandlerModule.getInstance();
-			loginModule = LoginModule.getInstance();
 			groModule.removeGrocery(groceryId);
 			user = loginModule.checkCredentials(user.getUsername(), user.getPassword());
 			session.setAttribute("user", user);
@@ -108,10 +106,9 @@ public class RemoveGrocery extends HttpServlet {
 	 * @throws IOException
 	 */
 	protected void postTemplate(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		final WebContext ctx = new WebContext(request, response, getServletContext(), request.getLocale());
 		String ctxpath = getServletContext().getContextPath();
 		String path = ctxpath + "/GoToHomePage";
-		templateEngine.process(path, ctx, response.getWriter());
+		response.sendRedirect(path);
 	}
 
 }

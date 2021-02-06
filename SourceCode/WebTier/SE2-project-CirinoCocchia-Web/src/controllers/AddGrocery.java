@@ -1,6 +1,7 @@
 package controllers;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import javax.ejb.EJB;
 import javax.servlet.ServletContext;
@@ -17,10 +18,12 @@ import org.thymeleaf.context.WebContext;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
 
+import src.main.java.model.Grocery;
 import src.main.java.model.Position;
 import src.main.java.model.User;
-import src.main.java.services.accountManagement.interfaces.LoginModule;
-import src.main.java.services.groceryManagement.interfaces.GroceryHandlerModule;
+import src.main.java.services.accountManagement.implementation.LoginModuleImplementation;
+import src.main.java.services.accountManagement.implementation.RegistrationModuleImplementation;
+import src.main.java.services.groceryManagement.implementation.GroceryHandlerModuleImplementation;
 
 /**
  * Servlet implementation class AddGrocery.
@@ -30,10 +33,12 @@ import src.main.java.services.groceryManagement.interfaces.GroceryHandlerModule;
 public class AddGrocery extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private TemplateEngine templateEngine;
-	@EJB(name = "src/main/java/services/groceryManagement/interfaces/GrocerhyHandlerModule")
-	private GroceryHandlerModule groModule;
-	@EJB(name = "src/main/java/services/accountManagement/interfaces/LoginModule")
-	private LoginModule loginModule;
+	@EJB
+	private GroceryHandlerModuleImplementation groModule;
+	@EJB
+	private LoginModuleImplementation loginModule;
+	@EJB
+	private RegistrationModuleImplementation regModule;
 	
     /**
      * Class constructor.
@@ -96,10 +101,11 @@ public class AddGrocery extends HttpServlet {
 		// CREATE NEW GROCERY WITH GIVEN DETAILS
 		
 		try {
-			groModule = GroceryHandlerModule.getInstance();
-			loginModule = LoginModule.getInstance();
-			groModule.addGrocery(name, new Position(latitude, longitude), maxSpotsInside, user.getIduser());
-			user = loginModule.checkCredentials(user.getUsername(), user.getPassword());
+			Grocery grocery = groModule.addGrocery(name, new Position(latitude, longitude), maxSpotsInside, user.getIduser());
+			if(user.getGroceries() == null) {
+				user.setGroceries(new ArrayList<>());
+			} 
+			user.getGroceries().add(grocery);
 			session.setAttribute("user", user);
 		} catch (Exception e) {
 			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Not possible to create grocery");

@@ -48,7 +48,6 @@
     	<filter-name>ManagerEmployeeChecker</filter-name>
     	<url-pattern>/DeleteReservation</url-pattern>
     	<url-pattern>/EditReservation</url-pattern>
-		<url-pattern>/MakeReservation</url-pattern>
     	<url-pattern>/GetReservationPage</url-pattern>
   	</filter-mapping>
 </web-app>

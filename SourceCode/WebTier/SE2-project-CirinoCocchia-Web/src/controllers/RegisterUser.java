@@ -17,8 +17,8 @@ import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
 
 import src.main.java.model.User;
-import src.main.java.services.accountManagement.interfaces.LoginModule;
-import src.main.java.services.accountManagement.interfaces.RegistrationModule;
+import src.main.java.services.accountManagement.implementation.LoginModuleImplementation;
+import src.main.java.services.accountManagement.implementation.RegistrationModuleImplementation;
 import src.main.java.utils.Roles;
 
 /**
@@ -29,10 +29,10 @@ import src.main.java.utils.Roles;
 public class RegisterUser extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private TemplateEngine templateEngine;
-	@EJB(name = "src/main/java/services/accountManagement/interfaces/LoginModule")
-	private LoginModule loginModule;
-	@EJB(name = "src/main/java/services/accountManagement/interfaces/RegistrationModule")
-	private RegistrationModule regModule;
+	@EJB
+	private LoginModuleImplementation loginModule;
+	@EJB
+	private RegistrationModuleImplementation regModule;
 
 	/**
      * Class constructor.
@@ -70,7 +70,7 @@ public class RegisterUser extends HttpServlet {
 		
 		String username = null;
 		String password = null;
-		Double telephoneNum = null;
+		String telephoneNum = null;
 		String email = null;
 		String roles = null;
 		
@@ -78,11 +78,11 @@ public class RegisterUser extends HttpServlet {
 			username = StringEscapeUtils.escapeJava(request.getParameter("username"));
 			password = StringEscapeUtils.escapeJava(request.getParameter("password"));
 			email = StringEscapeUtils.escapeJava(request.getParameter("email"));
-			telephoneNum = Double.parseDouble(request.getParameter("telephoneNumber"));
+			telephoneNum = StringEscapeUtils.escapeJava(request.getParameter("telephoneNumber"));
 			roles = StringEscapeUtils.escapeJava(request.getParameter("role"));
 		
 			if (username == null || password == null || email == null || roles == null || (!roles.equals("manager") && !roles.equals("customer")) || 
-				telephoneNum == null || telephoneNum < 100000000 || username.isEmpty() || password.isEmpty() || email.isEmpty()) {
+				telephoneNum == null || Double.parseDouble(telephoneNum) < 100000000 || username.isEmpty() || password.isEmpty() || email.isEmpty()) {
 					throw new NullPointerException();
 			}
 		} catch (NumberFormatException | NullPointerException e) {
@@ -100,7 +100,7 @@ public class RegisterUser extends HttpServlet {
 		User user = null;
 		
 		try {
-			loginModule = LoginModule.getInstance();
+			//loginModule = LoginModule.getInstance();
 			
 			user = loginModule.checkCredentials(username, password);
 		} catch (Exception e) {
@@ -111,9 +111,9 @@ public class RegisterUser extends HttpServlet {
 		if (user == null) {
 			String error = null;
 			try {
-				regModule = RegistrationModule.getInstance();
+				//regModule = RegistrationModule.getInstance();
 				
-				regModule.register(role, Double.toString(telephoneNum), username, password, email);
+				regModule.register(role, telephoneNum, username, password, email);
 			} catch (Exception e) {
 				error = "Bad database insertion";
 			}
@@ -140,7 +140,7 @@ public class RegisterUser extends HttpServlet {
 	protected void postTemplate(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		response.setStatus(HttpServletResponse.SC_OK);
 		response.getWriter().println("Registration success");
-		String path = getServletContext().getContextPath() + "login.html";
+		String path = getServletContext().getContextPath() + "/login.html";
 		response.sendRedirect(path);
 	}
 	

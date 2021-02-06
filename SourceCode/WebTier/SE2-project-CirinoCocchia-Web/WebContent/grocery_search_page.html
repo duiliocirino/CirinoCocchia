@@ -29,9 +29,9 @@
 <body>
 
 <div class="topnav">
-    <span th:text="@{session.user.name}">Mockup</span><br>
+    <span th:text="${session.user.username}">Mockup</span><br>
     <span>ID:</span>
-    <span th:text="@{session.user.id}">123456879</span>
+    <span th:text="${session.user.iduser}">123456879</span>
     <a href="Logout">Logout</a>
 </div>
 
@@ -55,7 +55,7 @@
                 </a>
             </li>
 
-            <li>
+            <li th:if="${session.user.role} != employee">
                 <a th:href="@{/GoToEmployeePage}">
                     <i class="fa fa-address-card-o" aria-hidden="true"></i>
                     <span class="nav-text">Employees Page</span>
@@ -80,7 +80,8 @@
     <div class="generic-container">
         <div class="border-container" th:each="reservation: ${reservations}">
             <span class="subtitles" th:text="${reservation.idreservation}">015651321</span><br>
-            <span class="normal-text" th:text="${reservation.lineUpNumber}">100</span><br>
+            <span class="normal-text" th:text="${reservation.estimatedTime}">100</span><br>
+            <span class="normal-text" th:text="${reservation.customer.iduser}">100</span><br>
             <a class="link-style" th:href="@{/EditReservation(reservation=${reservation})}">Edit</a>
             <a class="link-style" th:href="@{/DeleteReservation(reservationId=${reservation.idreservation}, groceryId=${groceryId})}">Remove</a>
         </div>

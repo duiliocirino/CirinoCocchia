@@ -21,8 +21,8 @@ import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
 import src.main.java.exceptions.CLupException;
 import src.main.java.model.Reservation;
 import src.main.java.model.User;
-import src.main.java.services.accountManagement.interfaces.LoginModule;
-import src.main.java.services.reservationManagement.interfaces.ReservationHandlerModule;
+import src.main.java.services.accountManagement.implementation.LoginModuleImplementation;
+import src.main.java.services.reservationManagement.implementation.ReservationHandlerImplementation;
 import src.main.java.utils.Roles;
 
 /**
@@ -33,10 +33,10 @@ import src.main.java.utils.Roles;
 public class DeleteReservation extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private TemplateEngine templateEngine;
-	@EJB(name = "src/main/java/services/reservationManagement/interfaces/ReservationHandlerModule")
-	private ReservationHandlerModule resModule;
-	@EJB(name = "src/main/java/services/accountManagement/interfaces/LoginModule")
-	private LoginModule loginModule;
+	@EJB
+	private ReservationHandlerImplementation resModule;
+	@EJB
+	private LoginModuleImplementation loginModule;
 	
     /**
      * Class constructor.
@@ -104,16 +104,12 @@ public class DeleteReservation extends HttpServlet {
 		}
 
 		try {
-			resModule = ReservationHandlerModule.getInstance();
-			loginModule = LoginModule.getInstance();
-			
 			Reservation reservation = resModule.getReservation(reservationId);
 			if (reservation == null || reservation.getQueue().getGrocery().getIdgrocery() != groceryId) {
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Reservation not found");
 				return;
 			}
 			resModule.removeReservation(reservation);
-			loginModule = LoginModule.getInstance();
 			user = loginModule.checkCredentials(user.getUsername(), user.getPassword());
 			session.setAttribute("user", user);
 		} catch (CLupException e) {

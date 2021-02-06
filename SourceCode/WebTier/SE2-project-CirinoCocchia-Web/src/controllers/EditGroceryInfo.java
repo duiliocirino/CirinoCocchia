@@ -21,7 +21,7 @@ import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
 
 import src.main.java.model.Grocery;
 import src.main.java.model.User;
-import src.main.java.services.groceryManagement.interfaces.GroceryHandlerModule;
+import src.main.java.services.groceryManagement.implementation.GroceryHandlerModuleImplementation;
 
 /**
  * Servlet implementation class EditGroceryInfo.
@@ -31,8 +31,8 @@ import src.main.java.services.groceryManagement.interfaces.GroceryHandlerModule;
 public class EditGroceryInfo extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private TemplateEngine templateEngine;
-	@EJB(name = "src/main/java/services/groceryManagement/interfaces/GroceryHandlerModule")
-	private GroceryHandlerModule groModule;
+	@EJB
+	private GroceryHandlerModuleImplementation groModule;
        
     /**
      * Class constructor.
@@ -110,14 +110,17 @@ public class EditGroceryInfo extends HttpServlet {
 		boolean isBadRequest = false;
 		String name = null;
 		Integer groceryId = null;
-		Integer maxSpots = null;
+		String maxSpots = null;
 		
 		try {
 			name = StringEscapeUtils.escapeJava(request.getParameter("name"));
 			groceryId = Integer.parseInt(request.getParameter("groceryId"));
-			maxSpots = Integer.parseInt(request.getParameter("maxSpots"));
-			
-			isBadRequest = isBadRequest || groceryId == null || name.isEmpty() || maxSpots < 1 || ((name == null) && (maxSpots == null)) ||
+			maxSpots = StringEscapeUtils.escapeJava(request.getParameter("maxSpots"));
+			if(name.isEmpty()) name = null;
+			if(!maxSpots.isEmpty()) {
+				if(Integer.parseInt(maxSpots) < 1) maxSpots = null;
+			} else maxSpots = null;
+			isBadRequest = isBadRequest || groceryId == null || ((name == null) && (maxSpots == null)) || 
 					!user.getGroceries().stream().map(x -> x.getIdgrocery()).collect(Collectors.toList()).contains(groceryId);
 		} catch (NumberFormatException | NullPointerException e) {
 			isBadRequest = true;
@@ -132,15 +135,15 @@ public class EditGroceryInfo extends HttpServlet {
 			
 		// UPDATE GROCERY INFO AND OF THE USER
 		final Integer id = groceryId;
+		Integer maxSpotsI = 0;
+		if(maxSpots != null) maxSpotsI = Integer.parseInt(maxSpots);
 		
 		try {
-			groModule = GroceryHandlerModule.getInstance();
-			
-			Grocery editedGro = groModule.editGrocery(groceryId, name, maxSpots);
-			List<Grocery> groceries = user.getGroceries();
-			groceries.removeIf(x -> x.getIdgrocery() == id);
-			groceries.add(editedGro);
-			user.setGroceries(groceries);
+			Grocery editedGro = groModule.editGrocery(groceryId, name, maxSpotsI);
+			//List<Grocery> groceries = user.getGroceries();
+			//groceries.removeIf(x -> x.getIdgrocery() == id);
+			//groceries.add(editedGro);
+			//user.setGroceries(groceries);
 			session.setAttribute("user", user);
 		} catch (Exception e) {
 			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Not possible to edit grocery");

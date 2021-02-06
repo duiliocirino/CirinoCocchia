@@ -13,10 +13,11 @@ import javax.servlet.http.HttpSession;
 
 import src.main.java.utils.ReservationStatus;
 import src.main.java.utils.Roles;
+import utils.GroceryAdapter;
 import src.main.java.model.*;
-import src.main.java.services.accountManagement.interfaces.LoginModule;
-import src.main.java.services.groceryManagement.interfaces.GroceryHandlerModule;
-import src.main.java.services.searchManagement.interfaces.SearchEngineModule;
+import src.main.java.services.accountManagement.implementation.LoginModuleImplementation;
+import src.main.java.services.groceryManagement.implementation.GroceryHandlerModuleImplementation;
+import src.main.java.services.searchManagement.implementation.SearchEngineModuleImplementation;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -34,12 +35,12 @@ import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
 public class GoToHomePage extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private TemplateEngine templateEngine;
-	@EJB(name = "src/main/java/services/accountManagement/interfaces/LoginModule")
-	private LoginModule loginModule;
-	@EJB(name = "src/main/java/services/searchManagement/interfaces/SearchEngineModule")
-	private SearchEngineModule searchModule;
-	@EJB(name = "src/main/java/services/groceryManagement/interfaces/GroceryHandlerModule")
-	private GroceryHandlerModule groModule;
+	@EJB
+	private LoginModuleImplementation loginModule;
+	@EJB
+	private SearchEngineModuleImplementation searchModule;
+	@EJB
+	private GroceryHandlerModuleImplementation groModule;
 	
 	/**
 	 * This attribute is editable based on the number of groceries to display on the map when the page is accessed.
@@ -74,16 +75,7 @@ public class GoToHomePage extends HttpServlet {
 		
 		HttpSession session = request.getSession();
 		User user = (User) session.getAttribute("user");
-		
-		try {
-			loginModule = LoginModule.getInstance();
-			user = loginModule.getUserById(user.getIduser());
-			if (user == null) throw new Exception();
-			session.setAttribute("user", user);
-		} catch(Exception e) {
-			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Couldn't retrieve data from server");
-			return;
-		}
+		user = loginModule.getUserById(user.getIduser());
 		
 		// GET AND PARSE PARAMETERS
 		
@@ -115,7 +107,6 @@ public class GoToHomePage extends HttpServlet {
 			
 			if(groceryId != null) {
 				try {
-					groModule = GroceryHandlerModule.getInstance();
 					grocery = groModule.getGrocery(groceryId);
 					if(grocery == null) throw new Exception();
 				} catch (Exception e) {
@@ -123,7 +114,6 @@ public class GoToHomePage extends HttpServlet {
 				}
 			} else {
 				try {
-					searchModule = SearchEngineModule.getInstance();
 					
 					int min = MIN;
 					
@@ -174,9 +164,9 @@ public class GoToHomePage extends HttpServlet {
 		
 		if (activeReservations != null) ctx.setVariable("activeReservations", activeReservations);
 		
-		if(nearGroceries != null) ctx.setVariable("groceries", nearGroceries);
+		if(nearGroceries != null) ctx.setVariable("groceries", nearGroceries.stream().map(x -> new GroceryAdapter(x)).collect(Collectors.toList()));
 
-		if(grocery != null) ctx.setVariable("groceries", grocery);
+		if(grocery != null) ctx.setVariable("grocery", new GroceryAdapter(grocery));
 		templateEngine.process(path, ctx, response.getWriter());
 	}
 	

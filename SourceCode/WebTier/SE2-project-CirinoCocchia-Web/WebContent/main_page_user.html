@@ -13,6 +13,31 @@
             integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
     		crossorigin=""></script>
     <script src="map.js" charset="utf-8" defer></script>
+    <script type="text/javascript" th:inline="javascript">
+	/*<![CDATA[*/
+	var groceries = /*[[${groceries}]]*/ null;
+	var grocery = /*[[${grocery}]]*/ null;
+	/*]]>*/
+	</script>
+	<script defer>
+	var latIn = document.getElementById("lat");
+	var longIn = document.getElementById("lng");
+	
+	function setPosition(position) {
+		latIn = document.getElementById("lat");
+		longIn = document.getElementById("lng");
+		fillPosition(position)
+	}
+
+	navigator.geolocation.getCurrentPosition(setPosition)
+	
+	function fillPosition(position) {
+	  latIn.value = position.coords.latitude;
+	  longIn.value = position.coords.longitude;
+	}
+	
+	getLocation();
+	</script>
 </head>
 <body>
 
@@ -56,14 +81,16 @@
 
 <div class="center-container">
     <label class="titles">Search Store</label>
-    <div class="generic-container" style="height: 250px" id="search_section">
-        <form th:action="@{/GoToSearchPage}">
-            <button type="submit" style="height: 20px; width: 20px;"></button>
+    <div class="generic-container-c" style="height: 250px" id="search_section">
+    
+        <form th:action="@{/GoToSearchPage}" style="text-align: center">
+            <button type="submit" class="search-button"><i class="fa fa-search" aria-hidden="true"></i></button>
             <input type="search" class="searchbar" name="latitude" style="width: 64px" placeholder="latitude eg:37">
             <input type="search" class="searchbar" name="longitude" style="width: 64px" placeholder="longitude eg:10">
             <input type="search" class="searchbar" name="radius" style="width: 64px" placeholder="radius eg:1000" ><br>
             <span th:text="${message}">Error</span>
         </form>
+        
         <div class="border-container-map" id="mapcontainer">
             <div class="generic-container" id="mapinfo" style="float: left; margin: 0 auto">
 				<table style="margin-left: auto; margin-right: auto;">
@@ -97,9 +124,12 @@
         </div>
     </div>
 
-    <label class="titles">Line-Up</label>
-    <div class="generic-container" id="line-up">
-        <form>
+    <div th:if="${grocery} != null" class="generic-container-c" id="line-up">
+		<label class="titles">Line-Up</label>
+        <form th:action="@{/MakeReservation}">
+        	<input type="text" name="latitude" id="lng" hidden>
+        	<input type="text" name="longitude" id="lat" hidden>
+        	<input type="text" name="groceryId" th:value="${grocery.idgrocery}" hidden>
         	<select>
         		<option value="0">MEDIUM</option>
 			</select>

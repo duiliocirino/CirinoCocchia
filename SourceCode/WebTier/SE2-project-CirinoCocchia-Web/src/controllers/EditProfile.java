@@ -18,7 +18,7 @@ import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
 
 import src.main.java.model.User;
-import src.main.java.services.accountManagement.interfaces.RegistrationModule;
+import src.main.java.services.accountManagement.implementation.RegistrationModuleImplementation;
 
 /**
  * Servlet implementation class EditProfile.
@@ -28,8 +28,8 @@ import src.main.java.services.accountManagement.interfaces.RegistrationModule;
 public class EditProfile extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private TemplateEngine templateEngine;
-	@EJB(name = "src/main/java/services/accountManagement/interfaces/RegistrationModule")
-	private RegistrationModule regModule;
+	@EJB
+	private RegistrationModuleImplementation regModule;
 	
 	/**
      * Class constructor.
@@ -82,27 +82,28 @@ public class EditProfile extends HttpServlet {
 		password = StringEscapeUtils.escapeJava(request.getParameter("password"));
 		telephoneNum = StringEscapeUtils.escapeJava(request.getParameter("telephoneNumber"));
 		
-		isBadRequest = isBadRequest || (username == null && email == null && password == null && telephoneNum == null);
+		
 		
 		if(username != null) {
-			if(username.isEmpty()) isBadRequest = true;
-			else username = user.getUsername();
+			if(username.isEmpty()) username = null;
 		} else username = user.getUsername();
 		
 		if(email != null) {
-			if(email.isEmpty()) isBadRequest = true;
-			else email = user.getEmail();
+			if(email.isEmpty()) email = null;
 		} else email = user.getEmail();
 		
 		if(password != null) {
-			if(password.isEmpty()) isBadRequest = true;
-			else password = user.getPassword();
+			if(password.isEmpty()) password = null;
 		} else password = user.getPassword();
 		
 		if(telephoneNum != null) {
-			if(Double.parseDouble(telephoneNum) < 10000000) isBadRequest = true;
-			else telephoneNum = user.getTelephoneNumber();
+			if(!telephoneNum.isEmpty()) {
+				if(Double.parseDouble(telephoneNum) < 10000000) telephoneNum = null;
+			} else telephoneNum = null;
+			
 		} else telephoneNum = user.getTelephoneNumber();
+		
+		isBadRequest = isBadRequest || (username == null && email == null && password == null && telephoneNum == null);
 		
 		} catch (NumberFormatException | NullPointerException e) {
 			isBadRequest = true;
@@ -116,8 +117,6 @@ public class EditProfile extends HttpServlet {
 		// UPDATE USER DETAILS AND SESSION
 		
 		try {
-			regModule = RegistrationModule.getInstance();
-			
 			user = regModule.editProfile(user.getIduser(), telephoneNum, username, password, email);
 			session.setAttribute("user", user);
 		} catch (Exception e) {

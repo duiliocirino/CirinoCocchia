@@ -17,7 +17,7 @@ import org.thymeleaf.context.WebContext;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
 
-import src.main.java.services.searchManagement.interfaces.SearchEngineModule;
+import src.main.java.services.searchManagement.implementation.SearchEngineModuleImplementation;
 import src.main.java.model.User;
 import src.main.java.model.Grocery;
 import src.main.java.model.Position;
@@ -35,8 +35,8 @@ public class GoToSearchPage extends HttpServlet {
 	 */
 	private static final int nFavourites = 3;
 	private TemplateEngine templateEngine;
-	@EJB(name = "src/main/java/services/searchManagement/interfaces/SearchEngineModule")
-	private SearchEngineModule searchModule;
+	@EJB
+	private SearchEngineModuleImplementation searchModule;
 	
 	public void init() throws ServletException {
     	ServletContext servletContext = getServletContext();
@@ -90,9 +90,7 @@ public class GoToSearchPage extends HttpServlet {
 		List<Grocery> nearGroceries = null;
 		
 		try {
-			searchModule = SearchEngineModule.getInstance();
-			
-			favoriteGroceries = searchModule.getFavouriteGroceries(user.getIduser(), nFavourites);
+			//favoriteGroceries = searchModule.getFavouriteGroceries(user.getIduser(), nFavourites);
 			nearGroceries = searchModule.getNearGroceries(new Position(latitude, longitude), radius);
 		} catch(Exception e) {
 			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Couldn't retrieve data from server");
@@ -110,9 +108,8 @@ public class GoToSearchPage extends HttpServlet {
 	 * @throws IOException
 	 */
 	protected void getTemplateExc(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		final WebContext ctx = new WebContext(request, response, getServletContext(), request.getLocale());
 		String path = getServletContext().getContextPath() + "/GoToHomePage";
-		templateEngine.process(path, ctx, response.getWriter());
+		response.sendRedirect(path);
 	}
 
 	/**

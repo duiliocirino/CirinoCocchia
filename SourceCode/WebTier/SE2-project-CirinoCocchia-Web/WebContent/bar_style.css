@@ -231,16 +231,23 @@ nav ul,nav li {
 
 *.generic-container {
     padding: 2px;
+    display: flex;
+}
+
+*.generic-container-c {
+    padding: 2px;
 }
 
 .center-container {
     position: relative;
     z-index: 1;
-    left: 60px;
+    margin-left: 60px;
     width: auto;
     padding: 16px;
     height: auto;
-    margin: 0 auto;
+    margin-top: 0 auto;
+    margin-right: 0 auto;
+    margin-bottom: 0 auto;
     text-align: center;
 }
 
@@ -286,8 +293,16 @@ nav ul,nav li {
     font-family: 'Titillium Web', sans-serif;
 }
 
+
+*.search-button {
+	background: transparent;
+	border: 1px solid transparent;
+	vertical-align: middle;
+}
+
 *.searchbar {
     margin: 8px;
+    vertical-align: middle;
 }
 
 *.radio-style {
