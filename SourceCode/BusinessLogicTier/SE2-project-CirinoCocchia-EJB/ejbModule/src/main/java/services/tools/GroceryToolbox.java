@@ -74,7 +74,7 @@ public class GroceryToolbox {
 	public List<Grocery> findCustomersFavourites(User customer, int numberFavourites) {
 		return em.createNamedQuery("Grocery.findCustomersFavourites", Grocery.class)
 				.setParameter("customer", customer)
-				.setParameter("nFav", numberFavourites)
+				.setMaxResults(numberFavourites)
 				.getResultList();
 	}
 }

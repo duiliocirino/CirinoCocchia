@@ -43,7 +43,7 @@ public class TimeEstimationModuleImplementation extends TimeEstimationModule{
 		}
 		
 		startCal.setTime(estimatedTimestamp);
-		int seconds = (int) Math.ceil(startCal.getTimeInMillis()/1000);
+		int seconds = startCal.get(Calendar.SECOND);
 		Calendar endCal = startCal;
 		
 		startCal.set(Calendar.SECOND, seconds + sizeInterval);
@@ -112,12 +112,14 @@ public class TimeEstimationModuleImplementation extends TimeEstimationModule{
 				reservation.getQueue().getGrocery().getLongitude());
 		// invoke ridetime to estimate the movement time
 		maps_time = invokeRideTime(position, groceryPosition);
+		System.out.println("maps time is " + maps_time + " seconds");
 		// partial result
 		double totalEstimatedTimeSeconds = avg_time + fix_time + maps_time;
+		System.out.println("Total time is: " + totalEstimatedTimeSeconds);
 		int integerEstimatedTimeSeconds = (int) Math.ceil(totalEstimatedTimeSeconds);
 		// transform the result in a date instance to compute spread time
 		Calendar now = Calendar.getInstance();
-		int seconds = (int) Math.ceil(now.getTimeInMillis()/1000);
+		int seconds = now.get(Calendar.SECOND);
 		Calendar estimatedCal = now;	
 		estimatedCal.set(Calendar.SECOND, seconds + integerEstimatedTimeSeconds);
 		Date estimatedTimeIntermediate = estimatedCal.getTime();
@@ -127,8 +129,9 @@ public class TimeEstimationModuleImplementation extends TimeEstimationModule{
 		 * and tries to avoid that too many people overlap in a single time
 		 */
 		int spread_time = (int) Math.ceil(estimatedSpreadTime(estimatedTimeIntermediate, reservation.getQueue()));
+		System.out.println("spread time is " + spread_time);
 		// add the spread time to  the partial result of before
-		seconds = (int) Math.ceil(estimatedCal.getTimeInMillis()/1000);
+		seconds = estimatedCal.get(Calendar.SECOND);
 		estimatedCal.set(Calendar.SECOND, seconds + spread_time);
 		
 		Date estimatedTime = estimatedCal.getTime();

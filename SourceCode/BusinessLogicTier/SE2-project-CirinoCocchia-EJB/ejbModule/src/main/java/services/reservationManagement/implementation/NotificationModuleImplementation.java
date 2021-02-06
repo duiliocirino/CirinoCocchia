@@ -27,24 +27,34 @@ public class NotificationModuleImplementation extends NotificationModule{
 		// Contact me at lorenzo.cocchia@mail.polimi.it		
 		// 5b3ce3597851110001cf6248cfa7da2f1b6742ce8054fc74984f37aa&
 		
-		Client client = ClientBuilder.newClient();
-		Entity<String> payload = Entity.json("{\"locations\":"
-				+ "[[" + origin.getLat() + "," + origin.getLon() + "],"
-				+ "[" + end.getLat() + "," + end.getLon() + "]]}");
-		Response response = client.target("https://api.openrouteservice.org/v2/matrix/driving-car")
-		  .request()
-		  .header("Authorization", "5b3ce3597851110001cf6248cfa7da2f1b6742ce8054fc74984f37aa")
-		  .header("Accept", "application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8")
-		  .header("Content-Type", "application/json; charset=utf-8")
-		  .post(payload);
-
-		String stringResponse = response.readEntity(String.class);
-		JsonObject obj = new JsonParser().parse(stringResponse).getAsJsonObject();
-		double distance = obj.getAsJsonArray("durations")
-				.get(1).getAsJsonArray()
-				.get(0).getAsDouble();
+	System.out.println("Computing distance from [" + origin.getLat() + ", " + origin.getLon() + "] to "
+			+ "[" + end.getLat() + ", " + end.getLon() + "]");
 		
-		return distance;
+	Client client = ClientBuilder.newClient();
+	String payloadString = "{\"locations\":"
+			+ "[[" + origin.getLat() + "," + origin.getLon() + "],"
+			+ "[" + end.getLat() + "," + end.getLon() + "]]}";
+	System.out.println("Sending parameter ... " + payloadString);
+	Entity<String> payload = Entity.json("{\"locations\":"
+			+ "[[" + origin.getLat() + "," + origin.getLon() + "],"
+			+ "[" + end.getLat() + "," + end.getLon() + "]]}");
+	
+	Response response = client.target("https://api.openrouteservice.org/v2/matrix/driving-car")
+	  .request()
+	  .header("Authorization", "5b3ce3597851110001cf6248cfa7da2f1b6742ce8054fc74984f37aa")
+	  .header("Accept", "application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8")
+	  .header("Content-Type", "application/json; charset=utf-8")
+	  .post(payload);
+
+	String stringResponse = response.readEntity(String.class);
+		
+	System.out.println(stringResponse);
+	JsonObject obj = new JsonParser().parse(stringResponse).getAsJsonObject();
+	double distance = obj.getAsJsonArray("durations")
+			.get(1).getAsJsonArray()
+			.get(0).getAsDouble();
+	
+	return distance;
 	}
 
 	@Override

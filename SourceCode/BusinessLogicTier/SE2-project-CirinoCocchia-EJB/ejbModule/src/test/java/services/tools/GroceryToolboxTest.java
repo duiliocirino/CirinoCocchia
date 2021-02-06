@@ -158,37 +158,51 @@ public class GroceryToolboxTest {
 		assertNotNull(groceries);
 		assertTrue(0 == groceries.size());
 	}
-/*
+
 	@Test
 	public void testFindCustomersFavourites() {
 		testData.createFavouriteGroceriesData();
-		User customer = userTools.findUser(ID_CUSTOMER);
-		List<Grocery> favourites = null;
 		
-		int numFavourites = 1;
-		favourites = grocTools.findCustomersFavourites(customer, numFavourites);
-		assertNotNull(favourites);
-		assertTrue(numFavourites == favourites.size());
-		assertNotNull(favourites.get(0));
-		assertTrue(IDGROCERY1 == favourites.get(0).getIdgrocery());
+		try {
+			User customer = userTools.findUser(ID_CUSTOMER);
+			List<Grocery> favourites = null;
+			
+			int numFavourites = 1;
+			favourites = grocTools.findCustomersFavourites(customer, numFavourites);
+			assertNotNull(favourites);
+			assertEquals(numFavourites, favourites.size());
+			assertNotNull(favourites.get(0));
+			assertEquals(IDGROCERY1, favourites.get(0).getIdgrocery());
+			
+			numFavourites = 2;
+			favourites = grocTools.findCustomersFavourites(customer, numFavourites);
+			assertNotNull(favourites);
+			assertTrue(numFavourites == favourites.size());
+			assertNotNull(favourites.get(0));
+			assertEquals(IDGROCERY1, favourites.get(0).getIdgrocery());
+			assertNotNull(favourites.get(1));
+			assertEquals(IDGROCERY2, favourites.get(1).getIdgrocery());
+
+			numFavourites = 3;
+			favourites = grocTools.findCustomersFavourites(customer, numFavourites);
+			assertNotNull(favourites);
+			assertTrue(numFavourites == favourites.size());
+			assertNotNull(favourites.get(0));
+			assertEquals(IDGROCERY1, favourites.get(0).getIdgrocery());
+			assertNotNull(favourites.get(1));
+			assertEquals(IDGROCERY2, favourites.get(1).getIdgrocery());
+			assertNotNull(favourites.get(2));
+			assertEquals(ID_GROCERY3, favourites.get(2).getIdgrocery());
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail("Should not throw any exception");
+		} finally {
+			testData.removeFavouriteGroceriesData();
+		}
 		
-		numFavourites = 2;
-		favourites = grocTools.findCustomersFavourites(customer, numFavourites);
-		assertNotNull(favourites);
-		assertTrue(numFavourites == favourites.size());
-		assertNotNull(favourites.get(1));
-		assertTrue(IDGROCERY2 == favourites.get(1).getIdgrocery());
 		
-		numFavourites = 3;
-		favourites = grocTools.findCustomersFavourites(customer, numFavourites);
-		assertNotNull(favourites);
-		assertTrue(numFavourites == favourites.size());
-		assertNotNull(favourites.get(2));
-		assertTrue(ID_GROCERY3 == favourites.get(2).getIdgrocery());
-		
-		testData.removeFavouriteGroceriesData();
 	}
-*/
+
 	class MockGroceryTools extends GroceryToolbox {
 		public MockGroceryTools(EntityManager em) {
 			this.em = em;

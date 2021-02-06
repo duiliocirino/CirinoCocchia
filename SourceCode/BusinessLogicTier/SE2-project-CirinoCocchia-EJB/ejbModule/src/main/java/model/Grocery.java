@@ -18,12 +18,8 @@ import static javax.persistence.CascadeType.ALL;
 	"SELECT q.grocery "
 	+ "FROM Reservation r JOIN r.queue q "
 	+ "WHERE r.customer = :customer "
-	+ "GROUP BY r.queue, r.customer "
-	+ "HAVING :nFav < (SELECT COUNT(r2.queue) "
-		+ "FROM Reservation r2 JOIN r2.queue q2 "
-		+ "WHERE r2.customer = :customer AND q != q2 "
-		+ "GROUP BY r2.queue, r.customer "
-		+ "HAVING COUNT(r2.customer) > COUNT(r.customer))")
+	+ "GROUP BY r.queue "
+	+ "ORDER BY COUNT(r.customer) DESC ")
 public class Grocery implements Serializable {
 
 	
@@ -98,6 +94,7 @@ public class Grocery implements Serializable {
 
 
 	public void setOwner(User owner) {
+		owner.addOwnedGrocery(this);
 		this.owner = owner;
 	}
 

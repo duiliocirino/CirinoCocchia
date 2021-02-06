@@ -17,6 +17,8 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import src.main.java.utils.Roles;
+import static javax.persistence.CascadeType.REFRESH;
+import static javax.persistence.CascadeType.MERGE;
 
 /**
  * Javabean class for Entity: User
@@ -72,7 +74,7 @@ public class User implements Serializable {
 	/**
 	 * List of groceries owned by this user
 	 */
-	@OneToMany(fetch = FetchType.EAGER, mappedBy = "owner")
+	@OneToMany(fetch = FetchType.EAGER, mappedBy = "owner", cascade = { REFRESH, MERGE })
 	private List<Grocery> groceries = new ArrayList<Grocery>();
 	
 	/**
@@ -176,6 +178,14 @@ public class User implements Serializable {
 	
 	public void removeEmployedGrocery(Grocery grocery) {
 		this.employedGroceries.remove(grocery);
+	}
+	
+	public void addOwnedGrocery(Grocery grocery) {
+		this.groceries.add(grocery);
+	}
+	
+	public void removeOwnedGrocery(Grocery grocery) {
+		this.groceries.remove(grocery);
 	}
 }
 
