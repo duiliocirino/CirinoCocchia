@@ -1,6 +1,7 @@
 package src.main.java.services.reservationManagement.interfaces;
 
 import java.util.Date;
+import java.util.List;
 
 import src.main.java.exceptions.CLupException;
 import src.main.java.model.Position;
@@ -45,6 +46,13 @@ public abstract class ReservationHandlerModule extends ReservationManagement{
 	 * @throws CLupException if the reservation with that id is not found
 	 */
 	public abstract int closeReservation(int idreservation) throws CLupException;
+	/**
+	 * Retrieves all the reservations made for a certain grocery
+	 * @param idgrocery id of the grocery from which retrieve the reservations
+	 * @return list of all the reservations of all types present on the DB
+	 * @throws CLupException in the case in which there is no grocery with that id
+	 */
+	public abstract List<Reservation> getAllReservationsOfGrocery(int idgrocery) throws CLupException;
 	/**
 	 * @return gets the instance of the implementation of this class
 	 */

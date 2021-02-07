@@ -2,6 +2,8 @@ package src.main.java.services.reservationManagement.implementation;
 
 
 import java.util.Date;
+import java.util.List;
+
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 
@@ -105,9 +107,22 @@ public class ReservationHandlerImplementation extends ReservationHandlerModule {
 		
 		return 0;
 	}
+	
+	@Override
+	public List<Reservation> getAllReservationsOfGrocery(int idgrocery) throws CLupException {
+		Grocery grocery = grocTools.findGrocery(idgrocery);
+
+		if(grocery == null) {
+			throw new CLupException("There is no grocery with that id");
+		}
+		
+		return resTools.findAllByGrocery(grocery);
+	}
 			
 	protected void invokeEstimateTime(Reservation reservation, Position position) throws CLupException {
 		timeEstimationMod.estimateTime(reservation, position);
 	}
+
+
 	
 }
