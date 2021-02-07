@@ -59,12 +59,25 @@
     <label class="titles">Your Employees</label>
     <div class="generic-container">
     	<table>
+    		<tr>
+    			<td>
+    				<span class="subtitles">User ID</span>
+    			</td>
+    			<td>
+    				<span class="subtitles">Employed grocery name</span>
+    			</td>
+    			<td>
+    				<span class="subtitles">Username employee</span>
+    			</td>
+    			<td>
+    				<span class="subtitles">Email employee</span>
+    			</td>
     		<tr th:each="employee: ${employees}">
     			<td>
     				<span class="normal-text" th:text="${employee.iduser}"></span>
     			</td>
     			<td>
-    				<span class="normal-text" th:text="${employee.getEmployedGroceries().get(0).name}"></span>
+    				<span class="normal-text" th:text="${employee.employedGroceries[0].name}"></span>
     			</td>
     			<td>
     				<span class="normal-text" th:text="${employee.username}"></span>
@@ -73,8 +86,8 @@
     				<span class="normal-text" th:text="${employee.email}"></span>
     			</td>
     			<td>
-    				<form th:action="@{/RemoveEmployee(employeeId=${employee.iduser}, groceryId=${employee.getEmployedGroceries().get(0).groceryId})}" method="post" >
-    					<button type="submit">Delete</button>
+    				<form th:action="@{/RemoveEmployee(employeeId=${employee.iduser}, groceryId=${employee.employedGroceries[0].idgrocery})}" method="post" >
+    					<button type="submit">Fire</button>
     				</form>
     			</td>
     		</tr>

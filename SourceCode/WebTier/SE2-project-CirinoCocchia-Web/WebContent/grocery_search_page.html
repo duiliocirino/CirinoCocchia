@@ -81,8 +81,8 @@
             <span class="normal-text" th:text="${reservation.estimatedTime}">100</span><br>
             <span class="normal-text" th:text="'User ID: ' + ${reservation.customer.iduser}">100</span><br>
             <span class="normal-text" th:text="${reservation.status}">100</span><br>
-            <a class="link-style" th:href="@{/SetIntoTheStore(reservationId=${idreservation}, groceryId=${groceryId})}">Set Into</a>
-            <a class="link-style" th:href="@{/SetOutTheStore(reservationId=${idreservation}, groceryId=${groceryId})}">Set Out</a>
+            <a class="link-style" th:href="@{/SetIntoTheStore(reservationId=${reservation.idreservation}, groceryId=${groceryId})}">Set Into</a>
+            <a class="link-style" th:href="@{/SetOutTheStore(reservationId=${reservation.idreservation}, groceryId=${groceryId})}">Set Out</a>
             <a class="link-style" th:href="@{/DeleteReservation(reservationId=${reservation.idreservation}, groceryId=${groceryId})}">Remove</a>
         </div>
     </div>

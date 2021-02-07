@@ -72,13 +72,13 @@ public class Queue implements Serializable {
 	}
 
 	public void addReservation(Reservation reservation) {
-		this.reservations.add(reservation);
 		reservation.setStatus(ReservationStatus.ALLOWED);
+		this.reservations.add(reservation);
 	}
 	
 	public void removeReservation(Reservation reservation) {
-		this.reservations.remove(reservation);
 		reservation.setStatus(ReservationStatus.CLOSED);
+		this.reservations.remove(reservation);
 	}
 	
 	/**

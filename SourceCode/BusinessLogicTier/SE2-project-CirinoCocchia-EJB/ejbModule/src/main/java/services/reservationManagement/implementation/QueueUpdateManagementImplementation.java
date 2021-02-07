@@ -76,7 +76,12 @@ public class QueueUpdateManagementImplementation extends QueueUpdateManagement{
 			throw new CLupException("id of the reservation passed not existent on the DB");
 		}
 		
-		reservation.setStatus(ReservationStatus.CLOSED);		
+		invokeCloseReservation(idreservation);		
+	}
+
+	protected void invokeCloseReservation(int idreservation) throws CLupException {
+		reservationHandler.closeReservation(idreservation);
+		
 	}
 
 	@Override
@@ -98,9 +103,17 @@ public class QueueUpdateManagementImplementation extends QueueUpdateManagement{
 		TimerTask task = new TimerTask() {
 			public void run() {
 				// align the reservation with the one on the DB
-				resTools.refreshReservation(reservation);
-				if(reservation.getStatus() == ReservationStatus.OPEN) {
-					queue.addReservation(reservation);
+				Reservation reservationGet = resTools.findReservation(reservation.getIdreservation());
+				if(reservationGet != null) {
+					System.out.println("resrvation not null");
+					//resTools.refreshReservation(reservationGet);
+					System.out.println("refreshed reservation");
+					if(reservationGet.getStatus() == ReservationStatus.OPEN) {
+						System.out.println("resrvation OPEN");
+						//reservationGet.setStatus(ReservationStatus.ALLOWED);
+						queue.addReservation(reservationGet);
+						System.out.println("resrvation added to queue");
+					}
 				}
 			}
 		};

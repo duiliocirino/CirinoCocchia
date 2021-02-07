@@ -65,7 +65,7 @@ public class SetIntoTheStore extends HttpServlet {
 		Integer idreservation = null;
 		Integer groceryId = null;
 		try {
-			idreservation = Integer.parseInt(request.getParameter("reservationid"));
+			idreservation = Integer.parseInt(request.getParameter("reservationId"));
 			groceryId = Integer.parseInt(request.getParameter("groceryId"));
 		} catch (NumberFormatException | NullPointerException e) {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Incorrect param values");
@@ -98,7 +98,7 @@ public class SetIntoTheStore extends HttpServlet {
 		final WebContext ctx = new WebContext(request, response, getServletContext(), request.getLocale());
 		ctx.setVariable("groceryId", groceryId);
 		String ctxpath = getServletContext().getContextPath();
-		String path = ctxpath + "/GetReservationPage";
+		String path = ctxpath + "/GoToHomePage";
 		response.sendRedirect(path);
 	}
 }
