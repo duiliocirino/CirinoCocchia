@@ -180,6 +180,10 @@ public class QueueUpdateManagementTest {
 			}
 			return null;
 		}
+		
+		protected void invokeCloseReservation(int idreservation) throws CLupException {
+			reservationOpen.setStatus(ReservationStatus.CLOSED);
+		}
 	}
 	
 	class MockResTools extends ReservationToolbox {

@@ -91,6 +91,7 @@ public class Queue implements Serializable {
 				.collect(Collectors.toList())
 				.size();
 		int max = grocery.getMaxSpotsInside();
+		System.out.println("The store is full: " + (inside==max));
 		
 		return(inside == max);
 	}

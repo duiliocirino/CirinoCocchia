@@ -62,6 +62,8 @@ public class ReservationHandlerImplementation extends ReservationHandlerModule {
 		if(reservation == null) {
 			throw new CLupException("Can't remove a null reservation");
 		}
+		
+		reservation = resTools.findReservation(reservation.getIdreservation());
 			
 		if(reservation.getStatus() == ReservationStatus.ALLOWED ||
 				reservation.getStatus() == ReservationStatus.ENTERED) {
@@ -101,10 +103,10 @@ public class ReservationHandlerImplementation extends ReservationHandlerModule {
 			throw new CLupException("Can't close the reservation");
 		}
 		// this operation closes the reservation too
-		reservation.getQueue().removeReservation(reservation);
-		
-		resTools.detachReservation(reservation);
-		
+		reservation.setStatus(ReservationStatus.CLOSED);
+
+		System.out.println("reservation " + reservation.getIdreservation() + " is now " +
+				reservation.getStatus());
 		return 0;
 	}
 	

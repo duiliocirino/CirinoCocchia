@@ -31,8 +31,11 @@ public class ReservationHandlerTest {
 	private final int IDGROCERY_NOT_DB = 10;
 	private final int IDQUEUE = 1;
 	private final int IDRESERVATION = 1;
+	private final int IDRESERVATION_OPEN = 2;
 	private final int IDRESERVATION_NOT_DB = 10;
 	private final Position CUST_POSITION = new Position(0, 0);
+	
+	private Reservation reservationOpen;
 	
 	private ReservationHandlerModule resMod;
 	private boolean cancelInvoked = false;
@@ -128,19 +131,20 @@ public class ReservationHandlerTest {
 	
 	@Test
 	public void testRemoveReservationOpened() {
-		Reservation reservation = new Reservation();
+		reservationOpen = new Reservation();
 		User customer = new User();
-		reservation.setStatus(ReservationStatus.OPEN);
-		reservation.setQueueTimer(new MockTimer());
-		reservation.setCustomer(customer);
+		reservationOpen.setIdreservation(IDRESERVATION_OPEN);
+		reservationOpen.setStatus(ReservationStatus.OPEN);
+		reservationOpen.setQueueTimer(new MockTimer());
+		reservationOpen.setCustomer(customer);
 		
 		try {
-			reservation = resMod.removeReservation(reservation);
+			reservationOpen = resMod.removeReservation(reservationOpen);
 		} catch (CLupException e) {
 			fail("Should not reach this line");
 		}
 		
-		assertEquals(ReservationStatus.CLOSED, reservation.getStatus());
+		assertEquals(ReservationStatus.CLOSED, reservationOpen.getStatus());
 		assertTrue(cancelInvoked);
 	}
 	
@@ -160,7 +164,6 @@ public class ReservationHandlerTest {
 	@Test
 	public void testCloseReservation() {
 		Reservation reservation = resMod.getReservation(IDRESERVATION);
-		Queue queue = reservation.getQueue();
 		assertEquals(ReservationStatus.ALLOWED, reservation.getStatus());
 		reservation.setStatus(ReservationStatus.ENTERED);
 		int test = -1;
@@ -172,7 +175,6 @@ public class ReservationHandlerTest {
 		}
 		
 		assertEquals(ReservationStatus.CLOSED, reservation.getStatus());
-		assertFalse(queue.getReservations().contains(reservation));
 		assertNotNull(resMod.getReservation(IDRESERVATION));
 		assertEquals(0, test);
 	}
@@ -291,6 +293,8 @@ public class ReservationHandlerTest {
 		public Reservation findReservation(int idreservation) {
 			if(idreservation == IDRESERVATION) {
 				return oldReservation;
+			} else if(idreservation == IDRESERVATION_OPEN) {
+				return reservationOpen;
 			}
 			return null;
 		}
