@@ -131,8 +131,8 @@ public class DeleteReservation extends HttpServlet {
 		final WebContext ctx = new WebContext(request, response, getServletContext(), request.getLocale());
 		ctx.setVariable("groceryId", groceryId);
 		String ctxpath = getServletContext().getContextPath();
-		String path = ctxpath + "/GetReservationPage";
-		templateEngine.process(path, ctx, response.getWriter());
+		String path = ctxpath + "/GoToHomePage";
+		response.sendRedirect(path);
 	}
 
 }

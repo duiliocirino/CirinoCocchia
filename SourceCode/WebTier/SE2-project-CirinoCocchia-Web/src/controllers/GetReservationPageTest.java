@@ -26,9 +26,11 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import src.main.java.exceptions.CLupException;
 import src.main.java.model.Grocery;
+import src.main.java.model.Reservation;
 import src.main.java.model.User;
 import src.main.java.services.accountManagement.implementation.LoginModuleImplementation;
 import src.main.java.services.groceryManagement.implementation.GroceryHandlerModuleImplementation;
+import src.main.java.services.reservationManagement.implementation.ReservationHandlerImplementation;
 import src.main.java.utils.Roles;
 
 /**
@@ -41,6 +43,7 @@ public class GetReservationPageTest {
 	@Mock HttpSession session;
 	@Mock LoginModuleImplementation loginModule;
 	@Mock GroceryHandlerModuleImplementation groModule;
+	@Mock ReservationHandlerImplementation resModule;
 	GetReservationPage controllerServlet;
 	final String groceryData = "groceryData";
 	final String date = "2021-02-05";
@@ -48,7 +51,7 @@ public class GetReservationPageTest {
 	
 	@Before
 	public void setup() throws IOException, ServletException {
-		controllerServlet = spy(new MockGetReservationPage(loginModule, groModule));
+		controllerServlet = spy(new MockGetReservationPage(loginModule, groModule, resModule));
 		doNothing().when(controllerServlet).getTemplate(any(), any(), any(), anyInt());
 		when(req.getSession()).thenReturn(session, session);
 	}
@@ -119,7 +122,7 @@ public class GetReservationPageTest {
 		groceries.add(grocery);
 		user.setGroceries(groceries);
 		
-		when(loginModule.checkCredentials(any(), any())).thenThrow(new CLupException(""));
+		when(resModule.getAllReservationsOfGrocery(anyInt())).thenThrow(new CLupException(""));
 		
 		when(session.getAttribute("user")).thenReturn(user);
 		when(req.getParameter("groceryId")).thenReturn("123");
@@ -146,8 +149,10 @@ public class GetReservationPageTest {
 		groceries.add(grocery);
 		user.setGroceries(groceries);
 		
+		List<Reservation> reservations = new ArrayList<>();
+		
 		when(loginModule.checkCredentials(any(), any())).thenReturn(user);
-		when(groModule.getGrocery(anyInt())).thenReturn(grocery);
+		when(resModule.getAllReservationsOfGrocery(anyInt())).thenReturn(reservations);
 		when(session.getAttribute("user")).thenReturn(user);
 		when(req.getParameter("groceryId")).thenReturn("123");
 		
@@ -163,6 +168,8 @@ public class GetReservationPageTest {
 		User user = new User();
 		user.setRole(Roles.MANAGER);
 		
+
+		List<Reservation> reservations = new ArrayList<>();
 		List<Grocery> groceries = new ArrayList<>();
 		
 		Grocery grocery = new Grocery();
@@ -173,7 +180,7 @@ public class GetReservationPageTest {
 		user.setGroceries(groceries);
 		
 		when(loginModule.checkCredentials(any(), any())).thenReturn(user);
-		when(groModule.getGrocery(anyInt())).thenReturn(grocery);
+		when(resModule.getAllReservationsOfGrocery(anyInt())).thenReturn(reservations);
 		when(session.getAttribute("user")).thenReturn(user);
 		when(req.getParameter("groceryId")).thenReturn("123");
 		
@@ -187,9 +194,10 @@ public class GetReservationPageTest {
 
 		private static final long serialVersionUID = 1L;
 		
-		public MockGetReservationPage(LoginModuleImplementation loginModule, GroceryHandlerModuleImplementation groModule) {
+		public MockGetReservationPage(LoginModuleImplementation loginModule, GroceryHandlerModuleImplementation groModule, ReservationHandlerImplementation resModule) {
 			this.loginModule = loginModule;
 			this.groModule = groModule;
+			this.resModule = resModule;
 		}
 	}
 }

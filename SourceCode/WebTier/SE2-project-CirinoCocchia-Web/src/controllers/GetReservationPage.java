@@ -1,6 +1,7 @@
 package controllers;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.ejb.EJB;
@@ -17,11 +18,12 @@ import org.thymeleaf.context.WebContext;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
 
-import src.main.java.model.Grocery;
-import src.main.java.model.Queue;
+import src.main.java.model.Reservation;
 import src.main.java.model.User;
 import src.main.java.services.accountManagement.implementation.LoginModuleImplementation;
 import src.main.java.services.groceryManagement.implementation.GroceryHandlerModuleImplementation;
+import src.main.java.services.reservationManagement.implementation.ReservationHandlerImplementation;
+import src.main.java.utils.ReservationStatus;
 import src.main.java.utils.Roles;
 
 /**
@@ -36,6 +38,8 @@ public class GetReservationPage extends HttpServlet {
 	protected LoginModuleImplementation loginModule;
 	@EJB
 	protected GroceryHandlerModuleImplementation groModule;
+	@EJB
+	protected ReservationHandlerImplementation resModule;
        
     /**
      * Class constructor.
@@ -67,6 +71,7 @@ public class GetReservationPage extends HttpServlet {
 		// GET AND CHECK PARAMETERS
 		
 		Integer groceryId = null;
+		List<Reservation> reservations = null;
 		
 		try {
 			groceryId = Integer.parseInt(request.getParameter("groceryId"));
@@ -82,6 +87,7 @@ public class GetReservationPage extends HttpServlet {
 		// GET UP TO DATE QUEUE OF THE GROCERY
 		
 		try {
+			reservations = resModule.getAllReservationsOfGrocery(groceryId);
 			user = loginModule.checkCredentials(user.getUsername(), user.getPassword());
 			session.setAttribute("user", user);
 		} catch (Exception e) {
@@ -89,12 +95,9 @@ public class GetReservationPage extends HttpServlet {
 			return;
 		}
 		
-		Grocery grocery = groModule.getGrocery(groceryId);
-		Queue queue = grocery.getQueue();
-		
 		// RETURN THE USER TO THE RIGHT VIEW
 		
-		getTemplate(request, response, queue, groceryId);
+		getTemplate(request, response, reservations, groceryId);
 	}
 	
 	/**
@@ -105,9 +108,9 @@ public class GetReservationPage extends HttpServlet {
 	 * @param groceryId 
 	 * @throws IOException
 	 */
-	protected void getTemplate(HttpServletRequest request, HttpServletResponse response, Queue queue, Integer groceryId) throws IOException {
+	protected void getTemplate(HttpServletRequest request, HttpServletResponse response, List<Reservation> reservations, Integer groceryId) throws IOException {
 		final WebContext ctx = new WebContext(request, response, request.getServletContext(), request.getLocale());
-		ctx.setVariable("reservations", queue.getReservations());
+		ctx.setVariable("reservations", reservations.stream().filter(x -> (x.getStatus() == ReservationStatus.ALLOWED || x.getStatus() == ReservationStatus.ENTERED)).collect(Collectors.toList()));
 		ctx.setVariable("groceryId", groceryId);
 		String path = "grocery_search_page.html";
 		templateEngine.process(path, ctx, response.getWriter());
