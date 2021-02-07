@@ -18,9 +18,9 @@ import org.thymeleaf.context.WebContext;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
 
-import src.main.java.model.Grocery;
 import src.main.java.model.Position;
 import src.main.java.model.User;
+import src.main.java.services.accountManagement.implementation.LoginModuleImplementation;
 import src.main.java.services.groceryManagement.implementation.GroceryHandlerModuleImplementation;
 
 /**
@@ -33,6 +33,8 @@ public class AddGrocery extends HttpServlet {
 	private TemplateEngine templateEngine;
 	@EJB
 	protected GroceryHandlerModuleImplementation groModule;
+	@EJB
+	protected LoginModuleImplementation loginModule;
 	
     /**
      * Class constructor.
@@ -99,14 +101,14 @@ public class AddGrocery extends HttpServlet {
 		// CREATE NEW GROCERY WITH GIVEN DETAILS
 		
 		try {
-			Grocery grocery = groModule.addGrocery(name, new Position(latitude, longitude), maxSpotsInside, user.getIduser(), openingHour, closingHour);
+			groModule.addGrocery(name, new Position(latitude, longitude), maxSpotsInside, openingHour, closingHour, user.getIduser());
 			if(user.getGroceries() == null) {
 				user.setGroceries(new ArrayList<>());
 			} 
-			user.getGroceries().add(grocery);
+			user = loginModule.getUserById(user.getIduser());
 			session.setAttribute("user", user);
 		} catch (Exception e) {
-			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Not possible to create grocery");
+			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
 			return;
 		}
 

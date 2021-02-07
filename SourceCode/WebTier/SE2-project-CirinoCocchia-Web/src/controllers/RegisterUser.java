@@ -100,22 +100,18 @@ public class RegisterUser extends HttpServlet {
 		User user = null;
 		
 		try {
-			//loginModule = LoginModule.getInstance();
-			
 			user = loginModule.checkCredentials(username, password);
 		} catch (Exception e) {
-			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Internal server error, retry later");
+			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
 			return;
 		}
 
 		if (user == null) {
 			String error = null;
 			try {
-				//regModule = RegistrationModule.getInstance();
-				
 				regModule.register(role, telephoneNum, username, password, email);
 			} catch (Exception e) {
-				error = "Bad database insertion";
+				error = e.getMessage();
 			}
 			if(error != null) {
 				response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, error);

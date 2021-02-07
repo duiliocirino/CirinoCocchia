@@ -117,7 +117,7 @@ public class RemoveEmployee extends HttpServlet {
 			user = loginModule.getUserById(user.getIduser());
 			session.setAttribute("user", user);
 		} catch (Exception e) {
-			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Employee not deleteable");
+			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
 			return;
 		}
 

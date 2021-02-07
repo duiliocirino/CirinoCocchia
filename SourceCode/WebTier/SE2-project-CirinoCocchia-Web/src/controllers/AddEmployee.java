@@ -82,30 +82,33 @@ public class AddEmployee extends HttpServlet {
 		String username = null;
 		String password = null;
 		String email = null;
-		Double telephoneNum = null;
+		String telephoneNum = null;
 		Integer groceryId = null;
+		String error = null;
 		
 		try {
 		username = StringEscapeUtils.escapeJava(request.getParameter("username"));
 		email = StringEscapeUtils.escapeJava(request.getParameter("email"));
 		password = StringEscapeUtils.escapeJava(request.getParameter("password"));
 		groceryId = Integer.parseInt(request.getParameter("groceryId"));
-		telephoneNum = Double.parseDouble(request.getParameter("telephoneNumber"));
+		telephoneNum = StringEscapeUtils.escapeJava(request.getParameter("telephoneNumber"));
+		
+		if(username == null || email == null || password == null || groceryId == null ||
+				telephoneNum == null || username.isEmpty() || email.isEmpty() || password.isEmpty() || Double.parseDouble(telephoneNum) < 100000000) throw new NumberFormatException("Incorrect or missing param values");
 		} catch (NumberFormatException | NullPointerException e) {
 			isBadRequest = true;
+			error = e.getMessage();
 		}
 		
 		//CHECK THAT THE MANAGER OWNS THE GROCERY AND THE GROCERY EXISTS
 		
 		if(!user.getGroceries().stream().map(x->x.getIdgrocery()).collect(Collectors.toList()).contains(groceryId)) {
 			isBadRequest = true;
+			error = "You don't own the given grocery";
 		}
 		
-		isBadRequest = isBadRequest || username == null || email == null || password == null || groceryId == null ||
-				telephoneNum == null || username.isEmpty() || email.isEmpty() || password.isEmpty() || telephoneNum < 100000000;
-		
 		if (isBadRequest) {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Incorrect or missing param values");
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, error);
 			return;
 		}
 			
@@ -117,7 +120,7 @@ public class AddEmployee extends HttpServlet {
 			user = loginModule.checkCredentials(user.getUsername(), user.getPassword());
 			session.setAttribute("user", user);
 		} catch (Exception e) {
-			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Not possible to create profile");
+			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
 			return;
 		}
 

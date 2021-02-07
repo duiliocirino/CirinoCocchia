@@ -246,7 +246,7 @@ public class MakeReservationTest {
 		controllerServlet.doGet(req, res);
 		
 		verify(req, times(3)).getParameter(anyString());
-		verify(res).sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Not possible to create reservation");
+		verify(res).sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "");
 	}
 	
 	@Test

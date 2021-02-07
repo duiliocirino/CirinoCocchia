@@ -40,7 +40,7 @@
 
             <li>
                 <a th:href="@{/GoToEmployeePage}">
-                    <i class="fa fa-address-card-o" aria-hidden="true"></i>
+                    <i class="fa fa-address-card-o fa-lg" aria-hidden="true"></i>
                     <span class="nav-text">Employees Page</span>
                 </a>
             </li>
@@ -66,6 +66,7 @@
         		<i class="fa fa-times-circle-o" aria-hidden="true"></i>
         	</a><br>
             <span class="subtitles" th:text="${grocery.name}">Grocery name</span><br>
+            <span class="subtitles" th:text="'ID:' + ${grocery.idgrocery}">ID: 090909</span><br>
             <a class="link-style" th:href="@{/GetReservationPage(groceryId=${grocery.idgrocery})}">Search</a>
             <a class="link-style" th:href="@{/GetGroceryData(groceryId=${grocery.idgrocery})}">Inspect</a>
             <a class="link-style" th:href="@{/EditGroceryInfo(groceryId=${grocery.idgrocery})}">Edit</a>
@@ -77,6 +78,8 @@
 		<input type="text" name="latitude" placeholder="latitude">
 		<input type="text" name="longitude" placeholder="longitude">
 		<input type="number" name="maxSpots" placeholder="spots inside">
+		<input type="number" name="openHour" placeholder="0-24">
+		<input type="number" name="closeHour" placeholder="0-24">
 		<button class="subtitles" type="submit">Add grocery</button>
 	</form>
 

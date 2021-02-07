@@ -133,7 +133,7 @@ public class GetGroceryDataTest {
 		controllerServlet.doGet(req, res);
 		
 		verify(req, times(3)).getParameter(anyString());
-		verify(res).sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Data not retrievable");
+		verify(res).sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "");
 	}
 	
 

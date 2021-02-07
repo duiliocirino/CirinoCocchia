@@ -282,7 +282,7 @@ public class EditGroceryInfoTest {
 		controllerServlet.doPost(req, res);
 		
 		verify(req, times(3)).getParameter(anyString());
-		verify(res).sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Not possible to edit grocery");
+		verify(res).sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "");
 	}
 
 	@Test

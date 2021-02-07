@@ -101,7 +101,7 @@ public class CheckLogin extends HttpServlet {
 		try {
 			user = loginModule.checkCredentials(usrn, pwd);
 		} catch (NonUniqueResultException | CLupException e) {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Could not check credentials");
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
 			return;
 		}
 

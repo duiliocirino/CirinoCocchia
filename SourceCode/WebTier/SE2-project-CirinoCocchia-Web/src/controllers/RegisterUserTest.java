@@ -158,7 +158,7 @@ public class RegisterUserTest {
 		controllerServlet.doPost(req, res);
 		
 		verify(req, times(5)).getParameter(anyString());
-		verify(res).sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Internal server error, retry later");
+		verify(res).sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "");
 	}
 	
 	@Test
@@ -191,7 +191,7 @@ public class RegisterUserTest {
 		controllerServlet.doPost(req, res);
 		
 		verify(req, times(5)).getParameter(anyString());
-		verify(res).sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Bad database insertion");
+		verify(res).sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "");
 	}
 	
 	@Test

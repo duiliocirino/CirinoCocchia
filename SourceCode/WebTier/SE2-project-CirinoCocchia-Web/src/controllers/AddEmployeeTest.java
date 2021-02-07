@@ -110,7 +110,7 @@ public class AddEmployeeTest {
 		controllerServlet.doPost(req, res);
 		
 		verify(req, times(4)).getParameter(anyString());
-		verify(res).sendError(HttpServletResponse.SC_BAD_REQUEST, "Incorrect or missing param values");
+		verify(res).sendError(HttpServletResponse.SC_BAD_REQUEST, "You don't own the given grocery");
 	}
 	
 	@Test
@@ -172,7 +172,7 @@ public class AddEmployeeTest {
 		controllerServlet.doPost(req, res);
 		
 		verify(req, times(5)).getParameter(anyString());
-		verify(res).sendError(HttpServletResponse.SC_BAD_REQUEST, "Incorrect or missing param values");
+		verify(res).sendError(HttpServletResponse.SC_BAD_REQUEST, "You don't own the given grocery");
 	}
 
 	@Test
@@ -210,7 +210,7 @@ public class AddEmployeeTest {
 		controllerServlet.doPost(req, res);
 		
 		verify(req, times(5)).getParameter(anyString());
-		verify(res).sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Not possible to create profile");
+		verify(res).sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, null);
 	}	
 	
 	@Test

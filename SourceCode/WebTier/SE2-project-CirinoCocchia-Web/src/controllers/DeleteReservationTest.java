@@ -238,7 +238,7 @@ public class DeleteReservationTest {
 		controllerServlet.doPost(req, res);
 		
 		verify(req, times(2)).getParameter(anyString());
-		verify(res).sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Reservation not closable");
+		verify(res).sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "");
 	}
 	
 	@Test

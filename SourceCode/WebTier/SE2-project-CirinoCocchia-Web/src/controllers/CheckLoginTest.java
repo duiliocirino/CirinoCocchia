@@ -107,7 +107,7 @@ public class CheckLoginTest {
 		controllerServlet.doPost(req, res);
 		
 		verify(req, times(2)).getParameter(anyString());
-		verify(res).sendError(HttpServletResponse.SC_BAD_REQUEST, "Could not check credentials");
+		verify(res).sendError(HttpServletResponse.SC_BAD_REQUEST, "");
 	}
 	
 	@Test

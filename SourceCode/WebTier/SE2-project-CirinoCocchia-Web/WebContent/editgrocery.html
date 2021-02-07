@@ -37,7 +37,7 @@
 
             <li>
                 <a th:href="@{/GoToEmployeePage}">
-                    <i class="fa fa-address-card-o" aria-hidden="true"></i>
+                    <i class="fa fa-address-card-o fa-lg" aria-hidden="true"></i>
                     <span class="nav-text">Employees Page</span>
                 </a>
             </li>
@@ -74,6 +74,14 @@
                 <tr>
                     <td><label class="subtitles">Max Spots Inside</label></td>
                     <td><input type="number" name="maxSpots" th:placeholder="${grocery.maxSpotsInside}"></td>
+                </tr>
+                <tr>
+                    <td><label class="subtitles">Max Spots Inside</label></td>
+                    <td><input type="number" name="openHour" th:placeholder="${grocery.maxSpotsInside}"></td>
+                </tr>
+                <tr>
+                    <td><label class="subtitles">Max Spots Inside</label></td>
+                    <td><input type="number" name="closeHour" th:placeholder="${grocery.maxSpotsInside}"></td>
                 </tr>
             </table>
             <input id="editGroceryButton" type="submit" value="Send info">

@@ -93,7 +93,7 @@ public class GoToSearchPage extends HttpServlet {
 			favoriteGroceries = searchModule.getFavouriteGroceries(user.getIduser(), nFavourites);
 			nearGroceries = searchModule.getNearGroceries(new Position(latitude, longitude), radius);
 		} catch(Exception e) {
-			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Couldn't retrieve data from server");
+			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
 			return;
 		}
 

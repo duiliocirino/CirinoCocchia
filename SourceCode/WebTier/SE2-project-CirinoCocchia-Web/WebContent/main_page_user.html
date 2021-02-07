@@ -85,8 +85,8 @@
     
         <form th:action="@{/GoToSearchPage}" style="text-align: center">
             <button type="submit" class="search-button"><i class="fa fa-search" aria-hidden="true"></i></button>
-            <input type="search" class="searchbar" name="latitude" style="width: 64px" placeholder="latitude eg:37">
-            <input type="search" class="searchbar" name="longitude" style="width: 64px" placeholder="longitude eg:10">
+            <input type="search" class="searchbar" name="latitude" id="lat" style="width: 64px" placeholder="latitude eg:37">
+            <input type="search" class="searchbar" name="longitude" id="lng" style="width: 64px" placeholder="longitude eg:10">
             <input type="search" class="searchbar" name="radius" style="width: 64px" placeholder="radius eg:1000" ><br>
             <span th:text="${message}">Error</span>
         </form>

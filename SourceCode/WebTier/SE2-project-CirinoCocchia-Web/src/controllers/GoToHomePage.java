@@ -78,6 +78,7 @@ public class GoToHomePage extends HttpServlet {
 		try {
 			user = loginModule.getUserById(user.getIduser());
 			if(user == null) throw new Exception();
+			session.setAttribute("user", user);
 		} catch(Exception e) {
 			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Couldn't retrieve data from server");
 			return;

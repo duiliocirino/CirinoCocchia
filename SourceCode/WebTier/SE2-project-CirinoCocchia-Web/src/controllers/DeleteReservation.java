@@ -83,7 +83,6 @@ public class DeleteReservation extends HttpServlet {
 			groceryId = Integer.parseInt(request.getParameter("groceryId"));
 			if (groceryId == null || reservationId == null) throw new NullPointerException();
 		} catch (NumberFormatException | NullPointerException e) {
-			// for debugging only e.printStackTrace();
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Incorrect or missing param values");
 			return;
 		}
@@ -113,7 +112,7 @@ public class DeleteReservation extends HttpServlet {
 			user = loginModule.checkCredentials(user.getUsername(), user.getPassword());
 			session.setAttribute("user", user);
 		} catch (CLupException e) {
-			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Reservation not closable");
+			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
 			return;
 		}
 

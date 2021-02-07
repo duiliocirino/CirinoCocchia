@@ -110,7 +110,7 @@ public class RemoveGroceryTest {
 		controllerServlet.doPost(req, res);
 		
 		verify(req, times(1)).getParameter(anyString());
-		verify(res).sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Grocery not deleteable");
+		verify(res).sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "");
 	}
 	
 	@Test

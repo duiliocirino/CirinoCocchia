@@ -68,7 +68,6 @@ public class EditReservation extends HttpServlet {
 			idreservation = Integer.parseInt(request.getParameter("reservationid"));
 			groceryId = Integer.parseInt(request.getParameter("groceryId"));
 		} catch (NumberFormatException | NullPointerException e) {
-			// for debugging only e.printStackTrace();
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Incorrect param values");
 			return;
 		}
@@ -81,7 +80,7 @@ public class EditReservation extends HttpServlet {
 			}
 			queueModule.setIntoTheStore(idreservation);
 		} catch (Exception e) {
-			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Reservation not closable");
+			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
 			return;
 		}
 

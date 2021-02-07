@@ -127,7 +127,7 @@ public class EditProfileTest {
 		controllerServlet.doPost(req, res);
 		
 		verify(req, times(4)).getParameter(anyString());
-		verify(res).sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Not possible to update profile");
+		verify(res).sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "");
 	}
 
 	@Test

@@ -120,7 +120,7 @@ public class EditProfile extends HttpServlet {
 			user = regModule.editProfile(user.getIduser(), telephoneNum, username, password, email);
 			session.setAttribute("user", user);
 		} catch (Exception e) {
-			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Not possible to update profile");
+			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
 			return;
 		}
 

@@ -146,7 +146,7 @@ public class EditGroceryInfo extends HttpServlet {
 			//user.setGroceries(groceries);
 			session.setAttribute("user", user);
 		} catch (Exception e) {
-			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Not possible to edit grocery");
+			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
 			return;
 		}
 

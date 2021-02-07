@@ -127,7 +127,7 @@ public class GetReservationPageTest {
 		controllerServlet.doGet(req, res);
 		
 		verify(req, times(1)).getParameter(anyString());
-		verify(res).sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Couldn't retrieve data from server");
+		verify(res).sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "");
 	}
 	
 

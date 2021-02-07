@@ -115,7 +115,7 @@ public class GetGroceryData extends HttpServlet {
 				res.put(GroceryData.getMissionStatusFromInt(groceryData), monitorModule.getGroceryStats(groceryId, GroceryData.getMissionStatusFromInt(groceryData), startDate));
 			}
 		} catch (Exception e) {
-			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Data not retrievable");
+			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
 			return;
 		}
 		
