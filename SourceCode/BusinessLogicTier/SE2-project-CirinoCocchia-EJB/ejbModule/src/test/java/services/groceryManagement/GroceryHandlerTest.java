@@ -29,7 +29,10 @@ public class GroceryHandlerTest {
 	private final int MAX_SPOTS = 3;
 	private final int NEW_MAX_SPOTS = 4;
 	private final int OPENING_HOUR = 8;
+	private final int NEW_OPENING_HOUR = 7;
 	private final int CLOSING_HOUR = 20;
+	private final int NEW_CLOSING_HOUR = 21;
+	private final int WRONG_CLOSING_HOUR = 7;
 	private final int WRONG_HOUR1 = -1;
 	private final int WRONG_HOUR2 = 25;
 	private final int WRONG_CLOSING_HOUR1 = 7;
@@ -57,6 +60,8 @@ public class GroceryHandlerTest {
 		assertNotNull(newGrocery.getQueue());
 		assertEquals(NEW_NAME, newGrocery.getName());
 		assertEquals(NEW_MAX_SPOTS, newGrocery.getMaxSpotsInside());
+		assertEquals(OPENING_HOUR, newGrocery.getOpeningHour());
+		assertEquals(CLOSING_HOUR, newGrocery.getClosingHour());
 		assertEquals(IDOWNER, newGrocery.getOwner().getIduser());
 	}
 	
@@ -167,14 +172,17 @@ public class GroceryHandlerTest {
 		Grocery grocery = null;
 		
 		try {
-			grocery = grocMod.editGrocery(IDGROCERY, NEW_NAME, NEW_MAX_SPOTS);
+			grocery = grocMod.editGrocery(IDGROCERY, NEW_NAME, NEW_MAX_SPOTS, NEW_OPENING_HOUR, NEW_CLOSING_HOUR);
 		} catch (CLupException e) {
+			System.out.println(e.getMessage());
 			fail("Should not throw any exception");
 		}
 		
 		assertNotNull(grocery);
 		assertEquals(NEW_NAME, grocery.getName());
 		assertEquals(NEW_MAX_SPOTS, grocery.getMaxSpotsInside());
+		assertEquals(NEW_OPENING_HOUR, grocery.getOpeningHour());
+		assertEquals(NEW_CLOSING_HOUR, grocery.getClosingHour());
 	}
 	
 	@Test
@@ -182,7 +190,7 @@ public class GroceryHandlerTest {
 		Grocery grocery = null;
 		
 		try {
-			grocery = grocMod.editGrocery(IDGROCERY_NOT_DB, NEW_NAME, NEW_MAX_SPOTS);
+			grocery = grocMod.editGrocery(IDGROCERY_NOT_DB, NEW_NAME, NEW_MAX_SPOTS, OPENING_HOUR, CLOSING_HOUR);
 			fail("Should not reach this line");
 		} catch (CLupException e) {
 			assertTrue(true);
@@ -197,7 +205,7 @@ public class GroceryHandlerTest {
 		String blank = "    ";
 		
 		try {
-			grocery = grocMod.editGrocery(IDGROCERY_NOT_DB, blank, NEW_MAX_SPOTS);
+			grocery = grocMod.editGrocery(IDGROCERY_NOT_DB, blank, NEW_MAX_SPOTS, OPENING_HOUR, CLOSING_HOUR);
 			fail("Should not reach this line");
 		} catch (CLupException e) {
 			assertTrue(true);
@@ -211,7 +219,44 @@ public class GroceryHandlerTest {
 		Grocery grocery = null;
 		
 		try {
-			grocery = grocMod.editGrocery(IDGROCERY_NOT_DB, NAME, NEW_MAX_SPOTS);
+			grocery = grocMod.editGrocery(IDGROCERY_NOT_DB, NAME, NEW_MAX_SPOTS, OPENING_HOUR, CLOSING_HOUR);
+			fail("Should not reach this line");
+		} catch (CLupException e) {
+			assertTrue(true);
+		}
+		
+		assertNull(grocery);
+	}
+	
+	@Test
+	public void testEditGroceryWrongHour() {
+		Grocery grocery = null;
+		
+		try {
+			grocery = grocMod.editGrocery(IDGROCERY, NAME, NEW_MAX_SPOTS, WRONG_HOUR1, CLOSING_HOUR);
+			fail("Should not reach this line");
+		} catch (CLupException e) {
+			assertTrue(true);
+		}
+		
+		assertNull(grocery);
+		
+		try {
+			grocery = grocMod.editGrocery(IDGROCERY, NAME, NEW_MAX_SPOTS, WRONG_HOUR2, CLOSING_HOUR);
+			fail("Should not reach this line");
+		} catch (CLupException e) {
+			assertTrue(true);
+		}
+		
+		assertNull(grocery);
+	}
+	
+	@Test
+	public void testEditGroceryUncoherentHours() {
+		Grocery grocery = null;
+		
+		try {
+			grocery = grocMod.editGrocery(IDGROCERY_NOT_DB, NAME, NEW_MAX_SPOTS, NEW_OPENING_HOUR, WRONG_CLOSING_HOUR);
 			fail("Should not reach this line");
 		} catch (CLupException e) {
 			assertTrue(true);

@@ -75,6 +75,18 @@ public class GroceryHandlerModuleImplementation extends GroceryHandlerModule {
 			throw new CLupException("Can't find the grocery to edit");
 		}
 		
+		if(maxSpotsInside > 0) {
+			grocery.setMaxSpotsInside(maxSpotsInside);
+		}
+		
+		if(openingHour < 0 || openingHour > 24 || closingHour < 0 || closingHour > 24) {
+			throw new CLupException("You did not insert valid hours");
+		}
+		
+		if(openingHour >= closingHour) {
+			throw new CLupException("Hours are not coherent");
+		}
+		
 		if(name != null) {
 			if(name.isEmpty()) {
 				throw new CLupException("Can't edit the name of a grocery with a blank string");
@@ -86,18 +98,6 @@ public class GroceryHandlerModuleImplementation extends GroceryHandlerModule {
 			} else {
 				return null;
 			}
-		}
-		
-		if(maxSpotsInside > 0) {
-			grocery.setMaxSpotsInside(maxSpotsInside);
-		}
-		
-		if(openingHour < 0 || openingHour > 24 || closingHour < 0 || closingHour > 24) {
-			throw new CLupException("You did not insert valid hours");
-		}
-		
-		if(openingHour >= closingHour) {
-			throw new CLupException("Hours are not coherent");
 		}
 		
 		grocery.setClosingHour(closingHour);
