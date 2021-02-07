@@ -83,6 +83,7 @@ public class QueueUpdateManagementImplementation extends QueueUpdateManagement{
 	public Reservation lineUp(int iduser, int idgrocery, double lat, double lon) throws CLupException {
 		Position position = new Position(lat, lon);		
 		Reservation reservation = invokeAddReservation(iduser, idgrocery, ReservationType.LINEUP, null, position);
+
 		if(reservation == null) {
 			throw new CLupException("There was some error in creating the reservation");
 		} else {
@@ -119,6 +120,10 @@ public class QueueUpdateManagementImplementation extends QueueUpdateManagement{
 	protected Reservation invokeAddReservation(int iduser, int idgrocery, ReservationType type, Date date, Position position) throws CLupException {
 		return reservationHandler
 				.addReservation(iduser, idgrocery, ReservationType.LINEUP, null, position);
+	}
+	
+	protected void invokeEstimateTime(Reservation reservation, Position position) throws CLupException {
+		timeEstimationMod.estimateTime(reservation, position);
 	}
 
 }

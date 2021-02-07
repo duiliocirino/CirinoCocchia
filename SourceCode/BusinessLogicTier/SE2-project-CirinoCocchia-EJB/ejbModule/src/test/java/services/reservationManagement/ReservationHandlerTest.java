@@ -129,8 +129,10 @@ public class ReservationHandlerTest {
 	@Test
 	public void testRemoveReservationOpened() {
 		Reservation reservation = new Reservation();
+		User customer = new User();
 		reservation.setStatus(ReservationStatus.OPEN);
 		reservation.setQueueTimer(new MockTimer());
+		reservation.setCustomer(customer);
 		
 		try {
 			reservation = resMod.removeReservation(reservation);

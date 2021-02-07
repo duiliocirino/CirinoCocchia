@@ -146,7 +146,16 @@ public class User implements Serializable {
 	public List<Reservation> getReservations() {
 		return reservations;
 	}
-
+	
+	public void removeReservation(Reservation r) {
+		if(this.reservations.contains(r)) {
+			this.reservations.remove(r);
+		}
+	}
+	
+	public void addReservation(Reservation r) {
+		this.reservations.add(r);
+	}
 
 	public void setReservations(List<Reservation> reservations) {
 		this.reservations = reservations;

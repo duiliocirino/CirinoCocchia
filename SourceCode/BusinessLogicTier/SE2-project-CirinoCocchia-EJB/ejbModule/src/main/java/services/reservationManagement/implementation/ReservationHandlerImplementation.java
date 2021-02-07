@@ -33,7 +33,7 @@ public class ReservationHandlerImplementation extends ReservationHandlerModule {
 		if(grocery == null) {
 			throw new CLupException("Can't find the grocery in new reservation");
 		}
-		
+				
 		if(user == null) {
 			throw new CLupException("Can't find the user in new reservation");
 		}
@@ -44,11 +44,14 @@ public class ReservationHandlerImplementation extends ReservationHandlerModule {
 		// create a new Reservation object
 		Reservation newReservation = new Reservation(user, grocery, type, bookTime);
 		// persist it
-		resTools.persistReservation(newReservation);
 		
 		// create time estimation
 		invokeEstimateTime(newReservation, position);
+		// add the reservation to the ones made by the user
+		user.addReservation(newReservation);
 		
+		resTools.persistReservation(newReservation);
+
 		return newReservation;
 	}
 
@@ -64,12 +67,15 @@ public class ReservationHandlerImplementation extends ReservationHandlerModule {
 			queue.removeReservation(reservation);
 		} else {
 			if(reservation.getStatus() == ReservationStatus.OPEN) {
-				reservation.getQueueTimer().cancel();
+				if(reservation.getQueueTimer() != null) {
+					reservation.getQueueTimer().cancel();
+				}
 			}
 			
 			reservation.setStatus(ReservationStatus.CLOSED);
 		}
-		
+		User customer = reservation.getCustomer();
+		customer.removeReservation(reservation);
 		resTools.removeReservation(reservation);
 		
 		return reservation;

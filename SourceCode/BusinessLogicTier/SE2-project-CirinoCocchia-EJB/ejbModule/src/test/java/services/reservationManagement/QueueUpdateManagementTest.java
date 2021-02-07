@@ -129,6 +129,18 @@ public class QueueUpdateManagementTest {
 	}
 	
 	@Test
+	public void testOutTheStore() {
+		
+		try {
+			queueMod.setOutTheStore(IDRESERVATION_OPEN);
+		} catch (CLupException e) {
+			fail("Should not throw any exception");
+		}
+		
+		assertEquals(ReservationStatus.CLOSED, reservationOpen.getStatus());
+	}
+	
+	@Test
 	public void testLineUp() {	
 		assertNull(reservationOpen.getQueueTimer());
 		Calendar estTime = Calendar.getInstance();
