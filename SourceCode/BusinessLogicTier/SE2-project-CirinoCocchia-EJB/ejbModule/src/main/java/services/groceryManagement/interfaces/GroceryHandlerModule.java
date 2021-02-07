@@ -33,11 +33,13 @@ public abstract class GroceryHandlerModule extends GroceryManagement {
 	 * @param name new name of the grocery (if null, will not be edited)
 	 * @param maxSpotsInside new higher threshold number of people allowed to stay inside the store 
 	 * (if less or equal to zero, will not change, it is trated as null)
+	 * @param openingHour hour from which the grocery will be open
+	 * @param closingHour hour from which the grocery will be closed
 	 * @return persisted edited instance of the grocery just edited, null if the name was already in
 	 *  the database
 	 * @throws CLupException in the case in which the grocery is not found 
 	 */
-	public abstract Grocery editGrocery(int idgrocery, String name, int maxSpotsInside) throws CLupException;
+	public abstract Grocery editGrocery(int idgrocery, String name, int maxSpotsInside, int openingHour, int closingHour) throws CLupException;
 	/**
 	 * This method allows to remove all the informations related to a certain grocery
 	 * @param idgrocery id of the grocery to be deleted

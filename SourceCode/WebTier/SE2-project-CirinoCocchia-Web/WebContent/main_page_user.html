@@ -127,8 +127,9 @@
     <div th:if="${grocery} != null" class="generic-container-c" id="line-up">
 		<label class="titles">Line-Up</label>
         <form th:action="@{/MakeReservation}">
-        	<input type="text" name="latitude" id="lng" hidden>
-        	<input type="text" name="longitude" id="lat" hidden>
+        	<label class="subtitles">Your Position: </label>
+        	<input type="text" name="latitude" id="lng" placeholder="latitude">
+        	<input type="text" name="longitude" id="lat" placeholder="longitude">
         	<input type="text" name="groceryId" th:value="${grocery.idgrocery}" hidden>
         	<select>
         		<option value="0">MEDIUM</option>

@@ -110,16 +110,40 @@ public class EditGroceryInfo extends HttpServlet {
 		String name = null;
 		Integer groceryId = null;
 		String maxSpots = null;
+		String openingHour = null;
+		String closingHour = null;
 		
 		try {
 			name = StringEscapeUtils.escapeJava(request.getParameter("name"));
 			groceryId = Integer.parseInt(request.getParameter("groceryId"));
 			maxSpots = StringEscapeUtils.escapeJava(request.getParameter("maxSpots"));
+			openingHour = StringEscapeUtils.escapeJava(request.getParameter("openHour"));
+			closingHour = StringEscapeUtils.escapeJava(request.getParameter("closeHour"));
+			
 			if(name.isEmpty()) name = null;
+			
 			if(!maxSpots.isEmpty()) {
-				if(Integer.parseInt(maxSpots) < 1) maxSpots = null;
+				if(Integer.parseInt(maxSpots) < 1){ 
+					maxSpots = null;
+					isBadRequest = true;
+				}
 			} else maxSpots = null;
-			isBadRequest = isBadRequest || groceryId == null || ((name == null) && (maxSpots == null)) || 
+			
+			if(!openingHour.isEmpty()) {
+				if(Integer.parseInt(openingHour) < 0 || Integer.parseInt(openingHour) > 24) {
+					openingHour = null;
+					isBadRequest = true;
+				}
+			} else openingHour = null;
+			
+			if(!closingHour.isEmpty()) {
+				if(Integer.parseInt(closingHour) < 0 || Integer.parseInt(closingHour) > 24) {
+					closingHour = null;
+					isBadRequest = true;
+				}
+			} else closingHour = null;
+			
+			isBadRequest = isBadRequest || groceryId == null || ((name == null) && (maxSpots == null) && (openingHour == null) &&(closingHour == null))||
 					!user.getGroceries().stream().map(x -> x.getIdgrocery()).collect(Collectors.toList()).contains(groceryId);
 		} catch (NumberFormatException | NullPointerException e) {
 			isBadRequest = true;
@@ -134,17 +158,22 @@ public class EditGroceryInfo extends HttpServlet {
 			
 		// UPDATE GROCERY INFO AND OF THE USER
 		
-		final Integer id = groceryId;
-		Integer maxSpotsI = 0;
-		if(maxSpots != null) maxSpotsI = Integer.parseInt(maxSpots);
-		
 		try {
-			Grocery editedGro = groModule.editGrocery(groceryId, name, maxSpotsI);
-			//List<Grocery> groceries = user.getGroceries();
-			//groceries.removeIf(x -> x.getIdgrocery() == id);
-			//groceries.add(editedGro);
-			//user.setGroceries(groceries);
-			session.setAttribute("user", user);
+			Grocery oldGrocery = groModule.getGrocery(groceryId);
+
+			Integer maxSpotsI = 0;
+			if(maxSpots != null) maxSpotsI = Integer.parseInt(maxSpots);
+			
+			Integer openingHourI = 0;
+			if(openingHour != null) openingHourI = Integer.parseInt(openingHour);
+			else openingHourI = oldGrocery.getOpeningHour();
+			
+			Integer closingHourI = 0;
+			if(closingHour != null) closingHourI = Integer.parseInt(closingHour);
+			else closingHourI = oldGrocery.getClosingHour();
+			
+			
+			groModule.editGrocery(groceryId, name, maxSpotsI, openingHourI, closingHourI);
 		} catch (Exception e) {
 			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
 			return;

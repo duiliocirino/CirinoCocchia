@@ -20,11 +20,11 @@ import src.main.java.services.reservationManagement.implementation.QueueUpdateMa
 import src.main.java.services.reservationManagement.implementation.ReservationHandlerImplementation;
 
 /**
- * Servlet implementation class EditReservation.
- * This servlet is called to update the status of a reservation.
+ * Servlet implementation class SetIntoTheStore.
+ * This servlet is called to update the status of a reservation, letting the reservation inside the store.
  */
-@WebServlet("/EditReservation")
-public class EditReservation extends HttpServlet {
+@WebServlet("/SetIntoTheStore")
+public class SetIntoTheStore extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private TemplateEngine templateEngine;
 	@EJB
@@ -36,7 +36,7 @@ public class EditReservation extends HttpServlet {
      * Class constructor.
      * @see HttpServlet#HttpServlet()
      */
-    public EditReservation() {
+    public SetIntoTheStore() {
         super();
     }
 
@@ -53,7 +53,7 @@ public class EditReservation extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		response.getWriter().append("Served at: ").append(request.getContextPath());
+		doPost(request, response);
 	}
 
 	/**

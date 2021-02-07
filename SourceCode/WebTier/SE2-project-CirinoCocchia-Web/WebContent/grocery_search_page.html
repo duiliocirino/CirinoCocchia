@@ -57,7 +57,7 @@
 
             <li th:if="${session.user.role} != employee">
                 <a th:href="@{/GoToEmployeePage}">
-                    <i class="fa fa-address-card-o fa-lg" aria-hidden="true"></i>
+                    <i class="fa fa-address-card fa-lg"></i>
                     <span class="nav-text">Employees Page</span>
                 </a>
             </li>
@@ -82,7 +82,8 @@
             <span class="subtitles" th:text="${reservation.idreservation}">015651321</span><br>
             <span class="normal-text" th:text="${reservation.estimatedTime}">100</span><br>
             <span class="normal-text" th:text="${reservation.customer.iduser}">100</span><br>
-            <a class="link-style" th:href="@{/EditReservation(reservation=${reservation})}">Edit</a>
+            <a class="link-style" th:href="@{/SetIntoTheStore(reservationId=${reservationId}, groceryId=${groceryId})}">Set Into</a>
+            <a class="link-style" th:href="@{/SetOutTheStore(reservationId=${reservationId}, groceryId=${groceryId})}">Set Out</a>
             <a class="link-style" th:href="@{/DeleteReservation(reservationId=${reservation.idreservation}, groceryId=${groceryId})}">Remove</a>
         </div>
     </div>

@@ -58,6 +58,8 @@ public class GroceryHandlerModuleImplementation extends GroceryHandlerModule {
 		grocery.setMaxSpotsInside(maxSpotsInside);
 		grocery.setOwner(owner);
 		grocery.setQueue(queue);
+		grocery.setOpeningHour(openingHour);
+		grocery.setClosingHour(closingHour);
 		queue.setGrocery(grocery);
 		
 		grocTools.persistGrocery(grocery);
@@ -66,7 +68,7 @@ public class GroceryHandlerModuleImplementation extends GroceryHandlerModule {
 	}
 
 	@Override
-	public Grocery editGrocery(int idgrocery, String name, int maxSpotsInside) throws CLupException {
+	public Grocery editGrocery(int idgrocery, String name, int maxSpotsInside, int openingHour, int closingHour) throws CLupException {
 		Grocery grocery = grocTools.findGrocery(idgrocery);
 		
 		if(grocery == null) {
@@ -90,6 +92,17 @@ public class GroceryHandlerModuleImplementation extends GroceryHandlerModule {
 			grocery.setMaxSpotsInside(maxSpotsInside);
 		}
 		
+		if(openingHour < 0 || openingHour > 24 || closingHour < 0 || closingHour > 24) {
+			throw new CLupException("You did not insert valid hours");
+		}
+		
+		if(openingHour >= closingHour) {
+			throw new CLupException("Hours are not coherent");
+		}
+		
+		grocery.setClosingHour(closingHour);
+		grocery.setOpeningHour(openingHour);
+		
 		return grocery;
 	}
 
@@ -100,6 +113,10 @@ public class GroceryHandlerModuleImplementation extends GroceryHandlerModule {
 		if(grocery == null) {
 			throw new CLupException("Can't find the grocery to remove");
 		}
+		
+		User owner = grocery.getOwner();
+	    
+	    owner.removeOwnedGrocery(grocery);
 		
 		grocTools.removeGrocery(grocery);
 		

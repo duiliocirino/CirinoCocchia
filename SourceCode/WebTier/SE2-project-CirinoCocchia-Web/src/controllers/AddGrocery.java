@@ -1,7 +1,6 @@
 package controllers;
 
 import java.io.IOException;
-import java.util.ArrayList;
 
 import javax.ejb.EJB;
 import javax.servlet.ServletContext;
@@ -102,11 +101,7 @@ public class AddGrocery extends HttpServlet {
 		
 		try {
 			groModule.addGrocery(name, new Position(latitude, longitude), maxSpotsInside, openingHour, closingHour, user.getIduser());
-			if(user.getGroceries() == null) {
-				user.setGroceries(new ArrayList<>());
-			} 
-			user = loginModule.getUserById(user.getIduser());
-			session.setAttribute("user", user);
+			
 		} catch (Exception e) {
 			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
 			return;
