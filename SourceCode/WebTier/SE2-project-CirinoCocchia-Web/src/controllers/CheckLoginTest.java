@@ -145,9 +145,28 @@ public class CheckLoginTest {
 	}
 	
 	@Test
+	public void nullParameterVisitor () throws IOException, CLupException, ServletException {
+		
+		controllerServlet.doGet(req, res);
+		
+		verify(controllerServlet, times(1)).postTemplate(any(), any(), anyString());
+	}
+	
+	@Test
+	public void badParametersVisitor() throws IOException, CLupException, ServletException {
+		
+		when(req.getParameter("telephoneNumber")).thenReturn("234");
+				
+		controllerServlet.doGet(req, res);
+		
+		verify(controllerServlet, times(1)).postTemplate(any(), any(), anyString());
+	}
+	
+	@Test
 	public void visitorLogNegated () throws IOException, CLupException, ServletException {
 		
 		when(regModule.register(any(), anyString(), anyString(), any(), any())).thenThrow(new CLupException(""));
+		when(req.getParameter("telephoneNumber")).thenReturn("333333333333");
 		
 		controllerServlet.doGet(req, res);
 		
@@ -159,6 +178,7 @@ public class CheckLoginTest {
 		
 		when(regModule.register(any(), anyString(), anyString(), any(), any())).thenReturn(new User());
 		
+		when(req.getParameter("telephoneNumber")).thenReturn("333333333333");
 		controllerServlet.doGet(req, res);
 		
 		verify(res).sendRedirect(anyString());

@@ -11,7 +11,7 @@ body
 }
 
 .settings {
-    height:45px;
+    height:55px;
     float:left;
     background-color: lawngreen;
     width:250px;
@@ -66,7 +66,7 @@ body
 .fa {
     position: relative;
     display: table-cell;
-    width: 55px;
+    width: 57px;
     height: 36px;
     text-align: center;
     top:12px;
@@ -100,7 +100,6 @@ body
 
 .main-menu>ul {
     margin:7px 0;
-
 }
 
 .main-menu li {
@@ -176,7 +175,7 @@ nav ul,nav li {
 /* Top navigation */
 .topnav {
     background-color: #F7F7F7;
-    height: 45px;
+    height: 55px;
     float: top;
     overflow: hidden;
     text-align: right;
@@ -321,7 +320,7 @@ nav ul,nav li {
 
 *.border-container-map {
     border: 1px solid #cacaca;
-    height: 200px;
+    height: 400px;
     width: 50%;
     align-content: center;
     padding-left: 8px;
@@ -331,7 +330,7 @@ nav ul,nav li {
 }
 
 #mapid {
-    height: 192px;
+    height: 392px;
     width: 50%;
     margin-top: 8px;
 }

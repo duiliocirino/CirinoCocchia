@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.text.StringEscapeUtils;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.WebContext;
 import org.thymeleaf.templatemode.TemplateMode;
@@ -20,6 +21,7 @@ import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
 import src.main.java.model.Grocery;
 import src.main.java.model.User;
 import src.main.java.services.accountManagement.implementation.LoginModuleImplementation;
+import src.main.java.services.accountManagement.implementation.RegistrationModuleImplementation;
 import src.main.java.services.groceryManagement.implementation.GroceryHandlerModuleImplementation;
 import src.main.java.services.reservationManagement.implementation.QueueUpdateManagementImplementation;
 import src.main.java.services.reservationManagement.implementation.ReservationHandlerImplementation;
@@ -41,6 +43,8 @@ public class MakeReservation extends HttpServlet {
 	protected GroceryHandlerModuleImplementation groModule;
 	@EJB
 	protected LoginModuleImplementation loginModule;
+	@EJB
+	protected RegistrationModuleImplementation regModule;
 	
 	/**
      * Class constructor.
@@ -85,11 +89,17 @@ public class MakeReservation extends HttpServlet {
 		Integer groceryId= null;
 		Double latitude = null;
 		Double longitude = null;
+		String telephoneNum = null;
 		
 		try {
 			groceryId = Integer.parseInt(request.getParameter("groceryId"));
 			latitude = Double.parseDouble(request.getParameter("latitude"));
 			longitude = Double.parseDouble(request.getParameter("longitude"));
+			telephoneNum = StringEscapeUtils.escapeJava(request.getParameter("telephoneNumber"));
+			
+			if((user.getRole() == Roles.MANAGER || user.getRole() == Roles.EMPLOYEE)) {
+				if((telephoneNum == null || telephoneNum.isEmpty() || Double.parseDouble(telephoneNum) < 100000000)) throw new NumberFormatException();
+			}
 			
 			if(latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) {
 				throw new NumberFormatException();
@@ -125,8 +135,8 @@ public class MakeReservation extends HttpServlet {
 		// CREATE RESERVATION IN DB
 		
 		try {
-			queueModule.lineUp(user.getIduser(), groceryId, latitude, longitude);
-			
+			if(user.getRole() == Roles.EMPLOYEE || user.getRole() == Roles.MANAGER) queueModule.lineUp(regModule.register(Roles.VISITOR, telephoneNum, null, null, null).getIduser(), groceryId, latitude, longitude);
+			else queueModule.lineUp(user.getIduser(), groceryId, latitude, longitude);
 			user = loginModule.getUserById(user.getIduser());
 			session.setAttribute("user", user);
 		} catch (Exception e) {

@@ -17,6 +17,7 @@ import utils.GroceryAdapter;
 import src.main.java.model.*;
 import src.main.java.services.accountManagement.implementation.LoginModuleImplementation;
 import src.main.java.services.groceryManagement.implementation.GroceryHandlerModuleImplementation;
+import src.main.java.services.reservationManagement.implementation.TimeEstimationModuleImplementation;
 import src.main.java.services.searchManagement.implementation.SearchEngineModuleImplementation;
 
 import java.util.List;
@@ -41,6 +42,8 @@ public class GoToHomePage extends HttpServlet {
 	protected SearchEngineModuleImplementation searchModule;
 	@EJB
 	protected GroceryHandlerModuleImplementation groModule;
+	@EJB
+	protected TimeEstimationModuleImplementation timeModule;
 	
 	/**
 	 * This attribute is editable based on the number of groceries to display on the map when the page is accessed.
@@ -173,7 +176,10 @@ public class GoToHomePage extends HttpServlet {
 		
 		if(nearGroceries != null) ctx.setVariable("groceries", nearGroceries.stream().map(x -> new GroceryAdapter(x)).collect(Collectors.toList()));
 
-		if(grocery != null) ctx.setVariable("grocery", new GroceryAdapter(grocery));
+		if(grocery != null) {
+			ctx.setVariable("grocery", new GroceryAdapter(grocery));
+		}
+		
 		templateEngine.process(path, ctx, response.getWriter());
 	}
 	

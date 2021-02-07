@@ -53,8 +53,9 @@
     <label class="titles">Favourite Stores</label>
     <div class="generic-container" id="fav-stores">
         <div class="st-border-container" th:each="fav: ${favGroceries}">
-        	<form th:action="@{/GoToHomePage(grocery=${fav})}">
+        	<form th:action="@{/GoToHomePage(groceryId=${fav.idgrocery})}">
         		<label class="subtitles" th:text="${fav.name}">Name</label><br>
+        		<input type="text" name ="groceryId" th:value="${fav.idgrocery}" hidden>
         		<table style="margin-left: auto; margin-right: auto;">
         			<tr>
         				<td>
@@ -69,7 +70,7 @@
         					<span class="normal-text">yes</span>
         				</td>
         				<td>
-        					<span class="normal-text">08-20</span>
+        					<span class="normal-text" th:text="${near.openingHour} + ' - ' + ${near.closingHour}">08-20</span>
         				</td>
         				<td>
         					<button type="submit">Select</button>
@@ -100,7 +101,7 @@
         					<span class="normal-text">yes</span>
         				</td>
         				<td>
-        					<span class="normal-text">08-20</span>
+        					<span class="normal-text" th:text="${near.openingHour} + ' - ' + ${near.closingHour}">08-20</span>
         				</td>
         				<td>
         					<button type="submit">Select</button>

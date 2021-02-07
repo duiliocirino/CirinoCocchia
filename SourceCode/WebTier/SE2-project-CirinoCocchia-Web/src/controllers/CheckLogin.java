@@ -61,8 +61,19 @@ public class CheckLogin extends HttpServlet {
 		
 		User user = null;
 		
+		String telephoneNumber = null;
+		
 		try {
-			user = regModule.register(Roles.VISITOR, "0", "visitor", null, null);
+			telephoneNumber = StringEscapeUtils.escapeJava(request.getParameter("telephoneNumber"));
+			if(Double.parseDouble(telephoneNumber) < 100000000) throw new Exception("");
+		} catch(Exception e) {
+			String error = "Cannot access as a visitor at the moment";
+			postTemplate(request, response, error);
+			return;
+		}
+		
+		try {
+			user = regModule.register(Roles.VISITOR, telephoneNumber, "visitor", null, null);
 		} catch (CLupException e) {
 			String error = "Cannot access as a visitor at the moment";
 			postTemplate(request, response, error);

@@ -23,13 +23,24 @@ function initializeMap(){
     }).addTo(mymap);
 
     if(groceries != null){
-    	for(i = 0; i < groceries.length; i++){
-        	var marker = L.marker([groceries[i].latitude],[groceries[i].longitude]).addTo(mymap).bindPopup("<b>" + groceries[i].name + "</b><br />").openPopup();
+    	for(i = 0; i < groceries.length; i++){     
+     		var marker = L.marker([
+    			parseFloat([groceries[i].latitude]),
+    			parseFloat([groceries[i].longitude])
+    		])
+    		.addTo(mymap)
+    		.bindPopup("<b>" + groceries[i].name +"</b><br />")
+    		.openPopup();
     	}
     }
     
     if(grocery != null){
-    	var marker = L.marker([grocery.latitude],[grocery.longitude]).addTo(mymap).bindPopup("<b>" + grocery.name +"</b><br />").openPopup();
-        marker.bindPopup(grocery.name + "<br>");
+    	var marker = L.marker([
+    		parseFloat([grocery.latitude]),
+    		parseFloat([grocery.longitude])
+    	])
+    	.addTo(mymap)
+    	.bindPopup("<b>" + grocery.name +"</b><br />")
+    	.openPopup();
 	}
 }

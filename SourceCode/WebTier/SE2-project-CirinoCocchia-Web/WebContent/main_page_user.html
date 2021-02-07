@@ -22,10 +22,14 @@
 	<script defer>
 	var latIn = document.getElementById("lat");
 	var longIn = document.getElementById("lng");
+	var lat2In = document.getElementById("lat2");
+	var long2In = document.getElementById("lng2");
 	
 	function setPosition(position) {
 		latIn = document.getElementById("lat");
 		longIn = document.getElementById("lng");
+		lat2In = document.getElementById("lat2");
+		long2In = document.getElementById("lng2");
 		fillPosition(position)
 	}
 
@@ -34,9 +38,9 @@
 	function fillPosition(position) {
 	  latIn.value = position.coords.latitude;
 	  longIn.value = position.coords.longitude;
+	  lat2In.value = position.coords.latitude;
+	  long2In.value = position.coords.longitude;
 	}
-	
-	getLocation();
 	</script>
 </head>
 <body>
@@ -81,41 +85,41 @@
 
 <div class="center-container">
     <label class="titles">Search Store</label>
-    <div class="generic-container-c" style="height: 250px" id="search_section">
+    <div class="generic-container-c"id="search_section">
     
         <form th:action="@{/GoToSearchPage}" style="text-align: center">
             <button type="submit" class="search-button"><i class="fa fa-search" aria-hidden="true"></i></button>
-            <input type="search" class="searchbar" name="latitude" id="lat" style="width: 64px" placeholder="latitude eg:37">
-            <input type="search" class="searchbar" name="longitude" id="lng" style="width: 64px" placeholder="longitude eg:10">
-            <input type="search" class="searchbar" name="radius" style="width: 64px" placeholder="radius eg:1000" ><br>
+            <input type="search" class="searchbar" name="latitude" id="lat" placeholder="latitude eg:37">
+            <input type="search" class="searchbar" name="longitude" id="lng"  placeholder="longitude eg:10">
+            <input type="search" class="searchbar" name="radius" placeholder="radius eg:1000" ><br>
             <span th:text="${message}">Error</span>
         </form>
         
         <div class="border-container-map" id="mapcontainer">
             <div class="generic-container" id="mapinfo" style="float: left; margin: 0 auto">
 				<table style="margin-left: auto; margin-right: auto;">
-					<tr>
+					<tr th:if="${grocery} != null">
 						<td>
-							<span class="subtitles">Availability</span><br>
+							<span class="subtitles">Grocery Name</span><br>
 						</td>
 						<td>
-							<span class="normal-text">Yes</span>
+							<span class="normal-text" th:text="${grocery.name}">name</span>
 						</td>
 					</tr>
-					<tr>
+					<tr th:if="${estimatedTime} != null">
 						<td>
 							<span class="subtitles">Estimated Time</span><br>
 						</td>
 						<td>
-							<span class="normal-text">23</span>
+							<span class="normal-text" th:text="${estimatedTime}">date</span>
 						</td>
 					</tr>
-					<tr>
+					<tr th:if="${grocery} != null">
 						<td>
 							<span class="subtitles">Opening Hours</span><br>
 						</td>
 						<td>
-							<span class="normal-text">08 - 20</span>
+							<span class="normal-text" th:text="${grocery.openingHour} + ' - ' + ${grocery.closingHour}">08 - 20</span>
 						</td>
 					</tr>
 				</table>
@@ -128,8 +132,8 @@
 		<label class="titles">Line-Up</label>
         <form th:action="@{/MakeReservation}">
         	<label class="subtitles">Your Position: </label>
-        	<input type="text" name="latitude" id="lng" placeholder="latitude">
-        	<input type="text" name="longitude" id="lat" placeholder="longitude">
+        	<input type="text" name="latitude" id="lat2" placeholder="latitude">
+        	<input type="text" name="longitude" id="lng2" placeholder="longitude">
         	<input type="text" name="groceryId" th:value="${grocery.idgrocery}" hidden>
         	<select>
         		<option value="0">MEDIUM</option>
@@ -138,8 +142,8 @@
         </form>
     </div>
 
-    <label class="titles">Active Reservations</label>
     <div class="generic-container">
+    <label class="titles">Active Reservations</label>
         <div class="border-container" th:each="reservation: ${activeReservations}">
 			<span class="subtitles" th:text="${reservation.queue.grocery.name}">Grocery name</span><br>
 			<span class="normal-text" th:text="${reservation.customer.telephoneNumber}">3213213213</span><br>

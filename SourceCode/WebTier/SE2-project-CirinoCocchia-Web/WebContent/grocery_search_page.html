@@ -22,8 +22,6 @@
 	  latIn.value = position.coords.latitude;
 	  longIn.value = position.coords.longitude;
 	}
-	
-	getLocation();
 	</script>
 </head>
 <body>
@@ -81,16 +79,18 @@
         <div class="border-container" th:each="reservation: ${reservations}">
             <span class="subtitles" th:text="${reservation.idreservation}">015651321</span><br>
             <span class="normal-text" th:text="${reservation.estimatedTime}">100</span><br>
-            <span class="normal-text" th:text="${reservation.customer.iduser}">100</span><br>
-            <a class="link-style" th:href="@{/SetIntoTheStore(reservationId=${reservationId}, groceryId=${groceryId})}">Set Into</a>
-            <a class="link-style" th:href="@{/SetOutTheStore(reservationId=${reservationId}, groceryId=${groceryId})}">Set Out</a>
+            <span class="normal-text" th:text="'User ID: ' + ${reservation.customer.iduser}">100</span><br>
+            <span class="normal-text" th:text="${reservation.status}">100</span><br>
+            <a class="link-style" th:href="@{/SetIntoTheStore(reservationId=${idreservation}, groceryId=${groceryId})}">Set Into</a>
+            <a class="link-style" th:href="@{/SetOutTheStore(reservationId=${idreservation}, groceryId=${groceryId})}">Set Out</a>
             <a class="link-style" th:href="@{/DeleteReservation(reservationId=${reservation.idreservation}, groceryId=${groceryId})}">Remove</a>
         </div>
     </div>
 
     <form th:action="@{/MakeReservation(groceryId=${groceryId})}" method="post">
-    	<input type="text" name="latitude" id="lat">
-    	<input type="text" name="longitude" id="lng">
+    	<input type="text" name="latitude" id="lat" required>
+    	<input type="text" name="longitude" id="lng" required>
+    	<input type="text" name="telephoneNumber" required> 
         <input class="subtitles" type="submit" value="Create Reservation"/>
     </form>
 </div>
