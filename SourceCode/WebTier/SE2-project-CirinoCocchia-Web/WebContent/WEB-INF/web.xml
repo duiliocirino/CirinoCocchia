@@ -49,5 +49,7 @@
     	<url-pattern>/DeleteReservation</url-pattern>
     	<url-pattern>/EditReservation</url-pattern>
     	<url-pattern>/GetReservationPage</url-pattern>
+		<url-pattern>/SetIntoTheStore</url-pattern>
+		<url-pattern>/SetOutTheStore</url-pattern>
   	</filter-mapping>
 </web-app>

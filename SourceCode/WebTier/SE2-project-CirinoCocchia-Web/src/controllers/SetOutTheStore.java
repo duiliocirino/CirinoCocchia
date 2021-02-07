@@ -27,9 +27,9 @@ public class SetOutTheStore extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private TemplateEngine templateEngine;
 	@EJB
-	private QueueUpdateManagementImplementation queueModule;
+	protected QueueUpdateManagementImplementation queueModule;
     @EJB
-    private ReservationHandlerImplementation resModule;
+	protected ReservationHandlerImplementation resModule;
 	
     /**
      * Class constructor.
@@ -93,7 +93,7 @@ public class SetOutTheStore extends HttpServlet {
 	 * @param response
 	 * @throws IOException
 	 */
-	private void postTemplate(HttpServletRequest request, HttpServletResponse response, int groceryId) throws IOException {
+	protected void postTemplate(HttpServletRequest request, HttpServletResponse response, int groceryId) throws IOException {
 		final WebContext ctx = new WebContext(request, response, getServletContext(), request.getLocale());
 		ctx.setVariable("groceryId", groceryId);
 		String ctxpath = getServletContext().getContextPath();
