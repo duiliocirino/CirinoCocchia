@@ -78,7 +78,9 @@ public class SetIntoTheStore extends HttpServlet {
 				response.sendError(HttpServletResponse.SC_PRECONDITION_FAILED, "Reservation not found");
 				return;
 			}
-			queueModule.setIntoTheStore(idreservation);
+			if(!queueModule.setIntoTheStore(idreservation)) {
+				throw new Exception("The store is full");
+			}
 		} catch (Exception e) {
 			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
 			return;

@@ -111,6 +111,7 @@ public class GetReservationPage extends HttpServlet {
 	protected void getTemplate(HttpServletRequest request, HttpServletResponse response, List<Reservation> reservations, Integer groceryId) throws IOException {
 		final WebContext ctx = new WebContext(request, response, request.getServletContext(), request.getLocale());
 		ctx.setVariable("reservations", reservations.stream().filter(x -> (x.getStatus() == ReservationStatus.ALLOWED || x.getStatus() == ReservationStatus.ENTERED)).collect(Collectors.toList()));
+		ctx.setVariable("openReservations", reservations.stream().filter(x -> (x.getStatus() == ReservationStatus.OPEN)).collect(Collectors.toList()));
 		ctx.setVariable("groceryId", groceryId);
 		String path = "grocery_search_page.html";
 		templateEngine.process(path, ctx, response.getWriter());

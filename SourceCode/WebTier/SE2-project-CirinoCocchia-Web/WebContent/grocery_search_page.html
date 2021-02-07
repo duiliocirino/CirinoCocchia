@@ -86,6 +86,17 @@
             <a class="link-style" th:href="@{/DeleteReservation(reservationId=${reservation.idreservation}, groceryId=${groceryId})}">Remove</a>
         </div>
     </div>
+    
+    <div class="generic-container-c">
+    	<label class="titles">Open Reservations</label>
+        <div class="border-container" th:each="reservation: ${openReservations}">
+            <span class="subtitles" th:text="${reservation.idreservation}">015651321</span><br>
+            <span class="normal-text" th:text="${reservation.estimatedTime}">100</span><br>
+            <span class="normal-text" th:text="'User ID: ' + ${reservation.customer.iduser}">100</span><br>
+            <span class="normal-text" th:text="${reservation.status}">100</span><br>
+            <a class="link-style" th:href="@{/DeleteReservation(reservationId=${reservation.idreservation}, groceryId=${groceryId})}">Remove</a>
+        </div>
+    </div>
 
     <form th:action="@{/MakeReservation(groceryId=${groceryId})}" method="post">
     	<input type="text" name="latitude" id="lat" required>
