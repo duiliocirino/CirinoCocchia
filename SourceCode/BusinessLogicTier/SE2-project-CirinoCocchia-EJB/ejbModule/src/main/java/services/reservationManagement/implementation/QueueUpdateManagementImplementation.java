@@ -64,6 +64,7 @@ public class QueueUpdateManagementImplementation extends QueueUpdateManagement{
 		}
 		
 		reservation.setStatus(ReservationStatus.ENTERED);
+		System.out.println("reservation " + reservation.getIdreservation() + " is now entered");
 		return true;
 		
 	}
@@ -76,12 +77,8 @@ public class QueueUpdateManagementImplementation extends QueueUpdateManagement{
 			throw new CLupException("id of the reservation passed not existent on the DB");
 		}
 		
-		invokeCloseReservation(idreservation);		
-	}
-
-	protected void invokeCloseReservation(int idreservation) throws CLupException {
-		reservationHandler.closeReservation(idreservation);
-		
+		invokeCloseReservation(idreservation);
+		System.out.println("reservation " + reservation.getIdreservation() + " is now outside the store");
 	}
 
 	@Override
@@ -99,20 +96,17 @@ public class QueueUpdateManagementImplementation extends QueueUpdateManagement{
 	@Override
 	public Reservation setReservationTimer(Reservation reservation) {
 		Timer timer = new Timer();
-		Queue queue = reservation.getQueue();
 		TimerTask task = new TimerTask() {
 			public void run() {
 				// align the reservation with the one on the DB
 				Reservation reservationGet = resTools.findReservation(reservation.getIdreservation());
 				if(reservationGet != null) {
-					System.out.println("resrvation not null");
-					//resTools.refreshReservation(reservationGet);
-					System.out.println("refreshed reservation");
+					Queue queueGet = reservationGet.getQueue();
 					if(reservationGet.getStatus() == ReservationStatus.OPEN) {
-						System.out.println("resrvation OPEN");
-						//reservationGet.setStatus(ReservationStatus.ALLOWED);
-						queue.addReservation(reservationGet);
-						System.out.println("resrvation added to queue");
+						resTools.setAllowedState(reservationGet);
+						invokeAddReservationOnQueue(queueGet, reservationGet);
+						System.out.println("reservation " + reservationGet.getIdreservation() + 
+								" is now allowed");
 					}
 				}
 			}
@@ -128,7 +122,17 @@ public class QueueUpdateManagementImplementation extends QueueUpdateManagement{
 		// TODO: delete, out of focus with the scope
 		return 0;
 	}
-
+	
+	protected void invokeCloseReservation(int idreservation) throws CLupException {
+		reservationHandler.closeReservation(idreservation);
+		
+	}
+	
+	private void invokeAddReservationOnQueue(Queue queue, Reservation reservation) {
+		System.out.println(reservation.getStatus());
+		queue.addReservation(reservation);
+		System.out.println(reservation.getStatus());
+	}
 	
 	protected Reservation invokeAddReservation(int iduser, int idgrocery, ReservationType type, Date date, Position position) throws CLupException {
 		return reservationHandler

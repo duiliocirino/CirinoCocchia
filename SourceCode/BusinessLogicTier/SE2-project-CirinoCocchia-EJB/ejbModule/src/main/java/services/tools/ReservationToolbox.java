@@ -10,6 +10,7 @@ import javax.persistence.PersistenceContext;
 import src.main.java.model.Grocery;
 import src.main.java.model.Queue;
 import src.main.java.model.Reservation;
+import src.main.java.utils.ReservationStatus;
 
 /**
  * Utility class that serves as an interface with the 
@@ -57,6 +58,7 @@ public class ReservationToolbox {
 	 * @param reservation reservation to be removed
 	 */
 	public void removeReservation(Reservation reservation) {
+		em.merge(reservation);
 		em.remove(reservation);
 	}
 	/**
@@ -133,5 +135,10 @@ public class ReservationToolbox {
 				.setParameter("start", start)
 				.setParameter("end", end)
 				.getResultList();
+	}
+	
+	public void setAllowedState(Reservation res) {
+		Reservation reservation = em.find(Reservation.class, res.getIdreservation());
+		reservation.setStatus(ReservationStatus.ALLOWED);
 	}
 }
